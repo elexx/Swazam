@@ -53,6 +53,11 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+          	<groupId>org.eclipse.jetty</groupId>
+    	<artifactId>jetty-maven-plugin</artifactId>
+    	<version>9.0.0.M3</version>
+      </plugin>
     </plugins>
   </build>
 
@@ -63,6 +68,28 @@
       <artifactId>util</artifactId>
       <version>0.0.1</version>
     </dependency>
+	<dependency>
+ 		<groupId>org.eclipse.jetty</groupId>
+ 		<artifactId>jetty-server</artifactId>
+ 		<version>9.0.0.M3</version>
+	</dependency>
+    <dependency>
+      <groupId>com.sun.faces</groupId>
+      <artifactId>jsf-api</artifactId>
+      <version>2.1.7</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.faces</groupId>
+      <artifactId>jsf-impl</artifactId>
+      <version>2.1.7</version>
+    </dependency>
+    <dependency>
+ 		<groupId>org.eclipse.jetty</groupId>
+ 		<artifactId>jetty-webapp</artifactId>
+	 	<version>9.0.0.M3</version>
+	</dependency>
+    
 
     <!-- DEPENDENCIES FOR TESTING-->
     <dependency>
