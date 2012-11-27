@@ -3,6 +3,8 @@ package swa.swazam.util.dto;
 import java.net.InetSocketAddress;
 import java.util.UUID;
 
+import ac.at.tuwien.infosys.swa.audio.Fingerprint;
+
 /**
  * This class is used to send a request from the client to the peers
  */
@@ -10,7 +12,7 @@ public class RequestDTO {
 
 	private UUID uuid;
 	private InetSocketAddress client;
-	private String fingerprint; //TODO
+	private Fingerprint fingerprint; 
 	/**
 	 * Has to be decreased by one before! the request is forwarded
 	 */
@@ -21,7 +23,7 @@ public class RequestDTO {
 	 */
 	private long timer;
 	
-	public RequestDTO(UUID uuid, InetSocketAddress client, String fingerprint) {
+	public RequestDTO(UUID uuid, InetSocketAddress client, Fingerprint fingerprint) {
 		super();
 		this.uuid = uuid;
 		this.client = client;
@@ -46,11 +48,11 @@ public class RequestDTO {
 		this.client = client;
 	}
 
-	public String getFingerprint() {
+	public Fingerprint getFingerprint() {
 		return fingerprint;
 	}
 
-	public void setFingerprint(String fingerprint) {
+	public void setFingerprint(Fingerprint fingerprint) {
 		this.fingerprint = fingerprint;
 	}
 
@@ -73,7 +75,7 @@ public class RequestDTO {
 	@Override
 	public String toString() {
 		return "RequestDTO [uuid=" + uuid + ", client=" + client
-				+ ", fingerprint=" + fingerprint + ", ttl=" + ttl + ", timer="
+				+ ", fingerprint=" + fingerprint.toString() + ", ttl=" + ttl + ", timer="
 				+ timer + "]";
 	}
 }

@@ -18,6 +18,15 @@
 
 
   <dependencies>
+  
+  	<dependency>
+		<groupId>fingerprint</groupId>
+		<artifactId>fingerprint.jar</artifactId>
+		<version>LATEST</version>
+		<scope>system</scope>
+		<systemPath>${project.basedir}/lib/fingerprint.jar</systemPath>
+	</dependency>
+	
     <!-- DEPENDENCIES FOR TESTING-->
     <dependency>
       <groupId>junit</groupId>
