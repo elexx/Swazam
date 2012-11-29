@@ -14,23 +14,25 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jettyVersion>9.0.0.M3</jettyVersion>
+    <jsfVersion>2.1.13</jsfVersion>
   </properties>
 
 
   <build>
     <plugins>
       <plugin>
-         <artifactId>maven-jar-plugin</artifactId>
-         <version>2.4</version>
-         <configuration>
-           <archive>
-             <manifest>
-               <addClasspath>true</addClasspath>
-               <classpathPrefix>lib/</classpathPrefix>
-               <mainClass>${project.groupId}.${project.artifactId}.App</mainClass>
-             </manifest>
-           </archive>
-         </configuration>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>${project.groupId}.${project.artifactId}.App</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -53,11 +55,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-          	<groupId>org.eclipse.jetty</groupId>
-    	<artifactId>jetty-maven-plugin</artifactId>
-    	<version>9.0.0.M3</version>
-      </plugin>
     </plugins>
   </build>
 
@@ -68,30 +65,39 @@
       <artifactId>util</artifactId>
       <version>0.0.1</version>
     </dependency>
-	<dependency>
- 		<groupId>org.eclipse.jetty</groupId>
- 		<artifactId>jetty-server</artifactId>
- 		<version>9.0.0.M3</version>
-	</dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>${jettyVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+      <version>${jettyVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>${jettyVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-jsp</artifactId>
+      <version>${jettyVersion}</version>
+    </dependency>
     <dependency>
       <groupId>com.sun.faces</groupId>
       <artifactId>jsf-api</artifactId>
-      <version>2.1.7</version>
-      <scope>compile</scope>
+      <version>${jsfVersion}</version>
     </dependency>
     <dependency>
       <groupId>com.sun.faces</groupId>
       <artifactId>jsf-impl</artifactId>
-      <version>2.1.7</version>
+      <version>${jsfVersion}</version>
     </dependency>
-    <dependency>
- 		<groupId>org.eclipse.jetty</groupId>
- 		<artifactId>jetty-webapp</artifactId>
-	 	<version>9.0.0.M3</version>
-	</dependency>
-    
 
-    <!-- DEPENDENCIES FOR TESTING-->
+
+    <!-- DEPENDENCIES FOR TESTING -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
