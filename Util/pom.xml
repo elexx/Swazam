@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>swa.swazam</groupId>
-    <artifactId>swazam</artifactId>
-    <version>0.0.1</version>
-  </parent>
+	<parent>
+		<groupId>swa.swazam</groupId>
+		<artifactId>swazam</artifactId>
+		<version>0.0.1</version>
+	</parent>
 
-  <artifactId>util</artifactId>
-  <packaging>jar</packaging>
-  <name>Util</name>
+	<artifactId>util</artifactId>
+	<packaging>jar</packaging>
+	<name>Util</name>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
 
-  <dependencies>
-  
-  	<dependency>
-		<groupId>fingerprint</groupId>
-		<artifactId>fingerprint.jar</artifactId>
-		<version>LATEST</version>
-		<scope>system</scope>
-		<systemPath>${project.basedir}/lib/fingerprint.jar</systemPath>
-	</dependency>
-	
-    <!-- DEPENDENCIES FOR TESTING-->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+	<dependencies>
+
+		<dependency>
+			<groupId>fingerprint</groupId>
+			<artifactId>fingerprint.jar</artifactId>
+			<version>LATEST</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/fingerprint.jar</systemPath>
+		</dependency>
+
+		<!-- DEPENDENCIES FOR TESTING -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>
