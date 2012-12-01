@@ -12,17 +12,16 @@ public class RequestDTO {
 
 	private UUID uuid;
 	private InetSocketAddress client;
-	private Fingerprint fingerprint; 
+	private Fingerprint fingerprint;
 	/**
 	 * Has to be decreased by one before! the request is forwarded
 	 */
-	private short ttl; 
+	private short ttl;
 	/**
-	 * Has to be decreased by the time consumed during operation before! the request is forwarded
-	 * Time is defined in milli seconds.
+	 * Has to be decreased by the time consumed during operation before! the request is forwarded Time is defined in milli seconds.
 	 */
 	private long timer;
-	
+
 	public RequestDTO(UUID uuid, InetSocketAddress client, Fingerprint fingerprint) {
 		super();
 		this.uuid = uuid;
@@ -74,8 +73,49 @@ public class RequestDTO {
 
 	@Override
 	public String toString() {
-		return "RequestDTO [uuid=" + uuid + ", client=" + client
-				+ ", fingerprint=" + fingerprint.toString() + ", ttl=" + ttl + ", timer="
-				+ timer + "]";
+		return "RequestDTO [uuid=" + uuid + ", client=" + client + ", fingerprint=" + fingerprint.toString() + ", ttl=" + ttl + ", timer=" + timer + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((client == null) ? 0 : client.hashCode());
+		result = prime * result + ((fingerprint == null) ? 0 : fingerprint.hashCode());
+		result = prime * result + (int) (timer ^ (timer >>> 32));
+		result = prime * result + ttl;
+		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RequestDTO other = (RequestDTO) obj;
+		if (client == null) {
+			if (other.client != null)
+				return false;
+		} else if (!client.equals(other.client))
+			return false;
+		if (fingerprint == null) {
+			if (other.fingerprint != null)
+				return false;
+		} else if (!fingerprint.equals(other.fingerprint))
+			return false;
+		if (timer != other.timer)
+			return false;
+		if (ttl != other.ttl)
+			return false;
+		if (uuid == null) {
+			if (other.uuid != null)
+				return false;
+		} else if (!uuid.equals(other.uuid))
+			return false;
+		return true;
 	}
 }
