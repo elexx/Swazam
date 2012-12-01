@@ -1,5 +1,7 @@
 package swa.swazam.util.communication.api;
 
+import swa.swazam.util.communication.General2Server;
+import swa.swazam.util.communication.Peer2Client;
 import swa.swazam.util.communication.PeerCallback;
 
 public interface PeerCommunicationUtil extends Startable {
@@ -10,5 +12,19 @@ public interface PeerCommunicationUtil extends Startable {
 	 * @param callback
 	 */
 	public void setCallback(PeerCallback callback);
+
+	/**
+	 * returns an RMI-like server stub object
+	 * 
+	 * @return
+	 */
+	public General2Server getServerStub();
+
+	/**
+	 * returns an RMI-like client stub object
+	 * 
+	 * @return
+	 */
+	public Peer2Client getClientStub();
 
 }
