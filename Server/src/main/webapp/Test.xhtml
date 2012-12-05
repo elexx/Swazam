@@ -8,8 +8,11 @@
     	<title>JSF 2.0 Hello World</title>
     </h:head>
     <h:body bgcolor="white">
+    <h:form>
     	Output direkt in HTML! <br/>
     	Output von Bean: <br/>
     	<h:outputText value="#{TestBean.test}"/>
+    	<h:commandButton value="submit" type="submit" action="#{TestBean.click}" />
+    	</h:form>
     </h:body>
 </html>
