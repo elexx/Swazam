@@ -1,5 +1,6 @@
 package swa.swazam.util.communication.api;
 
+import swa.swazam.util.communication.Client2Server;
 import swa.swazam.util.communication.ClientCallback;
 
 class ClientCommunicationUtilImpl implements ClientCommunicationUtil {
@@ -20,6 +21,12 @@ class ClientCommunicationUtilImpl implements ClientCommunicationUtil {
 	public void setCallback(ClientCallback callback) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public Client2Server getServerStub() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
