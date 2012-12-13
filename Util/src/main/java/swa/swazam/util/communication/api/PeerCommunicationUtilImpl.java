@@ -3,11 +3,12 @@ package swa.swazam.util.communication.api;
 import swa.swazam.util.communication.General2Server;
 import swa.swazam.util.communication.Peer2Client;
 import swa.swazam.util.communication.PeerCallback;
+import swa.swazam.util.exceptions.SwazamException;
 
 class PeerCommunicationUtilImpl implements PeerCommunicationUtil {
 
 	@Override
-	public void startup() {
+	public void startup() throws SwazamException {
 		// TODO Auto-generated method stub
 
 	}

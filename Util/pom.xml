@@ -18,7 +18,6 @@
 
 
 	<dependencies>
-
 		<dependency>
 			<groupId>fingerprint</groupId>
 			<artifactId>fingerprint.jar</artifactId>
@@ -26,12 +25,29 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/fingerprint.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty</artifactId>
+			<version>3.5.11.Final</version>
+		</dependency>
 
 		<!-- DEPENDENCIES FOR TESTING -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.5</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<version>1.3</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
