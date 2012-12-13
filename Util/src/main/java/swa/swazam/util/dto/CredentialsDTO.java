@@ -2,6 +2,9 @@ package swa.swazam.util.dto;
 
 import java.io.Serializable;
 
+/**
+ * A container for username and password
+ */
 public class CredentialsDTO implements Serializable {
 	private static final long serialVersionUID = -5353541890287433466L;
 

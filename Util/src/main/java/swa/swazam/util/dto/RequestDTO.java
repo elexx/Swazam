@@ -1,5 +1,6 @@
 package swa.swazam.util.dto;
 
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.UUID;
 
@@ -8,22 +9,24 @@ import ac.at.tuwien.infosys.swa.audio.Fingerprint;
 /**
  * This class is used to send a request from the client to the peers
  */
-public class RequestDTO {
+public class RequestDTO implements Serializable {
+	private static final long serialVersionUID = -4128277394441822513L;
 
 	private UUID uuid;
 	private InetSocketAddress client;
 	private Fingerprint fingerprint;
+
 	/**
 	 * Has to be decreased by one before! the request is forwarded
 	 */
 	private short ttl;
+
 	/**
-	 * Has to be decreased by the time consumed during operation before! the request is forwarded Time is defined in milli seconds.
+	 * Has to be decreased by the time consumed during operation before! the request is forwarded Time is defined in milliseconds.
 	 */
 	private long timer;
 
 	public RequestDTO(UUID uuid, InetSocketAddress client, Fingerprint fingerprint) {
-		super();
 		this.uuid = uuid;
 		this.client = client;
 		this.fingerprint = fingerprint;
