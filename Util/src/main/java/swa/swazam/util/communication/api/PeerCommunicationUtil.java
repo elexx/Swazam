@@ -8,8 +8,7 @@ import swa.swazam.util.communication.PeerCallback;
 public interface PeerCommunicationUtil extends Startable {
 
 	/**
-	 * Methods of callback will be called in case they are called on the
-	 * opposite side of the network connection
+	 * Methods of callback will be called in case they are called on the opposite side of the network connection
 	 * 
 	 * @param callback
 	 */

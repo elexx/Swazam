@@ -1,4 +1,4 @@
-package swa.swazam.util.communication.api;
+package swa.swazam.util.communication.api.intern.dto;
 
 import java.io.Serializable;
 

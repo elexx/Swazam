@@ -12,6 +12,7 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
 import swa.swazam.util.communication.Client2Server;
 import swa.swazam.util.communication.ClientCallback;
+import swa.swazam.util.communication.api.intern.net.PipelineFactoryFactory;
 import swa.swazam.util.exceptions.CommunicationException;
 import swa.swazam.util.exceptions.SwazamException;
 

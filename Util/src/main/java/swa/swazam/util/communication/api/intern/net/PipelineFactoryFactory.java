@@ -1,4 +1,4 @@
-package swa.swazam.util.communication.api;
+package swa.swazam.util.communication.api.intern.net;
 
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -6,7 +6,7 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.Channels;
 
-class PipelineFactoryFactory {
+public class PipelineFactoryFactory {
 	public static ChannelPipelineFactory createFactoryWithHandler(final ChannelUpstreamHandler handler) {
 		return new ChannelPipelineFactory() {
 			private final ChannelHandler encoder = DataEncodingFactory.createEncoder();

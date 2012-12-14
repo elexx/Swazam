@@ -4,6 +4,8 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
+import swa.swazam.util.communication.api.intern.dto.ResponseWirePacket;
+
 class ResponseNotifyHandler extends SimpleChannelUpstreamHandler {
 	private final Notifiable notifiable;
 

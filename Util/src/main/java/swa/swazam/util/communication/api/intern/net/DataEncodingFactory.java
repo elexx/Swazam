@@ -1,4 +1,4 @@
-package swa.swazam.util.communication.api;
+package swa.swazam.util.communication.api.intern.net;
 
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.serialization.ClassResolvers;

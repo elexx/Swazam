@@ -1,5 +1,7 @@
 package swa.swazam.util.communication.api;
 
+import swa.swazam.util.communication.api.intern.dto.ResponseWirePacket;
+
 interface Notifiable {
 
 	/**
@@ -8,6 +10,6 @@ interface Notifiable {
 	 * @param id
 	 * @param packet
 	 */
-	void notifyId(int id, ResponseWirePacket packet);
+	public void notifyId(int id, ResponseWirePacket packet);
 
 }

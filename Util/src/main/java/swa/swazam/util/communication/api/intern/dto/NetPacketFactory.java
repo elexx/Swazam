@@ -1,8 +1,8 @@
-package swa.swazam.util.communication.api;
+package swa.swazam.util.communication.api.intern.dto;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-class NetPacketFactory {
+public class NetPacketFactory {
 
 	private static final AtomicInteger currentId = new AtomicInteger();
 

@@ -10,6 +10,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import swa.swazam.util.communication.Client2Server;
+import swa.swazam.util.communication.api.intern.dto.NetPacketFactory;
+import swa.swazam.util.communication.api.intern.dto.RequestWirePacket;
+import swa.swazam.util.communication.api.intern.dto.ResponseWirePacket;
 import swa.swazam.util.dto.CredentialsDTO;
 import swa.swazam.util.dto.MessageDTO;
 import swa.swazam.util.exceptions.SwazamException;

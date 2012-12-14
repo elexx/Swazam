@@ -4,8 +4,7 @@ public class CommunicationException extends SwazamException {
 
 	private static final long serialVersionUID = -8816384199804168137L;
 
-	public CommunicationException() {
-	}
+	public CommunicationException() {}
 
 	public CommunicationException(String message) {
 		super(message);
@@ -19,8 +18,7 @@ public class CommunicationException extends SwazamException {
 		super(message, cause);
 	}
 
-	public CommunicationException(String message, Throwable cause,
-			boolean enableSuppression, boolean writableStackTrace) {
+	public CommunicationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 

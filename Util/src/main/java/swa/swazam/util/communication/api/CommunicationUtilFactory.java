@@ -1,6 +1,5 @@
 package swa.swazam.util.communication.api;
 
-
 public class CommunicationUtilFactory {
 
 	/**

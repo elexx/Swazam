@@ -1,11 +1,11 @@
-package swa.swazam.util.communication.api;
+package swa.swazam.util.communication.api.intern.dto;
 
-class ResponseWirePacket extends WirePacket {
+public class ResponseWirePacket extends WirePacket {
 	private static final long serialVersionUID = -2843909496046085262L;
 
 	private final Object returnValue;
 
-	public ResponseWirePacket(Integer id, Object returnValue) {
+	ResponseWirePacket(Integer id, Object returnValue) {
 		super(id);
 		this.returnValue = returnValue;
 	}
