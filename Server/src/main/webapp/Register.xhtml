@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"    
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"  >
+
+    <h:head>
+        <title>Register</title>
+        <style type="text/css">
+
+        </style>
+        <link type="text/css" href="PrimeFacesTheme/css/custom-theme_blue/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+        <link type="text/css" href="style.css" rel="stylesheet" />
+    </h:head>
+    <h:body style="background-color: #ddd;">
+        <img src="Header.png" />
+        <div id="content">
+            <p:panel>
+                <p:tabMenu activeIndex="1">  
+                    <p:menuitem value="Login" url="Login.xhtml"/>  
+                    <p:menuitem value="Register" url="Register.xhtml"/>   
+                </p:tabMenu>  
+
+                <h:form id="form">
+                    <p:messages id="messages" showDetail="false" autoUpdate="true" />
+                    <p:panelGrid columns="2" rendered="#{userManagementBean.success}">  
+                        <h:outputLabel for="username_reg" value="#{i18n.username}:" />  
+                        <p:inputText id="username_reg" value="#{userManagementBean.username}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/>
+                        <h:outputLabel for="password_reg" value="#{i18n.password}:" />  
+                        <p:password id="password_reg" value="#{userManagementBean.password}" match="password_repeated_reg" validatorMessage="#{i18n.passwordNotMatch}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
+                        <h:outputLabel for="password_repeated_reg" value="#{i18n.passwordRep}:" />  
+                        <p:password id="password_repeated_reg" value="#{userManagementBean.password}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/>     		
+                        <h:outputLabel for="firstname_reg" value="#{i18n.firstname}:" />  
+                        <p:inputText id="firstname_reg" value="#{userManagementBean.firstname}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
+                        <h:outputLabel for="lastname_reg" value="#{i18n.lastname}:" />  
+                        <p:inputText id="lastname_reg" value="#{userManagementBean.lastname}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/>    
+                        <h:outputLabel for="email_reg" value="#{i18n.email}:" />  
+                        <p:inputText id="email_reg" value="#{userManagementBean.email}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
+                        <p:commandButton value="#{i18n.submitRegistration}" action="#{userManagementBean.register()}" update="@form"/> 
+                    </p:panelGrid> 
+                </h:form>
+            </p:panel>
+        </div>
+    </h:body>
+</html>

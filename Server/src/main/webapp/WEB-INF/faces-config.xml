@@ -8,6 +8,20 @@
 
     <application>
         <el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
-    </application>  
+    </application> 
+    <application>
+	    <locale-config>
+	    	<default-locale>en</default-locale>
+		</locale-config>
+	    <message-bundle>
+	    	i18n.language
+	    </message-bundle>
+	    <resource-bundle>
+	    	<base-name>
+	    		i18n.language
+	      	</base-name>
+	        <var>i18n</var>
+		</resource-bundle>
+ 	</application> 
 
 </faces-config>

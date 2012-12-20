@@ -4,7 +4,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import swa.swazam.server.entity.User;
-import swa.swazam.server.service.UserService;
+import swa.swazam.server.service.impl.UserServiceImpl;
 
 public class JPATester {
 	public static void main(String[] args){
@@ -24,9 +24,10 @@ public class JPATester {
 		 ApplicationContext context = 
                  new ClassPathXmlApplicationContext("applicationContext.xml");
 		 
-		 UserService us = (UserService) context.getBean("userService");
-		 User user = new User("test", "12345", "Christina", "Zrelski", "christina.zrelski@gmail.com", 100);
+		 UserServiceImpl us = (UserServiceImpl) context.getBean("userServiceImpl");
+		 User user = new User("christina", "12345", "Christina", "Zrelski", "christina.zrelski@gmail.com", 100);
 		 us.save(user);
+
 	}
 
 }

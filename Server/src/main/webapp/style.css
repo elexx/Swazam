@@ -1,0 +1,31 @@
+.ui-panelgrid tr, .ui-panelgrid td {
+    border:0 !important;
+}
+
+.ui-widget-header {
+    border:0 !important;
+}
+
+.ui-panel .ui-panel-content {
+    background: none repeat scroll 0 0 transparent;
+    border: 0 none;
+    padding: 5px;
+}
+
+.ui-widget {
+    font-size: 14px !important
+}
+
+#content {
+    clear: left;
+    position: relative;
+    margin: 0 auto;
+    width: 70%;
+}
+
+#form {
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+

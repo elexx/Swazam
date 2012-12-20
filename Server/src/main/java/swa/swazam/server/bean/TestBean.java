@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import swa.swazam.server.entity.User;
-import swa.swazam.server.service.UserService;
+import swa.swazam.server.service.impl.UserServiceImpl;
 
 @Component("TestBean")
 @Scope(value="session")
@@ -17,7 +17,7 @@ public class TestBean implements Serializable {
 	private static final long serialVersionUID = 7210211154402593080L;
 	
 	@Autowired
-	private UserService userService;
+	private UserServiceImpl userService;
 
 	private String test = "Hello World";
 
