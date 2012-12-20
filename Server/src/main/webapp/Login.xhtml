@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"    
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"  >
+
+    <h:head>
+        <title>Login</title>
+        <link type="text/css" href="PrimeFacesTheme/css/custom-theme_blue/jquery-ui-1.9.2.custom.css" rel="stylesheet" /> 
+        <link type="text/css" href="style.css" rel="stylesheet" />
+    </h:head>
+    <h:body style="background-color: #ddd;">
+        <img src="Header.png" />
+        <div id="content">
+            <p:panel>
+                <p:tabMenu activeIndex="0">  
+                    <p:menuitem value="Login" url="Login.xhtml"/>  
+                    <p:menuitem value="Register" url="Register.xhtml"/>   
+                </p:tabMenu> 
+                <h:form id="form">
+                    <p:messages id="messages" showDetail="false" autoUpdate="true" />
+                    <p:panelGrid columns="2">  
+                        <h:outputLabel for="username_login" value="#{i18n.username}:" />  
+                        <p:inputText id="username_login" value="#{userManagementBean.username}" required="true" requiredMessage="#{i18n.usernameReq}"/>
+                        <h:outputLabel for="password_login" value="#{i18n.password}:" />  
+                        <p:password id="password_login" value="#{userManagementBean.password}" required="true" requiredMessage="#{i18n.passwordReq}"/> 
+                        <p:commandButton value="#{i18n.submitLogin}"/> 
+                    </p:panelGrid> 
+                </h:form>
+            </p:panel>
+        </div>
+    </h:body>
+</html>
