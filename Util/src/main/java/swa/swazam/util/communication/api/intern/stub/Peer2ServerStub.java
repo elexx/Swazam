@@ -8,21 +8,20 @@ import java.util.List;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 
-import swa.swazam.util.communication.Client2Server;
+import swa.swazam.util.communication.General2Server;
 import swa.swazam.util.communication.api.Startable;
 import swa.swazam.util.communication.api.intern.ClientSide;
 import swa.swazam.util.communication.api.intern.dto.NetPacketFactory;
 import swa.swazam.util.communication.api.intern.dto.RequestWirePacket;
 import swa.swazam.util.dto.CredentialsDTO;
-import swa.swazam.util.dto.MessageDTO;
 import swa.swazam.util.exceptions.CommunicationException;
 import swa.swazam.util.exceptions.SwazamException;
 
-public class Client2ServerStub implements Client2Server, Startable {
+public class Peer2ServerStub implements General2Server, Startable {
 	private final ClientSide clientSide;
 	private Channel channel;
 
-	public Client2ServerStub(ClientSide clientSide) {
+	public Peer2ServerStub(ClientSide clientSide) {
 		this.clientSide = clientSide;
 	}
 
@@ -53,18 +52,6 @@ public class Client2ServerStub implements Client2Server, Startable {
 	@Override
 	public List<InetSocketAddress> getPeerList() throws SwazamException {
 		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("getPeerList");
-		return clientSide.callRemoteMethode(channel, packet);
-	}
-
-	@Override
-	public void logRequest(CredentialsDTO user, MessageDTO message) throws SwazamException {
-		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("logRequest", user, message);
-		clientSide.callRemoteMethode(channel, packet);
-	}
-
-	@Override
-	public boolean hasCoins(CredentialsDTO user) throws SwazamException {
-		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("hasCoins", user);
 		return clientSide.callRemoteMethode(channel, packet);
 	}
 }

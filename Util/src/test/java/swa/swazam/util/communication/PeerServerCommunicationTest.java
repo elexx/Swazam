@@ -1,27 +1,26 @@
 package swa.swazam.util.communication;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import swa.swazam.util.communication.api.ClientCommunicationUtil;
 import swa.swazam.util.communication.api.CommunicationUtilFactory;
+import swa.swazam.util.communication.api.PeerCommunicationUtil;
 import swa.swazam.util.exceptions.SwazamException;
 
-public class ClientServerCommunicationTest extends ServerServerSideCommunication {
+public class PeerServerCommunicationTest extends ServerServerSideCommunication {
 
-	private ClientCommunicationUtil commUtil;
-	private Client2Server serverStub;
+	private PeerCommunicationUtil commUtil;
+	private General2Server serverStub;
 
 	@Before
 	public void startupClient() throws SwazamException {
-		commUtil = CommunicationUtilFactory.createClientCommunicationUtil();
-		commUtil.startup();
+		commUtil = CommunicationUtilFactory.createPeerCommunicationUtil();
 		serverStub = commUtil.getServerStub();
+		commUtil.startup();
 	}
 
 	@After
@@ -37,15 +36,5 @@ public class ClientServerCommunicationTest extends ServerServerSideCommunication
 	@Test(timeout = 5000)
 	public void verifyCredentialsTest() throws Exception {
 		assertTrue(serverStub.verifyCredentials(credentialsWithCoins));
-	}
-
-	@Test(timeout = 5000)
-	public void hasCoins1Test() throws Exception {
-		assertTrue(serverStub.hasCoins(credentialsWithCoins));
-	}
-
-	@Test(timeout = 5000)
-	public void hasCoins2Test() throws Exception {
-		assertFalse(serverStub.hasCoins(credentialsWithoutCoins));
 	}
 }

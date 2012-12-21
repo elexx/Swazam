@@ -15,12 +15,12 @@ import swa.swazam.util.communication.api.CommunicationUtilFactory;
 import swa.swazam.util.communication.api.ServerCommunicationUtil;
 import swa.swazam.util.dto.CredentialsDTO;
 
-public abstract class AbstractServerCommunication {
+public class ServerServerSideCommunication {
+	private ServerCommunicationUtil commUtil;
 
 	protected List<InetSocketAddress> peerList;
 	protected CredentialsDTO credentialsWithCoins;
 	protected CredentialsDTO credentialsWithoutCoins;
-	private ServerCommunicationUtil serverCommUtil;
 
 	@Before
 	public final void startup() throws Exception {
@@ -31,14 +31,14 @@ public abstract class AbstractServerCommunication {
 		credentialsWithCoins = new CredentialsDTO("testuser", "apassword");
 		credentialsWithoutCoins = new CredentialsDTO("pooruser", "anotherpassword");
 
-		serverCommUtil = CommunicationUtilFactory.createServerCommunicationUtil();
-		serverCommUtil.startup();
-		serverCommUtil.setCallback(mockServer());
+		commUtil = CommunicationUtilFactory.createServerCommunicationUtil();
+		commUtil.startup();
+		commUtil.setCallback(mockServer());
 	}
 
 	@After
 	public final void shutdown() {
-		serverCommUtil.shutdown();
+		commUtil.shutdown();
 	}
 
 	private ServerCallback mockServer() throws Exception {
@@ -48,5 +48,9 @@ public abstract class AbstractServerCommunication {
 		when(callback.hasCoins(credentialsWithCoins)).thenReturn(true);
 		when(callback.hasCoins(credentialsWithoutCoins)).thenReturn(false);
 		return callback;
+	}
+
+	public ServerCommunicationUtil getCommUtil() {
+		return commUtil;
 	}
 }
