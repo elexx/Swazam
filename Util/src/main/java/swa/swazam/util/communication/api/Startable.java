@@ -3,7 +3,7 @@ package swa.swazam.util.communication.api;
 import swa.swazam.util.exceptions.CommunicationException;
 import swa.swazam.util.exceptions.SwazamException;
 
-interface Startable {
+public interface Startable {
 
 	/**
 	 * A generic startup method which will start listening and accepting connections.
