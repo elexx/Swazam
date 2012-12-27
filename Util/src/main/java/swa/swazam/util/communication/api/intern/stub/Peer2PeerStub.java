@@ -39,7 +39,7 @@ public class Peer2PeerStub implements Peer2Peer, Startable {
 			if (!connectFuture.isSuccess()) {
 				continue;
 			}
-			clientSide.callRemoteMethodNoneBlocking(channel, packet);
+			clientSide.callRemoteMethodNoneBlocking(channel, packet).awaitUninterruptibly();
 
 			channel.close();
 		}
@@ -58,7 +58,7 @@ public class Peer2PeerStub implements Peer2Peer, Startable {
 			if (!connectFuture.isSuccess()) {
 				continue;
 			}
-			ChannelFuture future = clientSide.callRemoteMethodNoneBlocking(channel, packet);
+			ChannelFuture future = clientSide.callRemoteMethodNoneBlocking(channel, packet).awaitUninterruptibly();
 			futures.add(future);
 		}
 

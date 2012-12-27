@@ -74,9 +74,7 @@ public class MixedCommunicationTest {
 		assertTrue(peer2Server.verifyCredentials(server.credentialsWithCoins));
 	}
 
-	/**
-	 * just testing if process returns.
-	 */
+	// just testing if process returns.
 	@Test(timeout = 5000)
 	public void peer2Peer_processToRandomPeersTest() {
 		peer2Peer.process(peer.request, Arrays.asList(new InetSocketAddress("localhost", 1234), new InetSocketAddress("localhost", 2345)));
@@ -88,9 +86,7 @@ public class MixedCommunicationTest {
 		assertEquals(0, peer2Peer.alive(Arrays.asList(new InetSocketAddress("localhost", 1234), new InetSocketAddress("localhost", 2345))).size());
 	}
 
-	/**
-	 * just testing if solved returns.
-	 */
+	// just testing if solved returns.
 	@Test(timeout = 5000)
 	public void peer2Client_solved() {
 		peer2Client.solved(client.answer, new InetSocketAddress("localhost", 1234));

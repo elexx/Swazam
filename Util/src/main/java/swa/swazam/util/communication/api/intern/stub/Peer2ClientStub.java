@@ -31,11 +31,11 @@ public class Peer2ClientStub implements Peer2Client, Startable {
 		ChannelFuture connectFuture = clientSide.connect(client);
 		Channel channel = connectFuture.awaitUninterruptibly().getChannel();
 		if (!connectFuture.isSuccess()) {
-			return; // TODO: was soll hier wirklich passieren?! throw new CommunicationException("connect not successful", connectFuture.getCause());
+			return; // client nicht erreichbar
 		}
 
 		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("solved", answer);
-		clientSide.callRemoteMethode(channel, packet);
+		clientSide.callRemoteMethodNoneBlocking(channel, packet).awaitUninterruptibly();
 
 		channel.close();
 	}

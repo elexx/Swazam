@@ -24,6 +24,7 @@ import swa.swazam.util.communication.api.Startable;
 import swa.swazam.util.communication.api.intern.dto.RequestWirePacket;
 import swa.swazam.util.communication.api.intern.dto.ResponseWirePacket;
 import swa.swazam.util.communication.api.intern.net.PipelineFactoryFactory;
+import swa.swazam.util.exceptions.CommunicationException;
 import swa.swazam.util.exceptions.SwazamException;
 
 final public class ClientSide extends SimpleChannelUpstreamHandler implements Startable {
@@ -50,7 +51,15 @@ final public class ClientSide extends SimpleChannelUpstreamHandler implements St
 
 	@Override
 	public void shutdown() {
-		// TODO: shutdown all clientconnections!
+		try {
+			lock.lock();
+			for (Condition condition : locks.values()) {
+				condition.signalAll();
+			}
+		} finally {
+			lock.unlock();
+		}
+		bootstrap.shutdown();
 		bootstrap.releaseExternalResources();
 	}
 
@@ -60,9 +69,10 @@ final public class ClientSide extends SimpleChannelUpstreamHandler implements St
 	 * @param channel the channel through which the call should take place
 	 * @param packet the describing packet
 	 * @return the return value of the remote method
+	 * @throws SwazamException
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T callRemoteMethode(Channel channel, RequestWirePacket packet) {
+	public <T> T callRemoteMethode(Channel channel, RequestWirePacket packet) throws CommunicationException {
 		Integer id = packet.getId();
 
 		Condition condition = lock.newCondition();
@@ -77,6 +87,10 @@ final public class ClientSide extends SimpleChannelUpstreamHandler implements St
 
 		} finally {
 			lock.unlock();
+		}
+
+		if (!responses.containsKey(id)) {
+			throw new CommunicationException("no response available");
 		}
 
 		return (T) responses.get(id).getReturnValue();

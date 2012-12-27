@@ -5,12 +5,16 @@ import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import swa.swazam.util.communication.api.Startable;
@@ -26,9 +30,13 @@ public class ServerSide extends SimpleChannelUpstreamHandler implements Startabl
 	private final ServerBootstrap bootstrap;
 	private Object callback;
 	private Map<String, Method> callbackMethods;
+	private final ChannelGroup allChannels;
 
 	public ServerSide(SocketAddress localAddress) {
 		this.localAddress = localAddress;
+
+		allChannels = new DefaultChannelGroup("server");
+
 		bootstrap = new ServerBootstrap();
 		bootstrap.setFactory(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool()));
 		bootstrap.setPipelineFactory(PipelineFactoryFactory.createFactoryWithHandler(this));
@@ -46,12 +54,14 @@ public class ServerSide extends SimpleChannelUpstreamHandler implements Startabl
 
 	@Override
 	public void startup() throws SwazamException {
-		bootstrap.bind(localAddress);
+		Channel serverChannel = bootstrap.bind(localAddress);
+		allChannels.add(serverChannel);
 	}
 
 	@Override
 	public void shutdown() {
-		// TODO: shutdown all clientconnections!
+		allChannels.close().awaitUninterruptibly(1, TimeUnit.SECONDS);
+		bootstrap.shutdown();
 		bootstrap.releaseExternalResources();
 	}
 
