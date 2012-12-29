@@ -43,10 +43,10 @@
                             <h:outputLabel for="email_reg" value="#{i18n.email}:" />  
                             <p:inputText id="email_reg" value="#{loginBean.loggedInUser.email}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
                             <h:outputLabel for="password_reg" value="#{i18n.password}:" />  
-                            <p:password id="password_reg" value="" match="password_repeated_reg" validatorMessage="#{i18n.passwordNotMatch}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
+                            <p:password id="password_reg" value="#{loginBean.password}" match="password_repeated_reg" validatorMessage="#{i18n.passwordNotMatch}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
                             <h:outputLabel for="password_repeated_reg" value="#{i18n.passwordRep}:" />  
-                            <p:password id="password_repeated_reg" value="" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/>
-                            <p:commandButton value="#{i18n.submitUpdate}" update="@form"/> 
+                            <p:password id="password_repeated_reg" value="#{loginBean.password}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/>
+                            <p:commandButton value="#{i18n.submitUpdate}" action="#{loginBean.updateAccount()}" update="@form"/> 
 
                         </p:panelGrid> 
                     </p:panel>

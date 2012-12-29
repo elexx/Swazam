@@ -12,9 +12,9 @@ import swa.swazam.server.entity.User;
 import swa.swazam.server.service.impl.UserServiceImpl;
 import swa.swazam.util.hash.HashGenerator;
 
-@Component("userManagementBean")
+@Component("registrationBean")
 @Scope(value="request")
-public class UserManagementBean implements Serializable{
+public class RegistrationBean implements Serializable{
 
 	private static final long serialVersionUID = -3118541481795645972L;
 	
@@ -29,7 +29,7 @@ public class UserManagementBean implements Serializable{
 	
 	private boolean success = false;
 	
-	public UserManagementBean() {}
+	public RegistrationBean() {}
 	
 	/**
 	 * Processes a new registration

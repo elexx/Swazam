@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import swa.swazam.server.entity.User;
 import swa.swazam.server.service.UserService;
+import swa.swazam.util.hash.HashGenerator;
 
 @Component("loginBean")
 @Scope(value="session")
@@ -70,6 +71,18 @@ public class LoginBean implements Serializable{
 		
 		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,"Deletion not successful. Please try again.", ""));
 		return "";
+	}
+	
+	/**
+	 * Processes the update request of the current logged in user
+	 */
+	public void updateAccount(){
+		loggedInUser.setPassword(HashGenerator.hash(password));
+		boolean success = userService.update(loggedInUser);
+		if(success)
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,"Your modification was successful!", ""));
+		else
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,"Update not successful. Please try again.", ""));	
 	}
 
 	public String getUsername() {
