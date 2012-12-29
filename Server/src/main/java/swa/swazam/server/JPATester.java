@@ -52,7 +52,7 @@ public class JPATester {
 			User req = em.find(User.class, "chrissi");
 			User solv = em.find(User.class, "markus");
 			
-			Request request = new Request("She doesnt mind", "Sean Paul", new Date(System.currentTimeMillis()-90000000L), solv, req, true, UUID.randomUUID());
+			Request request = new Request("fear of the dark", "iron maiden", new Date(System.currentTimeMillis()-10000000L), solv, req, true, UUID.randomUUID());
 			em.persist(request);
 			em.getTransaction().commit();
 	}

@@ -26,6 +26,7 @@
 #coinAmount {
     margin-top: 15px;
     margin-bottom: 15px;
+    height: 30px;
 }
 
 .panel {
@@ -42,14 +43,11 @@
     margin-top: 20px;
 }
 
-tr.requestor {
-    background-color: white !important;
-    background-image: none !important;
-}
-
-tr.solver {
-    background-color: #d9dfed !important;
-    background-image: none !important;
+.refresh {
+    width: 20px !important; 
+    height: 20px !important;
+    margin-top: 10px;
+    float:right;
 }
 
 

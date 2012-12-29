@@ -27,12 +27,14 @@
                     
                     <div id="coinAmount">
                         <h:outputText value="#{i18n.coinMessage}:"/> <h:outputText value=" #{loginBean.loggedInUser.coins} Coins" style="color:#7eafe9; font-weight: bold;"/>
-                        <p:commandLink styleClass="logout" action="#{loginBean.logout()}" value="#{i18n.logout}"/>
+                        <p:commandLink styleClass="logout" action="#{loginBean.logout()}" value="#{i18n.logout}" /> <br/>
+                        <p:commandButton id="refreshButton" styleClass="refresh" icon="ui-icon-refresh" action="#{historyBean.refreshTables()}" update="@form"/>
+                        <p:tooltip for="refreshButton" value="Refresh Table Data"/>
                     </div>
                     
                     <p:panel toggleable="true" header="#{i18n.recognitionHistory}" styleClass="panel">
                         <p:dataTable id="recognitionRequestTable" var="r" value="#{historyBean.requestsFromUser}" paginator="true" rows="10"
-                                     paginatorAlwaysVisible="false" sortBy="#{r.date}" sortOrder="descending" styleClass="tableStyle" >
+                                     paginatorAlwaysVisible="false" styleClass="tableStyle" >
                             <p:column id="recognitionRequestTable_Amount" style="text-align: center">
                                 <f:facet name="header">
                                     <h:outputText value="#{i18n.amount}"/>
@@ -70,7 +72,7 @@
                     
                     <p:panel toggleable="true" header="#{i18n.solvedHistory}" styleClass="panel">
                         <p:dataTable id="RequestSolvedTable" var="r" value="#{historyBean.solvedFromUser}" paginator="true" rows="10"
-                                     paginatorAlwaysVisible="false" sortBy="#{r.date}" sortOrder="descending" styleClass="tableStyle">
+                                     paginatorAlwaysVisible="false" styleClass="tableStyle">
                             <p:column id="recognitionRequestTable_Amount" style="text-align: center">
                                 <f:facet name="header">
                                     <h:outputText value="#{i18n.amount}"/>

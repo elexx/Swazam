@@ -2,6 +2,7 @@ package swa.swazam.server.bean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -34,8 +35,18 @@ public class HistoryBean implements Serializable{
 	
 	@PostConstruct
 	public void init(){
+		refreshTables();
+	}
+	
+	/**
+	 * Reloads the table data
+	 */
+	public void refreshTables(){
 		requestsFromUser = historyService.getAllRequestedRequestsFromUser(loggedInUser);
 		solvedFromUser = historyService.getAllSolvedRequestsFromUser(loggedInUser);
+		
+		Collections.sort(requestsFromUser, new RequestComparator());
+		Collections.sort(solvedFromUser, new RequestComparator());
 	}
 
 	public List<Request> getRequestsFromUser() {
