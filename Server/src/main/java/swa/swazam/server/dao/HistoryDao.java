@@ -8,10 +8,19 @@ public interface HistoryDao {
 	
 	/**
 	 * Retrieves all recognition requests that the given user has
-	 * initiated.
+	 * requested.
 	 * @param username the username of the user
 	 * @return a list containing all found recognition requests or null
 	 * if no recognition requests were found.
 	 */
-	public List<Request> getAllRequestsFromUser(String username);
+	public List<Request> getAllRequestedRequestsFromUser(String username);
+	
+	/**
+	 * Retrieves all recognition requests that the given user has
+	 * solved.
+	 * @param username the username of the user
+	 * @return a list containing all found recognition requests or null
+	 * if no recognition requests were found.
+	 */
+	public List<Request> getAllSolvedRequestsFromUser(String username);
 }
