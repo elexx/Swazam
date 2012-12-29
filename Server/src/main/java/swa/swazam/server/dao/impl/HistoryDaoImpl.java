@@ -19,20 +19,20 @@ public class HistoryDaoImpl implements HistoryDao {
 
     @PersistenceContext
     public void setEntityManager(EntityManager entityManager) {
-	this.entityManager = entityManager;
+    	this.entityManager = entityManager;
     }
 
     @Transactional
     public List<Request> getAllRequestedRequestsFromUser(String username) {
-	Query query = entityManager.createQuery("SELECT Request r WHERE r.requestor="+username);
-	return (List<Request>) query.getResultList();
+    	Query query = entityManager.createQuery("SELECT r FROM Request r WHERE r.requestor='" + username + "'");
+    	return (List<Request>) query.getResultList();
     }
 
 
-    @Override
+    @Transactional
     public List<Request> getAllSolvedRequestsFromUser(String username) {
-	Query query = entityManager.createQuery("SELECT Request r WHERE r.solver="+username);
-	return (List<Request>) query.getResultList();
+    	Query query = entityManager.createQuery("SELECT r FROM Request r WHERE r.solver='" + username + "'");
+    	return (List<Request>) query.getResultList();
     }
 
 }

@@ -28,15 +28,19 @@ public class User {
 	@Column(name="coins", nullable=false)
 	private int coins;
 	
+	@Column(name="active", columnDefinition="TINYINT")
+	private boolean active;
+	
 	public User(){}
 	
-	public User(String username, String password, String firstname, String lastname, String email, int coins){
+	public User(String username, String password, String firstname, String lastname, String email, int coins, boolean active){
 		this.username = username;
 		this.password = password;
 		this.firstname = firstname;
 		this.lastname = lastname;
 		this.email = email;
 		this.coins = coins;
+		this.active = active;
 	}
 
 	public String getUsername() {
@@ -85,5 +89,13 @@ public class User {
 
 	public void setCoins(int coins) {
 		this.coins = coins;
+	}
+	
+	public void setActive(boolean active){
+		this.active = active;
+	}
+	
+	public boolean getActive(){
+		return active;
 	}
 }

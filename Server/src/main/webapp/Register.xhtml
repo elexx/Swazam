@@ -19,8 +19,10 @@
             <h:form id="form">
                 <p:panel>
                     <p:tabMenu activeIndex="1">  
-                        <p:menuitem value="Login" url="Login.xhtml" rendered="#{!(loginBean.isLoggedIn)}"/>  
-                        <p:menuitem value="Register" url="Register.xhtml" rendered="#{!(loginBean.isLoggedIn)}"/>   
+                        <p:menuitem value="#{i18n.menuLogin}" url="Login.xhtml" rendered="#{!(loginBean.isLoggedIn)}"/>  
+                        <p:menuitem value="#{i18n.menuRegister}" url="Register.xhtml" rendered="#{!(loginBean.isLoggedIn)}"/> 
+                        <p:menuitem value="#{i18n.menuHistory}" url="History.xhtml" rendered="#{loginBean.isLoggedIn}"/>
+                        <p:menuitem value="#{i18n.menuAccount}" url="Account.xhtml" rendered="#{loginBean.isLoggedIn}"/>                  
                     </p:tabMenu>  
 
                     <p:messages id="messages" showDetail="false" autoUpdate="true"/>

@@ -57,6 +57,20 @@ public class LoginBean implements Serializable{
 		
 		return "Login.xhtml?faces-redirect=true";
 	}
+	
+	/**
+	 * Processes the delete request of the current logged in user
+	 * @return the login page after deletion was successful
+	 */
+	public String deleteAccount(){
+		loggedInUser.setActive(false);
+		boolean success = userService.update(loggedInUser);
+		if(success)
+			return logout();
+		
+		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,"Deletion not successful. Please try again.", ""));
+		return "";
+	}
 
 	public String getUsername() {
 		return username;

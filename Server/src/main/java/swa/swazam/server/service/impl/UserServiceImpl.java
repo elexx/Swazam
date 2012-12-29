@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public User login(String username, String password) {
 		User found = find(username);
-		if(found == null || HashGenerator.checkPassword(password, found.getPassword()) == false)
+		if(found == null || HashGenerator.checkPassword(password, found.getPassword()) == false || found.getActive() == false)
 			return null;
 		
 		return found;

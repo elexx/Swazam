@@ -23,16 +23,33 @@
     width: 80%;
 }
 
+#coinAmount {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
 .panel {
     margin-top: 25px;
     margin-bottom: 15px;
 }
 
 .logout {
-    margin-top: 15px;
-    margin-bottom: 15px;
     color: #7eafe9;
     float: right;
+}
+
+.tableStyle {
+    margin-top: 20px;
+}
+
+tr.requestor {
+    background-color: white !important;
+    background-image: none !important;
+}
+
+tr.solver {
+    background-color: #d9dfed !important;
+    background-image: none !important;
 }
 
 

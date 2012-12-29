@@ -37,7 +37,7 @@ public class UserManagementBean implements Serializable{
 	 * Otherwise, a warning is displayed that the username already exists
 	 */
 	public void register(){
-		User user = new User(username, HashGenerator.hash(password), firstname, lastname, email, 100);
+		User user = new User(username, HashGenerator.hash(password), firstname, lastname, email, 100, true);
 		success = userService.save(user);
 		
 		if(success)
