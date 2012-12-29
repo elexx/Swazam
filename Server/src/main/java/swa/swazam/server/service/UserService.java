@@ -34,4 +34,14 @@ public interface UserService {
 	 * @return the user or null, if no user matching the conditions could be found
 	 */
 	public User find(String username);
+	
+	/**
+	 * Checks if the given username with the given encrypted password
+	 * exist in the database
+	 * @param username the name of the user
+	 * @param password the encrypted password of the user
+	 * @return the user whos login data was given or null 
+	 * if the user does not exist or the password is wrong
+	 */
+	public User login(String username, String password);
 }

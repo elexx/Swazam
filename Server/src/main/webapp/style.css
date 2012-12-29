@@ -20,12 +20,19 @@
     clear: left;
     position: relative;
     margin: 0 auto;
-    width: 70%;
+    width: 80%;
 }
 
-#form {
+.panel {
     margin-top: 25px;
     margin-bottom: 15px;
+}
+
+.logout {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    color: #7eafe9;
+    float: right;
 }
 
 
