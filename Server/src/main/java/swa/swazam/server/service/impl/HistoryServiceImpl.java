@@ -26,7 +26,7 @@ public class HistoryServiceImpl implements HistoryService {
 	}
 
 	@Override
-	public boolean saveRequest(Request request) {
-	    return historyDao.saveOrUpdate(request);
+	public void saveRequest(Request request) {
+	     historyDao.saveOrUpdate(request);
 	}
 }

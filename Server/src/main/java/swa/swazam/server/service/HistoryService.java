@@ -26,9 +26,8 @@ public interface HistoryService {
 	public List<Request> getAllSolvedRequestsFromUser(String username);
 
 	/**
-	 * 
+	 * Saves or updates (if it already exists) the given request in the database
 	 * @param request
-	 * @return
 	 */
-	public boolean saveRequest(Request request);
+	public void saveRequest(Request request);
 }

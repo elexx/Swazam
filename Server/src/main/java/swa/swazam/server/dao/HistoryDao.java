@@ -27,7 +27,6 @@ public interface HistoryDao {
 	/**
 	 * Saves or updates (if it already exists) the given request in the database
 	 * @param request
-	 * @return true, if the request could be successfully inserted/updated, else false
 	 */
-	public boolean saveOrUpdate(Request request);
+	public void saveOrUpdate(Request request);
 }

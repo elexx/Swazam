@@ -36,9 +36,12 @@ public class HistoryDaoImpl implements HistoryDao {
     }
 
     @Override
-    public boolean saveOrUpdate(Request request) {
-	// TODO Auto-generated method stub
-	return false;
+    public void saveOrUpdate(Request request) {
+	Request req = entityManager.find(Request.class, request.getUuid());
+	if(req!=null)
+	    entityManager.merge(request);
+	else
+	    entityManager.persist(request);
     }
 
 }
