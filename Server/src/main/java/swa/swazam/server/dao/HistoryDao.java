@@ -1,6 +1,7 @@
 package swa.swazam.server.dao;
 
 import java.util.List;
+import java.util.UUID;
 
 import swa.swazam.server.entity.Request;
 
@@ -25,8 +26,21 @@ public interface HistoryDao {
 	public List<Request> getAllSolvedRequestsFromUser(String username);
 
 	/**
-	 * Saves or updates (if it already exists) the given request in the database
-	 * @param request
+	 * Saves the given request in the database
+	 * @param request the request that should be stored
 	 */
-	public void saveOrUpdate(Request request);
+	public boolean save(Request request);
+	
+	/**
+	 * Updates the given request in the database
+	 * @param request the request that should be updated
+	 */
+	public boolean update(Request request);
+	
+	/**
+	 * Looks for the given request
+	 * @param requestUUID the UUID of the request that should be found
+	 * @return the request if existing or null, if no request with the given UUID exists
+	 */
+	public Request find(UUID requestUUID);
 }

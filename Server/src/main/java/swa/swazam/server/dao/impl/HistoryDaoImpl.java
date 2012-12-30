@@ -1,6 +1,7 @@
 package swa.swazam.server.dao.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -35,13 +36,29 @@ public class HistoryDaoImpl implements HistoryDao {
     	return (List<Request>) query.getResultList();
     }
 
-    @Override
-    public void saveOrUpdate(Request request) {
-	Request req = entityManager.find(Request.class, request.getUuid());
-	if(req!=null)
-	    entityManager.merge(request);
-	else
-	    entityManager.persist(request);
-    }
+	@Transactional
+	public boolean save(Request request) {
+		Request alreadyExists = find(request.getUuid());
+		if(alreadyExists != null)
+			return false;
+		
+		entityManager.persist(request);
+		return true;
+	}
+
+	@Transactional
+	public boolean update(Request request) {
+		Request alreadyExists = find(request.getUuid());
+		if(alreadyExists == null)
+			return false;
+		
+		entityManager.merge(request);
+		return true;
+	}
+
+	@Override
+	public Request find(UUID requestUUID) {
+		return entityManager.find(Request.class, requestUUID);
+	}
 
 }

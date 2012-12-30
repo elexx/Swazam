@@ -26,7 +26,12 @@ public class HistoryServiceImpl implements HistoryService {
 	}
 
 	@Override
-	public void saveRequest(Request request) {
-	     historyDao.saveOrUpdate(request);
+	public boolean saveOrUpdateRequest(Request request) {
+		Request found = historyDao.find(request.getUuid());
+		if(found == null)
+			return historyDao.save(request);
+		
+		request.setStatus(true);
+		return historyDao.update(request);
 	}
 }

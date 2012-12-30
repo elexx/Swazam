@@ -3,7 +3,6 @@ package swa.swazam.server.service;
 import java.util.List;
 
 import swa.swazam.server.entity.Request;
-import swa.swazam.util.exceptions.SwazamException;
 
 public interface HistoryService {
 	
@@ -26,8 +25,11 @@ public interface HistoryService {
 	public List<Request> getAllSolvedRequestsFromUser(String username);
 
 	/**
-	 * Saves or updates (if it already exists) the given request in the database
-	 * @param request
+	 * Saves the given request in the database or, 
+	 * in case it already exists, updated the existing request.
+	 * @param request the request that should be stored
+	 * @return true if the storage/update was successful, else false.
 	 */
-	public void saveRequest(Request request);
+	public boolean saveOrUpdateRequest(Request request);
+	
 }
