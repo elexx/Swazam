@@ -3,6 +3,7 @@ package swa.swazam.server.service;
 import java.util.List;
 
 import swa.swazam.server.entity.Request;
+import swa.swazam.util.exceptions.SwazamException;
 
 public interface HistoryService {
 	
@@ -24,4 +25,10 @@ public interface HistoryService {
 	 */
 	public List<Request> getAllSolvedRequestsFromUser(String username);
 
+	/**
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public boolean saveRequest(Request request);
 }

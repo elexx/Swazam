@@ -24,4 +24,9 @@ public class HistoryServiceImpl implements HistoryService {
 	public List<Request> getAllSolvedRequestsFromUser(String username) {
 		return historyDao.getAllSolvedRequestsFromUser(username);
 	}
+
+	@Override
+	public boolean saveRequest(Request request) {
+	    return historyDao.saveOrUpdate(request);
+	}
 }

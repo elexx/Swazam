@@ -35,4 +35,10 @@ public class HistoryDaoImpl implements HistoryDao {
     	return (List<Request>) query.getResultList();
     }
 
+    @Override
+    public boolean saveOrUpdate(Request request) {
+	// TODO Auto-generated method stub
+	return false;
+    }
+
 }

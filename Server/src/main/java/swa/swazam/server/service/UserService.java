@@ -1,6 +1,7 @@
 package swa.swazam.server.service;
 
 import swa.swazam.server.entity.User;
+import swa.swazam.util.exceptions.SwazamException;
 
 public interface UserService {
 	
@@ -44,4 +45,11 @@ public interface UserService {
 	 * if the user does not exist or the password is wrong
 	 */
 	public User login(String username, String password);
+	
+	/**
+	 * Checks if the given user has a positive amount of coins and is allowed to submit a request
+	 * @param username 
+	 * @return true if the user is active and has a sufficient amount of coins, else false
+	 */
+	public boolean hasCoins(String username);
 }
