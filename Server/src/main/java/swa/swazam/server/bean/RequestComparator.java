@@ -6,6 +6,10 @@ import swa.swazam.server.entity.Request;
 
 public class RequestComparator implements Comparator<Request>{
 
+	/**
+	 * Compares two Request Objects by their date.
+	 * Sorting is done descending.
+	 */
 	@Override
 	public int compare(Request o1, Request o2) {
 		if(o1.getDate().before(o2.getDate()))
