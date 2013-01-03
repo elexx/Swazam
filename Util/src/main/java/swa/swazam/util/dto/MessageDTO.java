@@ -1,6 +1,7 @@
 package swa.swazam.util.dto;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.util.UUID;
 
 /**
@@ -13,6 +14,7 @@ public class MessageDTO implements Serializable {
 	private String songTitle;
 	private String songArtist;
 	private CredentialsDTO resolver;
+	private InetSocketAddress resolverAddress;
 
 	public MessageDTO(UUID uuid, String songTitle, String songArtist, CredentialsDTO resolver) {
 		this.uuid = uuid;
@@ -53,9 +55,17 @@ public class MessageDTO implements Serializable {
 		this.resolver = resolver;
 	}
 
+	public InetSocketAddress getResolverAddress() {
+		return resolverAddress;
+	}
+
+	public void setResolverAddress(InetSocketAddress resolverAddress) {
+		this.resolverAddress = resolverAddress;
+	}
+
 	@Override
 	public String toString() {
-		return "MessageDTO [uuid=" + uuid + ", songTitle=" + songTitle + ", songArtist=" + songArtist + ", resolver=" + resolver + "]";
+		return "MessageDTO [uuid=" + uuid + ", songTitle=" + songTitle + ", songArtist=" + songArtist + ", resolver=" + resolver + ", resolverAddress=" + resolverAddress + "]";
 	}
 
 	@Override
@@ -63,6 +73,7 @@ public class MessageDTO implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((resolver == null) ? 0 : resolver.hashCode());
+		result = prime * result + ((resolverAddress == null) ? 0 : resolverAddress.hashCode());
 		result = prime * result + ((songArtist == null) ? 0 : songArtist.hashCode());
 		result = prime * result + ((songTitle == null) ? 0 : songTitle.hashCode());
 		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
@@ -82,6 +93,11 @@ public class MessageDTO implements Serializable {
 			if (other.resolver != null)
 				return false;
 		} else if (!resolver.equals(other.resolver))
+			return false;
+		if (resolverAddress == null) {
+			if (other.resolverAddress != null)
+				return false;
+		} else if (!resolverAddress.equals(other.resolverAddress))
 			return false;
 		if (songArtist == null) {
 			if (other.songArtist != null)

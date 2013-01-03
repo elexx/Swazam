@@ -2,7 +2,6 @@ package swa.swazam.util.communication.api.intern.stub;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
@@ -21,10 +20,10 @@ import swa.swazam.util.exceptions.SwazamException;
 public class Peer2ServerStub implements General2Server, Startable {
 
 	private final ClientSide clientSide;
-	private final SocketAddress localListenAddress;
+	private final InetSocketAddress localListenAddress;
 	private Channel channel;
 
-	public Peer2ServerStub(ClientSide clientSide, SocketAddress localListenAddress) {
+	public Peer2ServerStub(ClientSide clientSide, InetSocketAddress localListenAddress) {
 		this.clientSide = clientSide;
 		this.localListenAddress = localListenAddress;
 	}

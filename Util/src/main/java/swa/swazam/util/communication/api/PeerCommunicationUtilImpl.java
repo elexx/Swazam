@@ -1,7 +1,6 @@
 package swa.swazam.util.communication.api;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 import swa.swazam.util.communication.General2Server;
 import swa.swazam.util.communication.Peer2Client;
@@ -14,18 +13,19 @@ import swa.swazam.util.communication.api.intern.stub.Peer2ServerStub;
 import swa.swazam.util.exceptions.SwazamException;
 
 class PeerCommunicationUtilImpl implements PeerCommunicationUtil {
+
 	private final ServerSide serverSide;
 	private final ClientSide clientSide;
 	private final Peer2ServerStub serverStub;
 	private final Peer2ClientStub clientStub;
 	private final Peer2PeerStub peerStub;
-	private final SocketAddress localListenAddress;
+	private final InetSocketAddress localListenAddress;
 
 	PeerCommunicationUtilImpl() {
 		localListenAddress = new InetSocketAddress(0);
 		clientSide = new ClientSide();
 		serverStub = new Peer2ServerStub(clientSide, localListenAddress);
-		clientStub = new Peer2ClientStub(clientSide);
+		clientStub = new Peer2ClientStub(clientSide, localListenAddress);
 		peerStub = new Peer2PeerStub(clientSide);
 		serverSide = new ServerSide(localListenAddress);
 	}

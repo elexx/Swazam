@@ -14,10 +14,13 @@ import swa.swazam.util.dto.MessageDTO;
 import swa.swazam.util.exceptions.SwazamException;
 
 public class Peer2ClientStub implements Peer2Client, Startable {
-	private final ClientSide clientSide;
 
-	public Peer2ClientStub(ClientSide clientSide) {
+	private final ClientSide clientSide;
+	private final InetSocketAddress localListenAddress;
+
+	public Peer2ClientStub(ClientSide clientSide, InetSocketAddress localListenAddress) {
 		this.clientSide = clientSide;
+		this.localListenAddress = localListenAddress;
 	}
 
 	@Override
@@ -33,6 +36,8 @@ public class Peer2ClientStub implements Peer2Client, Startable {
 		if (!connectFuture.isSuccess()) {
 			return; // client nicht erreichbar
 		}
+
+		answer.setResolverAddress(localListenAddress);
 
 		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("solved", answer);
 		clientSide.callRemoteMethodNoneBlocking(channel, packet).awaitUninterruptibly();
