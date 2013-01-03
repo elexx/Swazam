@@ -16,31 +16,34 @@
     <h:body style="background-color: #ddd;">
         <img src="Header.png" />
         <div id="content">
-            <p:panel>
-                <p:tabMenu activeIndex="1">  
-                    <p:menuitem value="Login" url="Login.xhtml"/>  
-                    <p:menuitem value="Register" url="Register.xhtml"/>   
-                </p:tabMenu>  
+            <h:form id="form">
+                <p:panel>
+                    <p:tabMenu activeIndex="1">  
+                        <p:menuitem value="#{i18n.menuLogin}" url="Login.xhtml" rendered="#{!(loginBean.isLoggedIn)}"/>  
+                        <p:menuitem value="#{i18n.menuRegister}" url="Register.xhtml" rendered="#{!(loginBean.isLoggedIn)}"/> 
+                        <p:menuitem value="#{i18n.menuHistory}" url="History.xhtml" rendered="#{loginBean.isLoggedIn}"/>
+                        <p:menuitem value="#{i18n.menuAccount}" url="Account.xhtml" rendered="#{loginBean.isLoggedIn}"/>                  
+                    </p:tabMenu>  
 
-                <h:form id="form">
-                    <p:messages id="messages" showDetail="false" autoUpdate="true" />
-                    <p:panelGrid columns="2" rendered="#{userManagementBean.success}">  
+                    <p:messages id="messages" showDetail="false" autoUpdate="true"/>
+                    <p:panelGrid columns="2" rendered="#{registrationBean.success}" styleClass="panel">  
                         <h:outputLabel for="username_reg" value="#{i18n.username}:" />  
-                        <p:inputText id="username_reg" value="#{userManagementBean.username}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/>
+                        <p:inputText id="username_reg" value="#{registrationBean.username}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/>
                         <h:outputLabel for="password_reg" value="#{i18n.password}:" />  
-                        <p:password id="password_reg" value="#{userManagementBean.password}" match="password_repeated_reg" validatorMessage="#{i18n.passwordNotMatch}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
+                        <p:password id="password_reg" value="#{registrationBean.password}" match="password_repeated_reg" validatorMessage="#{i18n.passwordNotMatch}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
                         <h:outputLabel for="password_repeated_reg" value="#{i18n.passwordRep}:" />  
-                        <p:password id="password_repeated_reg" value="#{userManagementBean.password}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/>     		
+                        <p:password id="password_repeated_reg" value="#{registrationBean.password}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/>     		
                         <h:outputLabel for="firstname_reg" value="#{i18n.firstname}:" />  
-                        <p:inputText id="firstname_reg" value="#{userManagementBean.firstname}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
+                        <p:inputText id="firstname_reg" value="#{registrationBean.firstname}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
                         <h:outputLabel for="lastname_reg" value="#{i18n.lastname}:" />  
-                        <p:inputText id="lastname_reg" value="#{userManagementBean.lastname}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/>    
+                        <p:inputText id="lastname_reg" value="#{registrationBean.lastname}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/>    
                         <h:outputLabel for="email_reg" value="#{i18n.email}:" />  
-                        <p:inputText id="email_reg" value="#{userManagementBean.email}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
-                        <p:commandButton value="#{i18n.submitRegistration}" action="#{userManagementBean.register()}" update="@form"/> 
+                        <p:inputText id="email_reg" value="#{registrationBean.email}" required="true" requiredMessage="#{i18n.nonEmptyRegistrationField}"/> 
+                        <p:commandButton value="#{i18n.submitRegistration}" action="#{registrationBean.register()}" update="@form"/> 
                     </p:panelGrid> 
-                </h:form>
-            </p:panel>
+
+                </p:panel>
+            </h:form>
         </div>
     </h:body>
 </html>

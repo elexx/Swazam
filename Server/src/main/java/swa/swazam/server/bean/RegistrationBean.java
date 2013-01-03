@@ -12,9 +12,9 @@ import swa.swazam.server.entity.User;
 import swa.swazam.server.service.impl.UserServiceImpl;
 import swa.swazam.util.hash.HashGenerator;
 
-@Component("userManagementBean")
+@Component("registrationBean")
 @Scope(value="request")
-public class UserManagementBean implements Serializable{
+public class RegistrationBean implements Serializable{
 
 	private static final long serialVersionUID = -3118541481795645972L;
 	
@@ -24,12 +24,12 @@ public class UserManagementBean implements Serializable{
 	private String username;
 	private String firstname;
 	private String lastname;
-	private String password;
+	private String password; 
 	private String email;
 	
 	private boolean success = false;
 	
-	public UserManagementBean() {}
+	public RegistrationBean() {}
 	
 	/**
 	 * Processes a new registration
@@ -37,7 +37,7 @@ public class UserManagementBean implements Serializable{
 	 * Otherwise, a warning is displayed that the username already exists
 	 */
 	public void register(){
-		User user = new User(username, HashGenerator.hash(password), firstname, lastname, email, 10);
+		User user = new User(username, HashGenerator.hash(password), firstname, lastname, email, 100, true);
 		success = userService.save(user);
 		
 		if(success)

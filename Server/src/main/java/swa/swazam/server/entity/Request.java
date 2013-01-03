@@ -40,8 +40,6 @@ public class Request {
 	@Column(name="status", columnDefinition="TINYINT")
 	private boolean status;
 
-
-
 	public Request() {
 		this.status = false;
 	}
@@ -110,5 +108,30 @@ public class Request {
 
 	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
+	}
+	
+	public String getStatusTextRequested(){
+		if(status == false)
+			return "unsolved";
+		
+		return "solved by " + solver.getUsername();
+	}
+	
+	public String getStatusTextSolved() {		
+		return "requested by " + requestor.getUsername();
+	}
+	
+	public String getSongText(){
+		if(song != null)
+			return song;
+		
+		return "unknown";
+	}
+	
+	public String getArtistText(){
+		if(artist != null)
+			return artist;
+		
+		return "unknown";
 	}
 }

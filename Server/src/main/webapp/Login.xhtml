@@ -12,23 +12,27 @@
     </h:head>
     <h:body style="background-color: #ddd;">
         <img src="Header.png" />
+
         <div id="content">
-            <p:panel>
-                <p:tabMenu activeIndex="0">  
-                    <p:menuitem value="Login" url="Login.xhtml"/>  
-                    <p:menuitem value="Register" url="Register.xhtml"/>   
-                </p:tabMenu> 
-                <h:form id="form">
+            <h:form id="form">
+                <p:panel>
+                    <p:tabMenu activeIndex="0" id="tabMenu">  
+                        <p:menuitem value="#{i18n.menuLogin}" url="Login.xhtml" rendered="#{!(loginBean.isLoggedIn)}"/>  
+                        <p:menuitem value="#{i18n.menuRegister}" url="Register.xhtml" rendered="#{!(loginBean.isLoggedIn)}"/> 
+                        <p:menuitem value="#{i18n.menuHistory}" url="History.xhtml" rendered="#{loginBean.isLoggedIn}"/>
+                        <p:menuitem value="#{i18n.menuAccount}" url="Account.xhtml" rendered="#{loginBean.isLoggedIn}"/>                    
+                    </p:tabMenu> 
                     <p:messages id="messages" showDetail="false" autoUpdate="true" />
-                    <p:panelGrid columns="2">  
+                    <p:panelGrid columns="2" styleClass="panel" rendered="#{!(loginBean.isLoggedIn)}">  
                         <h:outputLabel for="username_login" value="#{i18n.username}:" />  
-                        <p:inputText id="username_login" value="#{userManagementBean.username}" required="true" requiredMessage="#{i18n.usernameReq}"/>
+                        <p:inputText id="username_login" value="#{loginBean.username}" required="true" requiredMessage="#{i18n.usernameReq}"/>
                         <h:outputLabel for="password_login" value="#{i18n.password}:" />  
-                        <p:password id="password_login" value="#{userManagementBean.password}" required="true" requiredMessage="#{i18n.passwordReq}"/> 
-                        <p:commandButton value="#{i18n.submitLogin}"/> 
+                        <p:password id="password_login" value="#{loginBean.password}" required="true" requiredMessage="#{i18n.passwordReq}"/> 
+                        <p:commandButton value="#{i18n.submitLogin}" action="#{loginBean.login()}" update="@form"/> 
                     </p:panelGrid> 
-                </h:form>
-            </p:panel>
+                </p:panel>
+            </h:form>
         </div>
+
     </h:body>
 </html>

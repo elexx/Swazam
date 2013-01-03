@@ -20,12 +20,34 @@
     clear: left;
     position: relative;
     margin: 0 auto;
-    width: 70%;
+    width: 80%;
 }
 
-#form {
+#coinAmount {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    height: 30px;
+}
+
+.panel {
     margin-top: 25px;
     margin-bottom: 15px;
+}
+
+.logout {
+    color: #7eafe9;
+    float: right;
+}
+
+.tableStyle {
+    margin-top: 20px;
+}
+
+.refresh {
+    width: 20px !important; 
+    height: 20px !important;
+    margin-top: 10px;
+    float:right;
 }
 
 

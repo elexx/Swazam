@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"    
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"  
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <h:head>
+        <title>History</title>
+        <link type="text/css" href="PrimeFacesTheme/css/custom-theme_blue/jquery-ui-1.9.2.custom.css" rel="stylesheet" /> 
+        <link type="text/css" href="style.css" rel="stylesheet" />
+    </h:head>
+    <h:body style="background-color: #ddd;">
+        <img src="Header.png" />
+
+        <div id="content">
+            <h:form id="form">
+                <p:panel>
+                    
+                    <p:tabMenu activeIndex="0" id="tabMenu">  
+                        <p:menuitem value="#{i18n.menuLogin}" url="Login.xhtml" rendered="#{!(loginBean.isLoggedIn)}"/>  
+                        <p:menuitem value="#{i18n.menuRegister}" url="Register.xhtml" rendered="#{!(loginBean.isLoggedIn)}"/> 
+                        <p:menuitem value="#{i18n.menuHistory}" url="History.xhtml" rendered="#{loginBean.isLoggedIn}"/>
+                        <p:menuitem value="#{i18n.menuAccount}" url="Account.xhtml" rendered="#{loginBean.isLoggedIn}"/>
+                    </p:tabMenu> 
+                    
+                    <div id="coinAmount">
+                        <h:outputText value="#{i18n.coinMessage}:"/> <h:outputText value=" #{loginBean.loggedInUser.coins} Coins" style="color:#7eafe9; font-weight: bold;"/>
+                        <p:commandLink styleClass="logout" action="#{loginBean.logout()}" value="#{i18n.logout}" /> <br/>
+                        <p:commandButton id="refreshButton" styleClass="refresh" icon="ui-icon-refresh" action="#{historyBean.refreshTables()}" update="@form"/>
+                        <p:tooltip for="refreshButton" value="Refresh Table Data"/>
+                    </div>
+                    
+                    <p:panel toggleable="true" header="#{i18n.recognitionHistory}" styleClass="panel">
+                        <p:dataTable id="recognitionRequestTable" var="r" value="#{historyBean.requestsFromUser}" paginator="true" rows="10"
+                                     paginatorAlwaysVisible="false" styleClass="tableStyle" >
+                            <p:column id="recognitionRequestTable_Amount" style="text-align: center">
+                                <f:facet name="header">
+                                    <h:outputText value="#{i18n.amount}"/>
+                                </f:facet>
+                                <h:outputText style="font-weight: bold; color: #7eafe9; " value="-1"/>     
+                            </p:column>                         
+                            <p:column id="recognitionRequestTable_Date" sortBy="#{r.date}">
+                                <f:facet name="header">
+                                    <h:outputText value="#{i18n.date}"/>
+                                </f:facet>
+                                <h:outputText value="#{r.date}">
+                                    <f:convertDateTime pattern="dd.MM.yyyy HH:mm" />
+                                </h:outputText>
+                            </p:column>      
+                            <p:column id="recognitionRequestTable_Status" sortBy="#{r.getStatusTextRequested()}">
+                                <f:facet name="header">
+                                    <h:outputText value="#{i18n.status}"/>
+                                </f:facet>
+                                <h:outputText value="#{r.getStatusTextRequested()}"/>
+                            </p:column>
+                            <p:column id="recognitionRequestTable_Song">
+                                <f:facet name="header">
+                                    <h:outputText value="#{i18n.song}"/>
+                                </f:facet>
+                                <h:outputText value="#{r.getSongText()}"/>
+                            </p:column>
+                            <p:column id="recognitionRequestTable_Artist">
+                                <f:facet name="header">
+                                    <h:outputText value="#{i18n.artist}"/>
+                                </f:facet>
+                                <h:outputText value="#{r.getArtistText()}"/>
+                            </p:column> 
+                        </p:dataTable>
+                    </p:panel>
+                    
+                    <p:panel toggleable="true" header="#{i18n.solvedHistory}" styleClass="panel">
+                        <p:dataTable id="RequestSolvedTable" var="r" value="#{historyBean.solvedFromUser}" paginator="true" rows="10"
+                                     paginatorAlwaysVisible="false" styleClass="tableStyle">
+                            <p:column id="recognitionRequestTable_Amount" style="text-align: center">
+                                <f:facet name="header">
+                                    <h:outputText value="#{i18n.amount}"/>
+                                </f:facet>
+                                <h:outputText style="font-weight: bold; color: grey; " value="+2"/>
+                            </p:column>                         
+                            <p:column id="recognitionRequestTable_Date" sortBy="#{r.date}">
+                                <f:facet name="header">
+                                    <h:outputText value="#{i18n.date}"/>
+                                </f:facet>
+                                <h:outputText value="#{r.date}">
+                                    <f:convertDateTime pattern="dd.MM.yyyy HH:mm" />
+                                </h:outputText>
+                            </p:column>      
+                            <p:column id="recognitionRequestTable_Status">
+                                <f:facet name="header">
+                                    <h:outputText value="#{i18n.status}"/>
+                                </f:facet>
+                                <h:outputText value="#{r.getStatusTextSolved()}"/>
+                            </p:column>
+                            <p:column id="recognitionRequestTable_Song">
+                                <f:facet name="header">
+                                    <h:outputText value="#{i18n.song}"/>
+                                </f:facet>
+                                <h:outputText value="#{r.getSongText()}"/>
+                            </p:column>
+                            <p:column id="recognitionRequestTable_Artist">
+                                <f:facet name="header">
+                                    <h:outputText value="#{i18n.artist}"/>
+                                </f:facet>
+                                <h:outputText value="#{r.getArtistText()}"/>
+                            </p:column> 
+                        </p:dataTable>
+                    </p:panel>
+
+                </p:panel>
+            </h:form>
+        </div>
+    </h:body>
+</html>

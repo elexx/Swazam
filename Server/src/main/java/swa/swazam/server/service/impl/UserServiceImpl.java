@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import swa.swazam.server.dao.UserDao;
 import swa.swazam.server.entity.User;
 import swa.swazam.server.service.UserService;
+import swa.swazam.util.exceptions.SwazamException;
+import swa.swazam.util.hash.HashGenerator;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -29,5 +31,22 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public User find(String username) {
 		return userDao.find(username);
+	}
+
+	@Override
+	public User login(String username, String password) {
+		User found = find(username);
+		if(found == null || HashGenerator.checkPassword(password, found.getPassword()) == false || found.getActive() == false)
+			return null;
+		
+		return found;
+	}
+
+	@Override
+	public boolean hasCoins(String username){
+	    User u = find(username);
+	    if(u!= null && u.getActive() && u.getCoins()>0)
+		return true;
+	    return false;
 	}
 }
