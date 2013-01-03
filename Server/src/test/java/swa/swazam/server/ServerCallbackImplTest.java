@@ -9,11 +9,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.matchers.Any;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import swa.swazam.server.daemon.ServerCallbackImpl;
+import swa.swazam.server.entity.Request;
 import swa.swazam.server.entity.User;
 import swa.swazam.server.service.HistoryService;
 import swa.swazam.server.service.UserService;
@@ -107,5 +110,17 @@ public class ServerCallbackImplTest {
 		} catch (SwazamException e) {
 			assertTrue(true);
 		}
-	}		
+	}
+	
+	@Test
+	public void test_logRequestShouldThrowSwazamException(){
+		when(userService.find("bla")).thenReturn(null);
+		
+		try {
+			sci.logRequest(user, request);
+			fail();
+		} catch (SwazamException e) {
+			assertTrue(true);
+		}
+	}
 }

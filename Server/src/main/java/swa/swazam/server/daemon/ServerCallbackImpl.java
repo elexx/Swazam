@@ -63,6 +63,7 @@ public class ServerCallbackImpl implements ServerCallback {
 			solver = userService.find(message.getResolver().getUsername());
 			solver.setCoins(solver.getCoins()+2);
 			userService.update(solver);
+			peerList.push(message.getResolverAddress());
 		}
 		else {
 			requestor.setCoins(requestor.getCoins()-1);
@@ -71,8 +72,6 @@ public class ServerCallbackImpl implements ServerCallback {
 		
 		Request r = new Request(message.getSongTitle(), message.getSongArtist(), new Date(System.currentTimeMillis()), requestor, solver, false, message.getUuid());
 		historyService.saveOrUpdateRequest(r);
-		
-		//TODO add solver InetSocketAddress to peer List
 	}
 
 	@Override
