@@ -46,7 +46,7 @@ public class MixedCommunicationTest {
 
 	@Test(timeout = 5000)
 	public void client2Server_getPeerlistTest() throws Exception {
-		assertEquals(server.peerList, client2Server.getPeerList());
+		assertEquals(server.peerListClient, client2Server.getPeerList());
 	}
 
 	@Test(timeout = 5000)
@@ -66,7 +66,7 @@ public class MixedCommunicationTest {
 
 	@Test(timeout = 5000)
 	public void peer2Server_getPeerlistTest() throws Exception {
-		assertEquals(server.peerList, peer2Server.getPeerList());
+		assertEquals(server.peerListPeer, peer2Server.getPeerList());
 	}
 
 	@Test(timeout = 5000)

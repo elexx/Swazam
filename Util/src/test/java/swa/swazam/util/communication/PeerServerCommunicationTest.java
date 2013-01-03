@@ -30,7 +30,7 @@ public class PeerServerCommunicationTest extends ServerServerSideCommunication {
 
 	@Test(timeout = 5000)
 	public void getPeerlistTest() throws Exception {
-		assertEquals(peerList, serverStub.getPeerList());
+		assertEquals(peerListPeer, serverStub.getPeerList());
 	}
 
 	@Test(timeout = 5000)

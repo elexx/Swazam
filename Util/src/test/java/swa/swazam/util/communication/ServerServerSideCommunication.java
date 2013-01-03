@@ -1,5 +1,6 @@
 package swa.swazam.util.communication;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -18,16 +19,21 @@ import swa.swazam.util.dto.CredentialsDTO;
 public class ServerServerSideCommunication {
 	private ServerCommunicationUtil commUtil;
 
-	protected List<InetSocketAddress> peerList;
+	protected List<InetSocketAddress> peerListClient;
+	protected List<InetSocketAddress> peerListPeer;
 	protected CredentialsDTO credentialsWithCoins;
 	protected CredentialsDTO credentialsWithoutCoins;
 
 	@Before
 	public final void startup() throws Exception {
-		peerList = new LinkedList<>();
-		peerList.add(new InetSocketAddress("localhost", 1234));
-		peerList.add(new InetSocketAddress("127.0.0.1", 4567));
-		peerList = Collections.unmodifiableList(peerList);
+		peerListClient = new LinkedList<>();
+		peerListClient.add(new InetSocketAddress("localhost", 1111));
+		peerListClient.add(new InetSocketAddress("127.0.0.1", 2222));
+		peerListClient = Collections.unmodifiableList(peerListClient);
+		peerListPeer = new LinkedList<>();
+		peerListPeer.add(new InetSocketAddress("localhost", 9876));
+		peerListPeer.add(new InetSocketAddress("127.0.0.1", 6789));
+		peerListPeer = Collections.unmodifiableList(peerListPeer);
 		credentialsWithCoins = new CredentialsDTO("testuser", "apassword");
 		credentialsWithoutCoins = new CredentialsDTO("pooruser", "anotherpassword");
 
@@ -43,7 +49,8 @@ public class ServerServerSideCommunication {
 
 	private ServerCallback mockServer() throws Exception {
 		ServerCallback callback = mock(ServerCallback.class);
-		when(callback.getPeerList()).thenReturn(peerList);
+		when(callback.getPeerList()).thenReturn(peerListClient);
+		when(callback.getPeerList(any(InetSocketAddress.class))).thenReturn(peerListPeer);
 		when(callback.verifyCredentials(credentialsWithCoins)).thenReturn(true);
 		when(callback.hasCoins(credentialsWithCoins)).thenReturn(true);
 		when(callback.hasCoins(credentialsWithoutCoins)).thenReturn(false);

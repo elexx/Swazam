@@ -2,6 +2,7 @@ package swa.swazam.util.communication.api.intern.stub;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
@@ -18,11 +19,14 @@ import swa.swazam.util.exceptions.CommunicationException;
 import swa.swazam.util.exceptions.SwazamException;
 
 public class Peer2ServerStub implements General2Server, Startable {
+
 	private final ClientSide clientSide;
+	private final SocketAddress localListenAddress;
 	private Channel channel;
 
-	public Peer2ServerStub(ClientSide clientSide) {
+	public Peer2ServerStub(ClientSide clientSide, SocketAddress localListenAddress) {
 		this.clientSide = clientSide;
+		this.localListenAddress = localListenAddress;
 	}
 
 	@Override
@@ -51,7 +55,7 @@ public class Peer2ServerStub implements General2Server, Startable {
 
 	@Override
 	public List<InetSocketAddress> getPeerList() throws SwazamException {
-		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("getPeerList");
+		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("getPeerList", localListenAddress);
 		return clientSide.callRemoteMethode(channel, packet);
 	}
 }
