@@ -46,7 +46,7 @@ public class ServerCallbackImpl implements ServerCallback {
 	}
 
 	@Override
-	public List<InetSocketAddress> getPeerList(InetSocketAddress sender) throws SwazamException {
+	public synchronized List<InetSocketAddress> getPeerList(InetSocketAddress sender) throws SwazamException {
 		List<InetSocketAddress> top5 = peerList.getTop(5);
 		peerList.push(sender);
 		return top5;
