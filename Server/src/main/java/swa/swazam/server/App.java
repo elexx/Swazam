@@ -35,12 +35,18 @@ public class App{
 	App app = new App();
     }
 
+    /**
+     * Starts the webserver thread
+     */
     public void startWebThread(){
 	webRunnable = new WebThread();
 	webThread = new Thread(webRunnable, "WebThread");
 	webThread.run();
     }
 
+    /**
+     * starts the daemon server thread
+     */
     public void startDaemonThread(){
 	daemonThread = new Thread(new Runnable() {
 
@@ -59,6 +65,10 @@ public class App{
 	daemonThread.run();
     }
     
+    /**
+     * starts the backup thread for the peer list.
+     * Every 15 minutes the peer list is exported to the file system.
+     */
     public void startBackupThread(){
 	backupThread = new Thread(new Runnable() {
 	    
@@ -75,6 +85,9 @@ public class App{
 	});
     }
 
+    /**
+     * waits on user input for the shutdown of the server
+     */
     public void read(){
 
 	Scanner sc =  new Scanner(System.in);
