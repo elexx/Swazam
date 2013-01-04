@@ -41,7 +41,7 @@ public class App{
     public void startWebThread(){
 	webRunnable = new WebThread();
 	webThread = new Thread(webRunnable, "WebThread");
-	webThread.run();
+	webThread.start();
     }
 
     /**
@@ -62,7 +62,7 @@ public class App{
 	    }
 	});
 
-	daemonThread.run();
+	daemonThread.start();
     }
     
     /**
@@ -83,6 +83,8 @@ public class App{
 		}
 	    }
 	});
+	
+	backupThread.start();
     }
 
     /**
@@ -91,6 +93,10 @@ public class App{
     public void read(){
 
 	Scanner sc =  new Scanner(System.in);
+	try {
+	    Thread.sleep(10000L);
+	} catch (InterruptedException e) {}
+	
 	System.out.println("\nEnter [quit] to exit");
 	while(sc.hasNext()){
 	    String command = sc.next();
