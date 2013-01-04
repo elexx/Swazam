@@ -31,6 +31,14 @@ public class ServerCallbackImpl implements ServerCallback {
 	public ServerCallbackImpl(){
 		peerList = new ArrayPeerList<InetSocketAddress>();
 	}
+	
+	public void setPeerList(ArrayPeerList<InetSocketAddress> list){
+	    this.peerList = list;
+	}
+	
+	public ArrayPeerList<InetSocketAddress> getFullPeerList(){
+	    return this.peerList;
+	}
 
 	@Override
 	public List<InetSocketAddress> getPeerList() throws SwazamException {
@@ -82,5 +90,4 @@ public class ServerCallbackImpl implements ServerCallback {
 		
 		return user.getPassword().equals(fullUserObject.getPassword());
 	}
-
 }

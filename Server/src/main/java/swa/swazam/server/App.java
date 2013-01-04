@@ -1,34 +1,93 @@
 package swa.swazam.server;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.resource.ResourceCollection;
-import org.eclipse.jetty.webapp.WebAppContext;
+import java.util.Scanner;
 
-/**
- * Hello world!
- */
-public class App {
-	public static void main(String[] args) {
-		String webappDirLocation = "src/main/webapp/";
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-		Server server = new Server(8080);
-		WebAppContext root = new WebAppContext();
+import swa.swazam.server.daemon.ServerCallbackImpl;
+import swa.swazam.util.exceptions.SwazamException;
+import swa.swazam.util.peerlist.PeerListBackup;
 
-		root.setContextPath("/");
-		root.setDescriptor(webappDirLocation + "WEB-INF/web.xml");
-		root.setResourceBase(webappDirLocation);
-		root.setBaseResource(new ResourceCollection(new String[] { webappDirLocation, "target/" }));
-		root.setResourceAlias("/WEB-INF/classes/", "/classes/");
+import swa.swazam.util.communication.api.CommunicationUtilFactory;
+import swa.swazam.util.communication.api.ServerCommunicationUtil;
 
-		root.setParentLoaderPriority(true);
+public class App{
+    private ServerCallbackImpl serverCallback;
+    private PeerListBackup backup;
+    private ServerCommunicationUtil commLayer;
+    private Thread webThread;
+    private Thread daemonThread;
+    private Thread backupThread;
+    private WebThread webRunnable; 
 
-		server.setHandler(root);
+    public App(){
+	ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+	serverCallback = (ServerCallbackImpl) context.getBean("serverCallbackImpl");
+	backup = new PeerListBackup("");
+	startWebThread();
+	startDaemonThread();
+	startBackupThread();
+	read();
+    }
 
+    public static void main(String[] args) {
+	App app = new App();
+    }
+
+    public void startWebThread(){
+	webRunnable = new WebThread();
+	webThread = new Thread(webRunnable, "WebThread");
+	webThread.run();
+    }
+
+    public void startDaemonThread(){
+	daemonThread = new Thread(new Runnable() {
+
+	    @Override
+	    public void run() {
 		try {
-			server.start();
-			server.join();
-		} catch (Exception e) {
-			e.printStackTrace();
+		    serverCallback.setPeerList(backup.loadPeers());
+		    commLayer = CommunicationUtilFactory.createServerCommunicationUtil();
+		    commLayer.setCallback(serverCallback);
+		    commLayer.startup();
+		} catch (SwazamException e) {
 		}
+	    }
+	});
+
+	daemonThread.run();
+    }
+    
+    public void startBackupThread(){
+	backupThread = new Thread(new Runnable() {
+	    
+	    @Override
+	    public void run() {
+		try {
+		    while(true){
+			Thread.sleep(900000L);
+		    	backup.storePeers(serverCallback.getFullPeerList());
+		    }
+		} catch (SwazamException | InterruptedException e) {
+		}
+	    }
+	});
+    }
+
+    public void read(){
+
+	Scanner sc =  new Scanner(System.in);
+	System.out.println("\nEnter [quit] to exit");
+	while(sc.hasNext()){
+	    String command = sc.next();
+	    if(command.equals("quit")){
+		commLayer.shutdown();
+		webRunnable.stop();
+		backupThread.interrupt();
+		return;
+	    }
 	}
+    }
+
 }

@@ -1,6 +1,7 @@
 package swa.swazam.util.peerlist;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -57,11 +58,13 @@ public class PeerListBackup {
 		Type token = new TypeToken<ArrayPeerList<InetSocketAddress>>(){}.getType();
 		
 		try {
-			
-			BufferedReader br = new BufferedReader(new FileReader(storagePath + fileName));
-			ArrayPeerList<InetSocketAddress> list = gson.fromJson(br, token);
-			
-			return list;
+			File f = new File(storagePath + fileName);
+			if(f.exists()){
+			    BufferedReader br = new BufferedReader(new FileReader(storagePath + fileName));
+			    ArrayPeerList<InetSocketAddress> list = gson.fromJson(br, token);
+			    return list;
+			}
+			return new ArrayPeerList<InetSocketAddress>();
 			
 		} catch (FileNotFoundException e) {
 			throw new SwazamException("Could not load peer information from file system. Cause was: " + e.getMessage());
