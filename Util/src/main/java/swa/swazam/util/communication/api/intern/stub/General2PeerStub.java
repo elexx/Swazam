@@ -7,17 +7,25 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 
 import swa.swazam.util.communication.General2Peer;
+import swa.swazam.util.communication.api.Startable;
 import swa.swazam.util.communication.api.intern.ClientSide;
 import swa.swazam.util.communication.api.intern.dto.NetPacketFactory;
 import swa.swazam.util.communication.api.intern.dto.RequestWirePacket;
 import swa.swazam.util.dto.RequestDTO;
+import swa.swazam.util.exceptions.SwazamException;
 
-public class General2PeerStub implements General2Peer {
+public class General2PeerStub implements General2Peer, Startable {
 	protected final ClientSide clientSide;
 
 	public General2PeerStub(ClientSide clientSide) {
 		this.clientSide = clientSide;
 	}
+
+	@Override
+	public void startup() throws SwazamException {}
+
+	@Override
+	public void shutdown() {}
 
 	@Override
 	public void process(RequestDTO request, List<InetSocketAddress> destinationPeers) {

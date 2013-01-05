@@ -9,18 +9,15 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 
 import swa.swazam.util.communication.Peer2Peer;
-import swa.swazam.util.communication.api.Startable;
 import swa.swazam.util.communication.api.intern.ClientSide;
 import swa.swazam.util.communication.api.intern.dto.NetPacketFactory;
 import swa.swazam.util.communication.api.intern.dto.RequestWirePacket;
 import swa.swazam.util.exceptions.SwazamException;
 
-public class Peer2PeerStub extends General2PeerStub implements Peer2Peer, Startable {
-	// private final ClientSide clientSide;
+public class Peer2PeerStub extends General2PeerStub implements Peer2Peer {
 
 	public Peer2PeerStub(ClientSide clientSide) {
 		super(clientSide);
-		// this.clientSide = clientSide;
 	}
 
 	@Override

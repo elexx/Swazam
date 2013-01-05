@@ -2,6 +2,7 @@ package swa.swazam.util.communication.api;
 
 import swa.swazam.util.communication.Client2Server;
 import swa.swazam.util.communication.ClientCallback;
+import swa.swazam.util.communication.General2Peer;
 
 public interface ClientCommunicationUtil extends Startable {
 
@@ -18,5 +19,12 @@ public interface ClientCommunicationUtil extends Startable {
 	 * @return
 	 */
 	public Client2Server getServerStub();
+
+	/**
+	 * returns an RMI-like peer stub object
+	 * 
+	 * @return
+	 */
+	public General2Peer getPeerStub();
 
 }
