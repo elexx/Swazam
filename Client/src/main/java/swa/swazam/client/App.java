@@ -53,11 +53,13 @@ public class App {
 
 	private ClientCallback clientCallback;
 	private InetSocketAddress clientSocketAddress;
+	private int clientPort;
 	private InetSocketAddress serverAddress;
 	private BufferedReader br;
 
 	public App() {
 		peerList = new ArrayPeerList<>();
+		clientCallback = new ClientCallbackImpl(this);
 		br = new BufferedReader(new InputStreamReader(System.in));
 
 		// requestManager = new RequestManager();
@@ -90,11 +92,11 @@ public class App {
 
 	}
 
-/**
- * creates the requestDTO for sending to peers and also prepares the messageDTO for the server
- * 
- * @param fingerprint
- */
+	/**
+	 * creates the requestDTO for sending to peers and also prepares the messageDTO for the server
+	 * 
+	 * @param fingerprint
+	 */
 	private void createRequest(Fingerprint fingerprint) {
 		request = new RequestDTO(UUID.randomUUID(), clientSocketAddress, fingerprint);
 		message = new MessageDTO(request.getUuid(), "", "", null);
@@ -113,7 +115,7 @@ public class App {
 	 * 
 	 * @throws SwazamException
 	 */
-	private void updatePeerlist() throws SwazamException {
+	private void checkAndUpdateInitialPeerListToMinumumSize() throws SwazamException {
 		if (peerList.size() < 5) {
 			PeerList<InetSocketAddress> oldPeers = new ArrayPeerList<>();
 			oldPeers.addAll(peerList);
@@ -157,9 +159,7 @@ public class App {
 	}
 
 	private void setupCommLayer() throws SwazamException {
-		clientCallback = new ClientCallbackImpl();
-		
-		commLayer = swa.swazam.util.communication.api.CommunicationUtilFactory.createClientCommunicationUtil(serverAddress);
+		commLayer = swa.swazam.util.communication.api.CommunicationUtilFactory.createClientCommunicationUtil(serverAddress, clientPort);
 		commLayer.setCallback(clientCallback);
 		commLayer.startup();
 
@@ -185,10 +185,10 @@ public class App {
 		while (tryAgain) {
 			createRequest(fingerprint); // create UUID for RequestDTO, create MessageDTO with UUID filled out already
 			serverStub.logRequest(user, message); // logRequest sends UUID/MessageDTO to Server
-			updatePeerlist();
+			checkAndUpdateInitialPeerListToMinumumSize();
 
 			// send MessageDTO (with UUID fingerprint) to top 5 peers from client peerlist in parallel
-			// TODO eventually also receive a return value of a successful or failed connection attempt to first peers, so that more peers in list can be tried without the request failing after first 5 not online
+			// eventually also receive a return value of a successful or failed connection attempt to first peers, so that more peers in list can be tried without the request failing after first 5 not online
 			peerStub.process(request, peerList.getTop(5));
 
 			// wait 30 seconds, if no answer, display to user, "song snippet not found, try again later?/discard"
@@ -198,17 +198,11 @@ public class App {
 				try {
 					clientCallback.wait(3000);
 				} catch (InterruptedException e) {
-					// TODO song found, add message data, log at server
-					// update peerlist.
-					
-					// logRequest sends MessageDTO with completely filled out fields from first answering peer to server
-					
-					// display result of peer to user
+					serverStub.logRequest(user, message); // logRequest sends MessageDTO with completely filled out fields from first answering peer to server (server gives resolver a coin)
 
-					
-					
-					
+					updatePeerList(message.getResolverAddress());
 
+					displayResult(); // display result of peer to user
 					return;
 				}
 			}
@@ -233,6 +227,20 @@ public class App {
 				}
 			}
 		}
+	}
+
+	private void updatePeerList(InetSocketAddress resolverAddress) {
+		if (peerList.contains(resolverAddress)) {
+			peerList.remove(resolverAddress);
+			peerList.add(0, resolverAddress); // put resolving peer to top
+		} else {
+			peerList.add(4, resolverAddress); // set newcomer to place 5 (included in next search as fix starter, but not to the top) 
+		}
+	}
+
+	private void displayResult() {
+		System.out.println("Title: "+message.getSongTitle());
+		System.out.println("Artist: "+message.getSongArtist());
 	}
 
 	/**
@@ -294,7 +302,7 @@ public class App {
 			loginSuccessful = login(username, password);
 
 		} while (!loginSuccessful);
-		
+
 		return loginSuccessful;
 	}
 
@@ -341,18 +349,18 @@ public class App {
 		Properties configFile = new Properties();
 		configFile.load(this.getClass().getClassLoader().getResourceAsStream("client.properties"));
 
-		//String username = configFile.getProperty("credentials.user");
-		//String password = configFile.getProperty("credentials.pass");
-		//user = new CredentialsDTO(username, password);
+		// String username = configFile.getProperty("credentials.user");
+		// String password = configFile.getProperty("credentials.pass");
+		// user = new CredentialsDTO(username, password);
 
 		String serverHostname = configFile.getProperty("server.hostname");
-		int serverPort = Integer.parseInt(configFile.getProperty("server.port"));			
+		int serverPort = Integer.parseInt(configFile.getProperty("server.port"));
 		serverAddress = new InetSocketAddress(Inet4Address.getByName(serverHostname), serverPort);
-				
-		int clientPort = Integer.parseInt(configFile.getProperty("client.port"));							
-		clientSocketAddress = new InetSocketAddress(Inet4Address.getLocalHost().getHostAddress() , clientPort);		
 
-		snippetRootDirectory = configFile.getProperty("snippet.root");		
+		clientPort = Integer.parseInt(configFile.getProperty("client.port"));
+		clientSocketAddress = new InetSocketAddress(Inet4Address.getLocalHost().getHostAddress(), clientPort);
+
+		snippetRootDirectory = configFile.getProperty("snippet.root");
 	}
 
 	public static void main(String[] args) {
@@ -360,6 +368,11 @@ public class App {
 		System.out.println(app.getClass().getClassLoader().getResourceAsStream("client.properties"));
 		welcomeMessage();
 		app.run();
+	}
+
+	public void setAnswer(MessageDTO answer) {
+		// check if UUID is the same
+		this.message = answer;
 	}
 
 }
