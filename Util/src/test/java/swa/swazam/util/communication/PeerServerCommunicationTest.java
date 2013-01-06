@@ -3,6 +3,8 @@ package swa.swazam.util.communication;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.net.InetSocketAddress;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +20,7 @@ public class PeerServerCommunicationTest extends ServerServerSideCommunication {
 
 	@Before
 	public void startupClient() throws SwazamException {
-		commUtil = CommunicationUtilFactory.createPeerCommunicationUtil();
+		commUtil = CommunicationUtilFactory.createPeerCommunicationUtil(new InetSocketAddress(9090));
 		serverStub = commUtil.getServerStub();
 		commUtil.startup();
 	}

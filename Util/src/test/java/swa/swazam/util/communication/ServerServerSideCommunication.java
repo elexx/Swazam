@@ -37,7 +37,7 @@ public class ServerServerSideCommunication {
 		credentialsWithCoins = new CredentialsDTO("testuser", "apassword");
 		credentialsWithoutCoins = new CredentialsDTO("pooruser", "anotherpassword");
 
-		commUtil = CommunicationUtilFactory.createServerCommunicationUtil();
+		commUtil = CommunicationUtilFactory.createServerCommunicationUtil(new InetSocketAddress(9090));
 		commUtil.startup();
 		commUtil.setCallback(mockServer());
 	}

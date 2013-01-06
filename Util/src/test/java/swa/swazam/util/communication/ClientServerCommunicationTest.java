@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.net.InetSocketAddress;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +21,7 @@ public class ClientServerCommunicationTest extends ServerServerSideCommunication
 
 	@Before
 	public void startupClient() throws SwazamException {
-		commUtil = CommunicationUtilFactory.createClientCommunicationUtil();
+		commUtil = CommunicationUtilFactory.createClientCommunicationUtil(new InetSocketAddress(9090));
 		commUtil.startup();
 		serverStub = commUtil.getServerStub();
 	}

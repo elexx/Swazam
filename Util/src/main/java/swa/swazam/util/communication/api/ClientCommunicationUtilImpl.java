@@ -17,9 +17,9 @@ class ClientCommunicationUtilImpl implements ClientCommunicationUtil {
 	private final Client2ServerStub serverStub;
 	private final General2PeerStub peerStub;
 
-	ClientCommunicationUtilImpl() {
+	ClientCommunicationUtilImpl(InetSocketAddress serverAddress) {
 		clientSide = new ClientSide();
-		serverStub = new Client2ServerStub(clientSide);
+		serverStub = new Client2ServerStub(clientSide, serverAddress);
 		peerStub = new General2PeerStub(clientSide);
 		serverSide = new ServerSide(new InetSocketAddress(0));
 	}

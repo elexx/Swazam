@@ -1,8 +1,6 @@
 package swa.swazam.util.communication.api.intern.stub;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 
 import org.jboss.netty.channel.Channel;
@@ -20,22 +18,20 @@ import swa.swazam.util.exceptions.SwazamException;
 
 public class Client2ServerStub implements Client2Server, Startable {
 	private final ClientSide clientSide;
+	private final InetSocketAddress serverAddress;
 	private Channel channel;
 
-	public Client2ServerStub(ClientSide clientSide) {
+	public Client2ServerStub(ClientSide clientSide, InetSocketAddress serverAddress) {
 		this.clientSide = clientSide;
+		this.serverAddress = serverAddress;
 	}
 
 	@Override
 	public void startup() throws SwazamException {
-		try {
-			ChannelFuture connectFuture = clientSide.connect(new InetSocketAddress(InetAddress.getByName("localhost"), 9090));
-			channel = connectFuture.awaitUninterruptibly().getChannel();
-			if (!connectFuture.isSuccess()) {
-				throw new CommunicationException("connect not successful", connectFuture.getCause());
-			}
-		} catch (UnknownHostException e) {
-			throw new CommunicationException("unknown host", e.getCause());
+		ChannelFuture connectFuture = clientSide.connect(serverAddress);
+		channel = connectFuture.awaitUninterruptibly().getChannel();
+		if (!connectFuture.isSuccess()) {
+			throw new CommunicationException("connect not successful", connectFuture.getCause());
 		}
 	}
 

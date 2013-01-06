@@ -24,11 +24,11 @@ public class ShutdownTest {
 
 	@Before
 	public void startup() throws Exception {
-		commUtilServer = CommunicationUtilFactory.createServerCommunicationUtil();
+		commUtilServer = CommunicationUtilFactory.createServerCommunicationUtil(new InetSocketAddress(9090));
 		commUtilServer.setCallback(mockServer());
 		commUtilServer.startup();
 
-		commUtilClient = CommunicationUtilFactory.createClientCommunicationUtil();
+		commUtilClient = CommunicationUtilFactory.createClientCommunicationUtil(new InetSocketAddress(9090));
 		commUtilClient.startup();
 
 		peerList = new LinkedList<>();

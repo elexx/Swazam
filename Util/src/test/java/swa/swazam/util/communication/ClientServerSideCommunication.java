@@ -3,6 +3,7 @@ package swa.swazam.util.communication;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
+import java.net.InetSocketAddress;
 import java.util.UUID;
 
 import org.junit.After;
@@ -22,7 +23,7 @@ public class ClientServerSideCommunication {
 	public final void startup() throws Exception {
 		answer = new MessageDTO(UUID.randomUUID(), "aSongTitle", "aSongArtist", new CredentialsDTO("thisIsMyName", ""));
 
-		commUtil = CommunicationUtilFactory.createClientCommunicationUtil();
+		commUtil = CommunicationUtilFactory.createClientCommunicationUtil(new InetSocketAddress(9090));
 		commUtil.setCallback(mockServer());
 		commUtil.startup();
 	}

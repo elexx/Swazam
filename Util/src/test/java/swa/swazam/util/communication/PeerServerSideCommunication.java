@@ -27,7 +27,7 @@ public class PeerServerSideCommunication {
 		request = new RequestDTO(UUID.randomUUID(), new InetSocketAddress("localhost", 1234), new Fingerprint(0, 0, Arrays.asList(new SubFingerprint(123), new SubFingerprint(456))));
 		sender = new InetSocketAddress(0);
 
-		commUtil = CommunicationUtilFactory.createPeerCommunicationUtil();
+		commUtil = CommunicationUtilFactory.createPeerCommunicationUtil(new InetSocketAddress(9090));
 		commUtil.setCallback(mockServer());
 		commUtil.startup();
 	}

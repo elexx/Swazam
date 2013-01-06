@@ -9,8 +9,8 @@ import swa.swazam.util.exceptions.SwazamException;
 class ServerCommunicationUtilImpl implements ServerCommunicationUtil {
 	private final ServerSide serverSide;
 
-	ServerCommunicationUtilImpl() {
-		serverSide = new ServerSide(new InetSocketAddress(9090));
+	ServerCommunicationUtilImpl(InetSocketAddress listenAddress) {
+		serverSide = new ServerSide(listenAddress);
 	}
 
 	@Override

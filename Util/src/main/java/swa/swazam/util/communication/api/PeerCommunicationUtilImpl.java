@@ -21,10 +21,10 @@ class PeerCommunicationUtilImpl implements PeerCommunicationUtil {
 	private final Peer2PeerStub peerStub;
 	private final InetSocketAddress localListenAddress;
 
-	PeerCommunicationUtilImpl() {
+	PeerCommunicationUtilImpl(InetSocketAddress serverAddress) {
 		localListenAddress = new InetSocketAddress(0);
 		clientSide = new ClientSide();
-		serverStub = new Peer2ServerStub(clientSide, localListenAddress);
+		serverStub = new Peer2ServerStub(clientSide, serverAddress, localListenAddress);
 		clientStub = new Peer2ClientStub(clientSide, localListenAddress);
 		peerStub = new Peer2PeerStub(clientSide);
 		serverSide = new ServerSide(localListenAddress);
