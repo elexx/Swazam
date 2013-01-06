@@ -52,7 +52,8 @@ public class App {
 	private PeerList<InetSocketAddress> peerList;
 
 	private ClientCallback clientCallback;
-	private InetSocketAddress client;
+	private InetSocketAddress clientSocketAddress;
+	private InetSocketAddress serverAddress;
 	private BufferedReader br;
 
 	public App() {
@@ -90,7 +91,7 @@ public class App {
 	}
 
 	private void createRequest(Fingerprint fingerprint) {
-		request = new RequestDTO(UUID.randomUUID(), client, fingerprint);
+		request = new RequestDTO(UUID.randomUUID(), clientSocketAddress, fingerprint);
 		createMessage(request);
 	}
 
@@ -155,7 +156,7 @@ public class App {
 	}
 
 	private void setupCommLayer() throws SwazamException {
-		commLayer = swa.swazam.util.communication.api.CommunicationUtilFactory.createClientCommunicationUtil();
+		commLayer = swa.swazam.util.communication.api.CommunicationUtilFactory.createClientCommunicationUtil(clientSocketAddress,serverAddress);
 		commLayer.setCallback(clientCallback);
 		commLayer.startup();
 
@@ -223,6 +224,12 @@ public class App {
 		}
 	}
 
+	/**
+	 * waits for user to input location of song snippet file and takes a fingerprint of the snippet
+	 * 
+	 * @return fingerprint of sound snippet
+	 * @throws SwazamException
+	 */
 	private Fingerprint generateFingerprintForSnippet() throws SwazamException {
 		String snippet;
 		Fingerprint fingerprint = null;
@@ -276,10 +283,15 @@ public class App {
 			loginSuccessful = login(username, password);
 
 		} while (!loginSuccessful);
-
+		
 		return loginSuccessful;
 	}
 
+	/**
+	 * waits for user to input a password
+	 * 
+	 * @return entered password in clear text (or example password if anything went wrong)
+	 */
 	private String getPasswortFromUser() {
 		String password;
 		try {
@@ -292,6 +304,11 @@ public class App {
 		return password;
 	}
 
+	/**
+	 * waits for user to input a username
+	 * 
+	 * @return entered username (or example username if anything went wrong)
+	 */
 	private String getUsernameFromUser() {
 		String username;
 		try {
@@ -305,7 +322,7 @@ public class App {
 	}
 
 	/**
-	 * reads configuration (server address, client port for peers)
+	 * reads configuration (server address, client port for peer callback, )
 	 * 
 	 * @throws IOException
 	 */
@@ -317,17 +334,14 @@ public class App {
 		//String password = configFile.getProperty("credentials.pass");
 		//user = new CredentialsDTO(username, password);
 
-		// TODO What port are we using? How do I tell communication where to contact the server?
-		//String serverHostname = configFile.getProperty("server.hostname");
-		//String serverPort = configFile.getProperty("server.port");
+		String serverHostname = configFile.getProperty("server.hostname");
+		int serverPort = Integer.parseInt(configFile.getProperty("server.port"));			
+		serverAddress = new InetSocketAddress(Inet4Address.getByName(serverHostname), serverPort);
+				
+		int clientPort = Integer.parseInt(configFile.getProperty("client.port"));							
+		clientSocketAddress = new InetSocketAddress(Inet4Address.getLocalHost().getHostAddress() , clientPort);		
 
-		int clientPort = Integer.parseInt(configFile.getProperty("client.port"));
-		System.out.println("port: "+clientPort);
-						
-		client = new InetSocketAddress(Inet4Address.getLocalHost().getHostAddress() , clientPort);		
-
-		snippetRootDirectory = configFile.getProperty("snippet.root");
-		System.out.println("snippetRoot: "+snippetRootDirectory);
+		snippetRootDirectory = configFile.getProperty("snippet.root");		
 	}
 
 	public static void main(String[] args) {
