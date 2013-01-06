@@ -90,12 +90,13 @@ public class App {
 
 	}
 
+/**
+ * creates the requestDTO for sending to peers and also prepares the messageDTO for the server
+ * 
+ * @param fingerprint
+ */
 	private void createRequest(Fingerprint fingerprint) {
 		request = new RequestDTO(UUID.randomUUID(), clientSocketAddress, fingerprint);
-		createMessage(request);
-	}
-
-	private void createMessage(RequestDTO request) {
 		message = new MessageDTO(request.getUuid(), "", "", null);
 	}
 
@@ -156,6 +157,8 @@ public class App {
 	}
 
 	private void setupCommLayer() throws SwazamException {
+		clientCallback = new ClientCallbackImpl();
+		
 		commLayer = swa.swazam.util.communication.api.CommunicationUtilFactory.createClientCommunicationUtil(serverAddress);
 		commLayer.setCallback(clientCallback);
 		commLayer.startup();
@@ -196,7 +199,15 @@ public class App {
 					clientCallback.wait(3000);
 				} catch (InterruptedException e) {
 					// TODO song found, add message data, log at server
-					// update peerlist.return result to display.
+					// update peerlist.
+					
+					// logRequest sends MessageDTO with completely filled out fields from first answering peer to server
+					
+					// display result of peer to user
+
+					
+					
+					
 
 					return;
 				}
