@@ -156,7 +156,7 @@ public class App {
 	}
 
 	private void setupCommLayer() throws SwazamException {
-		commLayer = swa.swazam.util.communication.api.CommunicationUtilFactory.createClientCommunicationUtil(clientSocketAddress,serverAddress);
+		commLayer = swa.swazam.util.communication.api.CommunicationUtilFactory.createClientCommunicationUtil(serverAddress);
 		commLayer.setCallback(clientCallback);
 		commLayer.startup();
 
