@@ -4,8 +4,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.UUID;
 
@@ -34,11 +37,13 @@ public class App {
 	private static final String TESTDATA = "chrissi";
 	private static final String TESTFILE = TESTDATA + ".mp3";
 
+	private String snippetRootDirectory;
+
 	// private final RequestManager requestManager;
 
 	private ClientCommunicationUtil commLayer;
-	private Client2Server server;
-	private General2Peer peers;
+	private Client2Server serverStub;
+	private General2Peer peerStub;
 
 	private CredentialsDTO user;
 	private RequestDTO request;
@@ -46,7 +51,7 @@ public class App {
 
 	private PeerList<InetSocketAddress> peerList;
 
-	private ClientCallback callback; // maybe not needed
+	private ClientCallback clientCallback;
 	private InetSocketAddress client;
 	private BufferedReader br;
 
@@ -66,7 +71,7 @@ public class App {
 	 */
 	private boolean checkforCoins() throws SwazamException {
 
-		return server.hasCoins(user);
+		return serverStub.hasCoins(user);
 	}
 
 	/**
@@ -80,7 +85,7 @@ public class App {
 	private boolean login(String username, String password) throws SwazamException {
 		user = new CredentialsDTO(username, HashGenerator.hash(password));
 
-		return server.verifyCredentials(user);
+		return serverStub.verifyCredentials(user);
 
 	}
 
@@ -111,7 +116,7 @@ public class App {
 			PeerList<InetSocketAddress> oldPeers = new ArrayPeerList<>();
 			oldPeers.addAll(peerList);
 			peerList.clear(); // to avoid duplicates
-			peerList.addAll(server.getPeerList()); // add new peers
+			peerList.addAll(serverStub.getPeerList()); // add new peers
 			for (InetSocketAddress inetSocketAddress : oldPeers) {
 				if (!peerList.contains(inetSocketAddress)) {
 					peerList.add(0, inetSocketAddress); // add old, presumably good peers, to top of list
@@ -121,12 +126,22 @@ public class App {
 	}
 
 	public void run() {
-		// read configuration (server address, client port for peers)
-		loadConfig();
-
-		// let user enter username and password on commandline
 		try {
-			performLogin();
+			loadConfig();
+		} catch (IOException e1) {
+			System.err.println("Loading config was not possible.");
+			System.exit(0);
+		}
+
+		try {
+			setupCommLayer();
+		} catch (SwazamException e1) {
+			System.err.println("Communication setup failed.");
+			System.exit(0);
+		}
+
+		try {
+			performLogin(); // let user enter username and password on commandline
 
 			searchForSnippet();
 
@@ -137,6 +152,15 @@ public class App {
 			System.exit(0);
 		}
 
+	}
+
+	private void setupCommLayer() throws SwazamException {
+		commLayer = swa.swazam.util.communication.api.CommunicationUtilFactory.createClientCommunicationUtil();
+		commLayer.setCallback(clientCallback);
+		commLayer.startup();
+
+		peerStub = commLayer.getPeerStub();
+		serverStub = commLayer.getServerStub();
 	}
 
 	private void searchForSnippet() throws SwazamException {
@@ -156,19 +180,19 @@ public class App {
 
 		while (tryAgain) {
 			createRequest(fingerprint); // create UUID for RequestDTO, create MessageDTO with UUID filled out already
-			server.logRequest(user, message); // logRequest sends UUID/MessageDTO to Server
+			serverStub.logRequest(user, message); // logRequest sends UUID/MessageDTO to Server
 			updatePeerlist();
 
 			// send MessageDTO (with UUID fingerprint) to top 5 peers from client peerlist in parallel
 			// TODO eventually also receive a return value of a successful or failed connection attempt to first peers, so that more peers in list can be tried without the request failing after first 5 not online
-			peers.process(request, peerList.getTop(5));
+			peerStub.process(request, peerList.getTop(5));
 
 			// wait 30 seconds, if no answer, display to user, "song snippet not found, try again later?/discard"
 			System.out.print("searching");
 			for (int i = 0; i <= 10; i++) {
 				System.out.print(".." + (i * 10) + "%");
 				try {
-					callback.wait(3000);
+					clientCallback.wait(3000);
 				} catch (InterruptedException e) {
 					// TODO song found, add message data, log at server
 					// update peerlist.return result to display.
@@ -225,7 +249,7 @@ public class App {
 	}
 
 	/**
-	 * user ist logged in or an exception is thrown.
+	 * user is logged in or an exception is thrown.
 	 * 
 	 * @return always true or exception
 	 * @throws SwazamException
@@ -280,16 +304,37 @@ public class App {
 		return username;
 	}
 
-	private void loadConfig() {
-		// TODO Auto-generated method stub
+	/**
+	 * reads configuration (server address, client port for peers)
+	 * 
+	 * @throws IOException
+	 */
+	private void loadConfig() throws IOException {
+		Properties configFile = new Properties();
+		configFile.load(this.getClass().getClassLoader().getResourceAsStream("client.properties"));
 
+		//String username = configFile.getProperty("credentials.user");
+		//String password = configFile.getProperty("credentials.pass");
+		//user = new CredentialsDTO(username, password);
+
+		// TODO What port are we using? How do I tell communication where to contact the server?
+		//String serverHostname = configFile.getProperty("server.hostname");
+		//String serverPort = configFile.getProperty("server.port");
+
+		int clientPort = Integer.parseInt(configFile.getProperty("client.port"));
+		System.out.println("port: "+clientPort);
+						
+		client = new InetSocketAddress(Inet4Address.getLocalHost().getHostAddress() , clientPort);		
+
+		snippetRootDirectory = configFile.getProperty("snippet.root");
+		System.out.println("snippetRoot: "+snippetRootDirectory);
 	}
 
 	public static void main(String[] args) {
 		App app = new App();
+		System.out.println(app.getClass().getClassLoader().getResourceAsStream("client.properties"));
 		welcomeMessage();
 		app.run();
-
 	}
 
 }
