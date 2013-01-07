@@ -1,5 +1,6 @@
 package swa.swazam.server;
 
+import java.net.InetSocketAddress;
 import java.util.Scanner;
 
 import org.springframework.context.ApplicationContext;
@@ -54,7 +55,7 @@ public class App{
 	    public void run() {
 		try {
 		    serverCallback.setPeerList(backup.loadPeers());
-		    commLayer = CommunicationUtilFactory.createServerCommunicationUtil();
+		    commLayer = CommunicationUtilFactory.createServerCommunicationUtil(new InetSocketAddress(9090));
 		    commLayer.setCallback(serverCallback);
 		    commLayer.startup();
 		} catch (SwazamException e) {
