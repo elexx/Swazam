@@ -5,11 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.Properties;
-import java.util.Timer;
 import java.util.UUID;
 
 import javax.sound.sampled.AudioSystem;
@@ -36,6 +33,7 @@ public class App {
 
 	private static final String TESTDATA = "chrissi";
 	private static final String TESTFILE = TESTDATA + ".mp3";
+	private static final int MAGICPEERNUMBER = 5; // has to be at least 2
 
 	private String snippetRootDirectory;
 
@@ -66,6 +64,92 @@ public class App {
 		// requestManager.setup(this);
 	}
 
+	public static void main(String[] args) {
+		App app = new App();
+		System.out.println(app.getClass().getClassLoader().getResourceAsStream("client.properties"));
+		welcomeMessage();
+		app.run();
+	}
+
+	/**
+	 * prints a welcome message for the user
+	 */
+	private static void welcomeMessage() {
+		System.out.println("Welcome to SWAzam!\n");
+		System.out.println("To try out our service, we registered already a testuser with a number of coins");
+		System.out.println("Login and password are: chrissi\n");
+		System.out.println("A test recording, containing a 7 second random song snippet we provide as well: chrissi.mp3");
+		System.out.println("Have fun with SWAzam!");
+	}
+
+	public void run() {
+		try {
+			loadConfig();
+		} catch (IOException e1) {
+			System.err.println("Loading config was not possible.");
+			System.exit(0);
+		}
+		try {
+			setupCommLayer();
+		} catch (SwazamException e1) {
+			System.err.println("Communication setup failed.");
+			System.exit(0);
+		}
+		try {
+			performLogin(); // let user enter username and password on commandline
+			searchForSnippet();
+		} catch (SwazamException e) {
+			System.err.println("Server, internet connection, or database are down. Please try again later.");
+			e.printStackTrace();
+			System.exit(0);
+		}
+		shutdown();
+	}
+
+	/**
+	 * reads configuration (server address, client port for peer callback, snippet root directory)
+	 * 
+	 * @throws IOException
+	 */
+	protected void loadConfig() throws IOException {
+		Properties configFile = new Properties();
+		configFile.load(this.getClass().getClassLoader().getResourceAsStream("client.properties"));
+
+		// String username = configFile.getProperty("credentials.user");
+		// String password = configFile.getProperty("credentials.pass");
+		// user = new CredentialsDTO(username, password);
+
+		String serverHostname = configFile.getProperty("server.hostname");
+		int serverPort = Integer.parseInt(configFile.getProperty("server.port"));
+		serverAddress = new InetSocketAddress(Inet4Address.getByName(serverHostname), serverPort);
+
+		clientPort = Integer.parseInt(configFile.getProperty("client.port"));
+		clientSocketAddress = new InetSocketAddress(Inet4Address.getLocalHost().getHostAddress(), clientPort);
+
+		snippetRootDirectory = configFile.getProperty("snippet.root");
+	}
+
+	public String getSnippetRootDirectory() {
+		return snippetRootDirectory;
+	}
+
+	public int getClientPort() {
+		return clientPort;
+	}
+
+	public InetSocketAddress getServerAddress() {
+		return serverAddress;
+	}
+
+	protected void setupCommLayer() throws SwazamException {
+		commLayer = swa.swazam.util.communication.api.CommunicationUtilFactory.createClientCommunicationUtil(serverAddress); // clientPort
+		commLayer.setCallback(clientCallback);
+		commLayer.startup();
+
+		peerStub = commLayer.getPeerStub();
+		serverStub = commLayer.getServerStub();
+	}
+
 	/**
 	 * checks users coin status on server
 	 * 
@@ -73,7 +157,6 @@ public class App {
 	 * @throws SwazamException if server not reachable for example
 	 */
 	private boolean checkforCoins() throws SwazamException {
-
 		return serverStub.hasCoins(user);
 	}
 
@@ -85,7 +168,7 @@ public class App {
 	 * @return true when user is registered at server and username plus hashed password combination is correct false otherwise
 	 * @throws SwazamException if server not reachable for example
 	 */
-	private boolean login(String username, String password) throws SwazamException {
+	protected boolean login(String username, String password) throws SwazamException {
 		user = new CredentialsDTO(username, HashGenerator.hash(password));
 
 		return serverStub.verifyCredentials(user);
@@ -102,21 +185,13 @@ public class App {
 		message = new MessageDTO(request.getUuid(), "", "", null);
 	}
 
-	private static void welcomeMessage() {
-		System.out.println("Welcome to SWAzam!\n");
-		System.out.println("To try out our service, we registered already a testuser with a number of coins");
-		System.out.println("Login and password are: chrissi\n");
-		System.out.println("A test recording, containing a 7 second random song snippet we provide as well: chrissi.mp3");
-		System.out.println("Have fun with SWAzam!");
-	}
-
 	/**
-	 * initially getPeerList or if #Peers in PeerList < 5
+	 * initially getPeerList or if #Peers in PeerList < MAGICPEERNUMBER (eg. 5)
 	 * 
 	 * @throws SwazamException
 	 */
 	private void checkAndUpdateInitialPeerListToMinumumSize() throws SwazamException {
-		if (peerList.size() < 5) {
+		if (peerList.size() < MAGICPEERNUMBER) {
 			PeerList<InetSocketAddress> oldPeers = new ArrayPeerList<>();
 			oldPeers.addAll(peerList);
 			peerList.clear(); // to avoid duplicates
@@ -129,51 +204,12 @@ public class App {
 		}
 	}
 
-	public void run() {
-		try {
-			loadConfig();
-		} catch (IOException e1) {
-			System.err.println("Loading config was not possible.");
-			System.exit(0);
-		}
-
-		try {
-			setupCommLayer();
-		} catch (SwazamException e1) {
-			System.err.println("Communication setup failed.");
-			System.exit(0);
-		}
-
-		try {
-			performLogin(); // let user enter username and password on commandline
-
-			searchForSnippet();
-
-		} catch (SwazamException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Server, internet connection, or database are down. Please try again later.");
-			e.printStackTrace();
-			System.exit(0);
-		}
-
-	}
-
-	private void setupCommLayer() throws SwazamException {
-		commLayer = swa.swazam.util.communication.api.CommunicationUtilFactory.createClientCommunicationUtil(serverAddress, clientPort);
-		commLayer.setCallback(clientCallback);
-		commLayer.startup();
-
-		peerStub = commLayer.getPeerStub();
-		serverStub = commLayer.getServerStub();
-	}
-
 	private void searchForSnippet() throws SwazamException {
 		boolean hasCoins = false;
 		Fingerprint fingerprint = null;
 		boolean tryAgain = true;
 
 		hasCoins = checkforCoins();
-
 		if (!hasCoins) {
 			System.out.println("No more coins available. You receive coins when your peer program identifies a song request of other clients.");
 			System.err.println("Client quitting because of no coins");
@@ -187,9 +223,9 @@ public class App {
 			serverStub.logRequest(user, message); // logRequest sends UUID/MessageDTO to Server
 			checkAndUpdateInitialPeerListToMinumumSize();
 
-			// send MessageDTO (with UUID fingerprint) to top 5 peers from client peerlist in parallel
-			// eventually also receive a return value of a successful or failed connection attempt to first peers, so that more peers in list can be tried without the request failing after first 5 not online
-			peerStub.process(request, peerList.getTop(5));
+			// send MessageDTO (with UUID fingerprint) to top MAGICPEERNUMBER (eg.5) peers from client peerlist in parallel
+			// eventually also receive a return value of a successful or failed connection attempt to first peers, so that more peers in list can be tried without the request failing after first MAGICPEERNUMBER (eg 5) not online
+			peerStub.process(request, peerList.getTop(MAGICPEERNUMBER));
 
 			// wait 30 seconds, if no answer, display to user, "song snippet not found, try again later?/discard"
 			System.out.print("searching");
@@ -206,7 +242,9 @@ public class App {
 					return;
 				}
 			}
-			// TODO peer list management, remove top5 from top;
+			removePeersFromBottom(MAGICPEERNUMBER - 1); // reduce peerListSize from Bottom (peers did not pop up when returning results, and better ones did)
+			addPeersToTop(MAGICPEERNUMBER - 1);// put MAGICPEERNUMBER-1 (eg 4) other peers from list to top (so best one from before still has a chance)
+
 			tryAgain = false;
 			System.out.println(". Song snippet not found this time.");
 
@@ -215,7 +253,7 @@ public class App {
 			String answer = "d";
 
 			if (hasCoins) {
-				System.out.println("Try again (a)? or Discard (d) and start new search? [a|(d)]:"); // search again with different top5 or discard and loop back to hascoins check
+				System.out.println("Try again (a)? or Discard (d) and start new search? [a|(d)]:"); // search again with different top MAGICPEERNUMBER (eg 5) or discard and loop back to hascoins check
 
 				try {
 					answer = br.readLine();
@@ -229,18 +267,57 @@ public class App {
 		}
 	}
 
+	private void removePeersFromBottom(int peers) throws SwazamException {
+		int size = peerList.size();
+
+		if (size >= (MAGICPEERNUMBER + peers)) { // remove bottom peers when enough in peer list
+			for (int i = size - 1; i >= size - 1 - peers; i--) {
+				peerList.remove(i);
+			}
+		} else if (size >= MAGICPEERNUMBER + 1) { // do not remove element with index MAGICPEERNUMBER-1 since it might be new, but all left (# < peers) above
+			for (int i = MAGICPEERNUMBER; i <= size - 1; i++) {
+				peerList.remove(i);
+			}
+		} else if (size == MAGICPEERNUMBER) { // peer on MAGICPEERNUMBER-1 index position is possibly new, so remove the one before in the list only containing just enough
+			peerList.remove(MAGICPEERNUMBER - 2);
+		} else { // fetch new peers from server
+			checkAndUpdateInitialPeerListToMinumumSize();
+		}
+	}
+
+	private void addPeersToTop(int peers) throws SwazamException {
+		int size = peerList.size();
+
+		if (size >= (MAGICPEERNUMBER + peers)) { // put last peers to top
+			for (int i = 1; i <= peers; i++) {
+				peerList.add(0, peerList.get(size - 1));
+				peerList.remove(size);
+			}
+			peerList.add(MAGICPEERNUMBER - 1, peerList.get(MAGICPEERNUMBER + peers - 1));
+			peerList.remove(MAGICPEERNUMBER + peers);
+		} else if (size >= MAGICPEERNUMBER + 1) {
+			for (int i = MAGICPEERNUMBER; i <= size - 1; i++) {
+				peerList.add(0, peerList.get(size - 1));
+				peerList.remove(size);
+			}
+			peerList.add(MAGICPEERNUMBER - 1, peerList.get(size - 1));
+			peerList.remove(size);
+		} else
+			checkAndUpdateInitialPeerListToMinumumSize();
+	}
+
 	private void updatePeerList(InetSocketAddress resolverAddress) {
 		if (peerList.contains(resolverAddress)) {
 			peerList.remove(resolverAddress);
 			peerList.add(0, resolverAddress); // put resolving peer to top
 		} else {
-			peerList.add(4, resolverAddress); // set newcomer to place 5 (included in next search as fix starter, but not to the top) 
+			peerList.add(MAGICPEERNUMBER - 1, resolverAddress); // set newcomer to place MAGICPEERNUMBER-1 (eg 5) (included in next search as fix starter, but not to the top)
 		}
 	}
 
 	private void displayResult() {
-		System.out.println("Title: "+message.getSongTitle());
-		System.out.println("Artist: "+message.getSongArtist());
+		System.out.println("Title: " + message.getSongTitle());
+		System.out.println("Artist: " + message.getSongArtist());
 	}
 
 	/**
@@ -259,11 +336,10 @@ public class App {
 				snippet = br.readLine();
 			} catch (IOException e) {
 				System.err.println("Song snippet cannot be read. Standard filename '" + TESTDATA + ".mp3' is used."); // exit alternatively
-				snippet = TESTFILE;
+				snippet = snippetRootDirectory + TESTFILE;
 			}
 
 			File snippetFile = new File(snippet);
-
 			try {
 				fingerprint = new FingerprintTools().generate(AudioSystem.getAudioInputStream(snippetFile));
 			} catch (UnsupportedAudioFileException | IOException e) {
@@ -296,14 +372,14 @@ public class App {
 			} finally {
 				loginAttempt++;
 			}
-
 			String password = getPasswortFromUser();
-
 			loginSuccessful = login(username, password);
-
 		} while (!loginSuccessful);
-
 		return loginSuccessful;
+	}
+
+	private void shutdown() {
+		// TODO store modified peer list
 	}
 
 	/**
@@ -341,37 +417,12 @@ public class App {
 	}
 
 	/**
-	 * reads configuration (server address, client port for peer callback, )
+	 * letting an answering peer set the message with a found song
 	 * 
-	 * @throws IOException
+	 * @param answer
 	 */
-	private void loadConfig() throws IOException {
-		Properties configFile = new Properties();
-		configFile.load(this.getClass().getClassLoader().getResourceAsStream("client.properties"));
-
-		// String username = configFile.getProperty("credentials.user");
-		// String password = configFile.getProperty("credentials.pass");
-		// user = new CredentialsDTO(username, password);
-
-		String serverHostname = configFile.getProperty("server.hostname");
-		int serverPort = Integer.parseInt(configFile.getProperty("server.port"));
-		serverAddress = new InetSocketAddress(Inet4Address.getByName(serverHostname), serverPort);
-
-		clientPort = Integer.parseInt(configFile.getProperty("client.port"));
-		clientSocketAddress = new InetSocketAddress(Inet4Address.getLocalHost().getHostAddress(), clientPort);
-
-		snippetRootDirectory = configFile.getProperty("snippet.root");
-	}
-
-	public static void main(String[] args) {
-		App app = new App();
-		System.out.println(app.getClass().getClassLoader().getResourceAsStream("client.properties"));
-		welcomeMessage();
-		app.run();
-	}
-
 	public void setAnswer(MessageDTO answer) {
-		// check if UUID is the same
+		// possibly check if UUID is the same
 		this.message = answer;
 	}
 
