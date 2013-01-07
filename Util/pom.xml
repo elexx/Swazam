@@ -19,14 +19,19 @@
 		<powermock.version>1.5</powermock.version>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>lib</id>
+			<url>${project.baseUri}/lib</url>
+		</repository>
+	</repositories>
+
 
 	<dependencies>
 		<dependency>
-			<groupId>fingerprint</groupId>
-			<artifactId>fingerprint.jar</artifactId>
-			<version>LATEST</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/fingerprint.jar</systemPath>
+			<groupId>tuwien</groupId>
+			<artifactId>fingerprinting</artifactId>
+			<version>0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
