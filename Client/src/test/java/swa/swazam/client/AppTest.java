@@ -66,7 +66,7 @@ public class AppTest {
 		assertEquals(9091, app.getClientPort());
 		assertEquals("localhost", app.getServerAddress().getHostString());
 		assertEquals(9090, app.getServerAddress().getPort());
-		assertEquals(".", app.getSnippetRootDirectory());
+		assertEquals("./", app.getSnippetRootDirectory());
 	}
 
 	@Test

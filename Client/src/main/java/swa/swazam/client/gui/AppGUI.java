@@ -2,7 +2,6 @@ package swa.swazam.client.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.EventQueue;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -38,33 +37,31 @@ public class AppGUI extends JPanel implements ActionListener {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		//EventQueue.invokeLater(new Runnable() {
+		// EventQueue.invokeLater(new Runnable() {
 		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {									
-					createAndShowGUI();														
+			public void run() {
+				createAndShowGUI();
 			}
 		});
 	}
-	
-	 /**
-     * Create the GUI and show it.  For thread safety,
-     * this method should be invoked from the
-     * event dispatch thread.
-     */
-    private static void createAndShowGUI() {
-        //Create and set up the window.
-    	AppGUI window = new AppGUI();
+
+	/**
+	 * Create the GUI and show it. For thread safety, this method should be invoked from the event dispatch thread.
+	 */
+	private static void createAndShowGUI() {
+		// Create and set up the window.
+		AppGUI window = new AppGUI();
 		window.frmSwazam.setVisible(true);
-//        JFrame frame = new JFrame("SWAzam - the newest p2p music identifyer");
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//
-//        //Add content to the window.
-//        frame.add(new AppGUI());
-//
-//        //Display the window.
-//        frame.pack();
-//        frame.setVisible(true);
-    }	
+		// JFrame frame = new JFrame("SWAzam - the newest p2p music identifyer");
+		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//
+		// //Add content to the window.
+		// frame.add(new AppGUI());
+		//
+		// //Display the window.
+		// frame.pack();
+		// frame.setVisible(true);
+	}
 
 	/**
 	 * Create the application.
@@ -72,14 +69,14 @@ public class AppGUI extends JPanel implements ActionListener {
 	public AppGUI() {
 		super(new BorderLayout());
 		initialize();
-		// Create a file chooser		
+		// Create a file chooser
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		fc = new JFileChooser();
+		fc = new JFileChooser(); // TODO enter config file music snippet directory root here
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("MP3 & AAC Music snippets", "mp3", "aac");
 		fc.setFileFilter(filter);
 
