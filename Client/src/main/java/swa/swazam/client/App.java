@@ -253,8 +253,11 @@ public class App {
 			System.out.print("searching");
 			for (int i = 0; i <= 10; i++) {
 				System.out.print(".." + (i * 10) + "%");
-				try {
-					clientCallback.wait(3000);
+				try {					
+					synchronized (clientCallback) {
+						clientCallback.wait(3000);	
+					}
+					
 				} catch (InterruptedException e) {
 					serverStub.logRequest(user, message); // logRequest sends MessageDTO with completely filled out fields from first answering peer to server (server gives resolver a coin)
 
