@@ -19,13 +19,12 @@ public class Peer2ServerStub implements General2Server, Startable {
 
 	private final ClientSide clientSide;
 	private final InetSocketAddress serverAddress;
-	private final InetSocketAddress localListenAddress;
+	private InetSocketAddress localListenAddress = null; // has to be initialized after comm startup (but before actual communication)
 	private Channel channel;
 
-	public Peer2ServerStub(ClientSide clientSide, InetSocketAddress serverAddress, InetSocketAddress localListenAddress) {
+	public Peer2ServerStub(ClientSide clientSide, InetSocketAddress serverAddress) {
 		this.clientSide = clientSide;
 		this.serverAddress = serverAddress;
-		this.localListenAddress = localListenAddress;
 	}
 
 	@Override
@@ -52,5 +51,15 @@ public class Peer2ServerStub implements General2Server, Startable {
 	public List<InetSocketAddress> getPeerList() throws SwazamException {
 		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("getPeerList", localListenAddress);
 		return clientSide.callRemoteMethode(channel, packet);
+	}
+
+	@Override
+	public InetSocketAddress reportSendingAddress() throws SwazamException {
+		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("reportSenderAddress");
+		return clientSide.callRemoteMethode(channel, packet);
+	}
+
+	public void updateLocalListenAddress(InetSocketAddress localListenAddress) {
+		this.localListenAddress = localListenAddress;
 	}
 }

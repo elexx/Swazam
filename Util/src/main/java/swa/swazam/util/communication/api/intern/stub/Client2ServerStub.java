@@ -63,4 +63,10 @@ public class Client2ServerStub implements Client2Server, Startable {
 		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("hasCoins", user);
 		return clientSide.callRemoteMethode(channel, packet);
 	}
+
+	@Override
+	public InetSocketAddress reportSendingAddress() throws SwazamException {
+		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("reportSenderAddress");
+		return clientSide.callRemoteMethode(channel, packet);
+	}
 }

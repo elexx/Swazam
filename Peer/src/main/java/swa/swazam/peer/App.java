@@ -14,6 +14,7 @@ import swa.swazam.util.communication.General2Server;
 import swa.swazam.util.communication.Peer2Client;
 import swa.swazam.util.communication.Peer2Peer;
 import swa.swazam.util.communication.PeerCallback;
+import swa.swazam.util.communication.api.CommunicationUtilFactory;
 import swa.swazam.util.communication.api.PeerCommunicationUtil;
 import swa.swazam.util.dto.CredentialsDTO;
 import swa.swazam.util.dto.MessageDTO;
@@ -200,13 +201,15 @@ public class App implements Runnable, PeerCallback, PeerController {
 	}
 
 	private void setupCommLayer() throws SwazamException {
-		commLayer = swa.swazam.util.communication.api.CommunicationUtilFactory.createPeerCommunicationUtil(new InetSocketAddress(serverHostname, serverPort));
+		commLayer = CommunicationUtilFactory.createPeerCommunicationUtil(new InetSocketAddress(serverHostname, serverPort));
 		commLayer.setCallback(this);
 		commLayer.startup();
 
 		clientStub = commLayer.getClientStub();
 		serverStub = commLayer.getServerStub();
 		peerStub = commLayer.getPeerStub();
+
+		System.out.println("my address is: " + serverStub.reportSendingAddress());
 	}
 
 	private void teardownCommLayer() {

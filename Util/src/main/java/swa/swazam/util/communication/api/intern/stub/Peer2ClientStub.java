@@ -16,11 +16,10 @@ import swa.swazam.util.exceptions.SwazamException;
 public class Peer2ClientStub implements Peer2Client, Startable {
 
 	private final ClientSide clientSide;
-	private final InetSocketAddress localListenAddress;
+	private InetSocketAddress localListenAddress = null; // has to be initialized after comm startup (but before actual communication)
 
-	public Peer2ClientStub(ClientSide clientSide, InetSocketAddress localListenAddress) {
+	public Peer2ClientStub(ClientSide clientSide) {
 		this.clientSide = clientSide;
-		this.localListenAddress = localListenAddress;
 	}
 
 	@Override
@@ -28,6 +27,10 @@ public class Peer2ClientStub implements Peer2Client, Startable {
 
 	@Override
 	public void shutdown() {}
+
+	public void updateLocalListenAddress(InetSocketAddress localListenAddress) {
+		this.localListenAddress = localListenAddress;
+	}
 
 	@Override
 	public void solved(MessageDTO answer, InetSocketAddress client) {
