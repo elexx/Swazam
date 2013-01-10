@@ -33,7 +33,7 @@ import ac.at.tuwien.infosys.swa.audio.Fingerprint;
  */
 public class App {
 
-	private static final String TESTDATA = "chrissi";
+	private static final String TESTDATA = "demo";
 	private static final String TESTFILE = TESTDATA + ".mp3";
 	private static final int MAGICPEERNUMBER = 5; // has to be at least 2
 
@@ -82,8 +82,8 @@ public class App {
 	private static void welcomeMessage() {
 		System.out.println("Welcome to SWAzam!\n");
 		System.out.println("To try out our service, we registered already a testuser with a number of coins");
-		System.out.println("Login and password are: chrissi\n");
-		System.out.println("A test recording, containing a 7 second random song snippet we provide as well: chrissi.mp3");
+		System.out.println("Login and password are: demo\n");
+		System.out.println("A test recording, containing a 7 second random song snippet we provide as well: demo.mp3");
 		System.out.println("Have fun with SWAzam!");
 	}
 
@@ -106,7 +106,7 @@ public class App {
 			System.err.println("Local peer list not found. Attempting Server.");
 		}
 		try {
-			performLogin(); // let user enter username and password on commandline
+			performLogin(); // let user enter username and password on commandline if config file contains testdata
 			searchForSnippet();
 		} catch (SwazamException e) {
 			System.err.println("Server, internet connection, or database are down. Please try again later.");
@@ -133,8 +133,8 @@ public class App {
 
 		String username = configFile.getProperty("credentials.user");
 		String password = configFile.getProperty("credentials.pass");
-		System.out.println("testuser and password: "+ username);
-		user = new CredentialsDTO(username, password);
+		System.out.println("testuser: " + username + " and password: "+ password +" found in config.");
+		user = new CredentialsDTO(username, HashGenerator.hash(password));
 
 		String serverHostname = configFile.getProperty("server.hostname");
 		int serverPort = Integer.parseInt(configFile.getProperty("server.port"));
@@ -415,7 +415,7 @@ public class App {
 		boolean loginSuccessful = false;
 		int loginAttempt = 0;
 
-		if (user.getUsername() != TESTDATA) {
+		if (user.getUsername().trim().equals(TESTDATA.toString().trim())) {
 			do {
 				String username = getUsernameFromUser();
 				if (loginAttempt != 0) {
@@ -431,6 +431,10 @@ public class App {
 				String password = getPasswortFromUser();
 				loginSuccessful = login(username, password);
 			} while (!loginSuccessful);
+		}
+		else {
+			System.out.println(user.getUsername() + " username will be used");
+				loginSuccessful = serverStub.verifyCredentials(user);
 		}
 		return loginSuccessful;
 	}
