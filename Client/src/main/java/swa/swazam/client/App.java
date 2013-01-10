@@ -69,6 +69,7 @@ public class App {
 	}
 
 	public static void main(String[] args) {
+		// TODO read args from startup (property file name)
 		App app = new App();
 		System.out.println(app.getClass().getClassLoader().getResourceAsStream("client.properties"));
 		welcomeMessage();
@@ -124,9 +125,9 @@ public class App {
 		Properties configFile = new Properties();
 		configFile.load(this.getClass().getClassLoader().getResourceAsStream("client.properties"));
 
-		// String username = configFile.getProperty("credentials.user");
-		// String password = configFile.getProperty("credentials.pass");
-		// user = new CredentialsDTO(username, password);
+		String username = configFile.getProperty("credentials.user");
+		String password = configFile.getProperty("credentials.pass");
+		user = new CredentialsDTO(username, password);
 
 		String serverHostname = configFile.getProperty("server.hostname");
 		int serverPort = Integer.parseInt(configFile.getProperty("server.port"));
@@ -187,7 +188,6 @@ public class App {
 		user = new CredentialsDTO(username, HashGenerator.hash(password));
 
 		return serverStub.verifyCredentials(user);
-
 	}
 
 	/**
@@ -282,6 +282,12 @@ public class App {
 		}
 	}
 
+	/**
+	 * removes worst performing peers at bottom of list.
+	 * 
+	 * @param peers
+	 * @throws SwazamException
+	 */
 	private void removePeersFromBottom(int peers) throws SwazamException {
 		int size = peerList.size();
 
@@ -378,25 +384,27 @@ public class App {
 		boolean loginSuccessful = false;
 		int loginAttempt = 0;
 
-		do {
-			String username = getUsernameFromUser();
-			if (loginAttempt != 0) {
-				System.out.println("please wait for " + (loginAttempt) * 500 + "ms to enter password."); // render brute force unfeasable, avoid Server login DOS with user credentials except of default
-			}
-			try {
-				Thread.sleep(loginAttempt * 500);
-			} catch (InterruptedException e) {
-				System.err.println("Maybe another client instance is still running?");
-			} finally {
-				loginAttempt++;
-			}
-			String password = getPasswortFromUser();
-			loginSuccessful = login(username, password);
-		} while (!loginSuccessful);
+		if (user.getUsername() != TESTDATA) {
+			do {
+				String username = getUsernameFromUser();
+				if (loginAttempt != 0) {
+					System.out.println("please wait for " + (loginAttempt) * 500 + "ms to enter password."); // render brute force unfeasable, avoid Server login DOS with user credentials except of default
+				}
+				try {
+					Thread.sleep(loginAttempt * 500);
+				} catch (InterruptedException e) {
+					System.err.println("Maybe another client instance is still running?");
+				} finally {
+					loginAttempt++;
+				}
+				String password = getPasswortFromUser();
+				loginSuccessful = login(username, password);
+			} while (!loginSuccessful);
+		}
 		return loginSuccessful;
 	}
 
-	private void shutdown() throws SwazamException {		
+	private void shutdown() throws SwazamException {
 		peerListBackup.storePeers(peerList);
 	}
 
@@ -443,5 +451,4 @@ public class App {
 		// possibly check if UUID is the same
 		this.message = answer;
 	}
-
 }
