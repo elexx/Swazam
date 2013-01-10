@@ -128,12 +128,12 @@ public class App {
 	protected void loadConfig() throws IOException {
 		Properties configFile = new Properties();
 		InputStream is = this.getClass().getClassLoader().getResourceAsStream("client.properties");
-		//System.out.println("inputstream is " + is);
+		// System.out.println("inputstream is " + is);
 		configFile.load(is);
 
 		String username = configFile.getProperty("credentials.user");
 		String password = configFile.getProperty("credentials.pass");
-		System.out.println("testuser: " + username + " and password: "+ password +" found in config.");
+		System.out.println("testuser: " + username + " and password: " + password + " found in config.");
 		user = new CredentialsDTO(username, HashGenerator.hash(password));
 
 		String serverHostname = configFile.getProperty("server.hostname");
@@ -213,7 +213,7 @@ public class App {
 	 * 
 	 * @throws SwazamException
 	 */
-	private void checkAndUpdateInitialPeerListToMinumumSize() throws SwazamException {		
+	private void checkAndUpdateInitialPeerListToMinumumSize() throws SwazamException {
 		if (peerList.size() < MAGICPEERNUMBER) {
 			PeerList<InetSocketAddress> oldPeers = new ArrayPeerList<>();
 			oldPeers.addAll(peerList);
@@ -259,11 +259,11 @@ public class App {
 			System.out.print("searching");
 			for (int i = 0; i <= 10; i++) {
 				System.out.print(".." + (i * 10) + "%");
-				try {					
+				try {
 					synchronized (clientCallback) {
-						clientCallback.wait(3000);	
+						clientCallback.wait(3000);
 					}
-					
+
 				} catch (InterruptedException e) {
 					serverStub.logRequest(user, message); // logRequest sends MessageDTO with completely filled out fields from first answering peer to server (server gives resolver a coin)
 
@@ -290,10 +290,9 @@ public class App {
 					answer = br.readLine();
 					if (answer.equalsIgnoreCase("a")) {
 						tryAgain = true;
-					}
-					else if (answer.equalsIgnoreCase("q")){
+					} else if (answer.equalsIgnoreCase("q")) {
 						tryAgain = false;
-					}						
+					}
 				} catch (IOException e) {
 					System.err.println("Could not read input, opting for default answer: Discard");
 				}
@@ -327,6 +326,7 @@ public class App {
 
 	/**
 	 * best replace peers from top with ones below
+	 * 
 	 * @param peers
 	 * @throws SwazamException
 	 */
@@ -353,6 +353,7 @@ public class App {
 
 	/**
 	 * puts resolving peer to top in list if exists already or adds newcomer to top few, but not to the very top
+	 * 
 	 * @param resolverAddress
 	 */
 	private void updatePeerList(InetSocketAddress resolverAddress) {
@@ -431,10 +432,9 @@ public class App {
 				String password = getPasswortFromUser();
 				loginSuccessful = login(username, password);
 			} while (!loginSuccessful);
-		}
-		else {
+		} else {
 			System.out.println(user.getUsername() + " username will be used");
-				loginSuccessful = serverStub.verifyCredentials(user);
+			loginSuccessful = serverStub.verifyCredentials(user);
 		}
 		return loginSuccessful;
 	}
