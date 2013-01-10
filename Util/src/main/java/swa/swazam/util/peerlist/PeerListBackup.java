@@ -34,9 +34,9 @@ public class PeerListBackup {
 	 * @param peers the list containing the peers that should be serialized
 	 * @throws SwazamException in case the storage is unsuccessful.
 	 */
-	public void storePeers(ArrayPeerList<InetSocketAddress> peers) throws SwazamException {
+	public void storePeers(PeerList<InetSocketAddress> peers) throws SwazamException {
 		Gson gson = new Gson();
-		Type token = new TypeToken<ArrayPeerList<InetSocketAddress>>(){}.getType();
+		Type token = new TypeToken<PeerList<InetSocketAddress>>(){}.getType();
 		String json = gson.toJson(peers, token);
 		
 		try {

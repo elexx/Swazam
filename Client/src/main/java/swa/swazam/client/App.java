@@ -24,6 +24,7 @@ import swa.swazam.util.fingerprint.FingerprintTools;
 import swa.swazam.util.hash.HashGenerator;
 import swa.swazam.util.peerlist.ArrayPeerList;
 import swa.swazam.util.peerlist.PeerList;
+import swa.swazam.util.peerlist.PeerListBackup;
 import ac.at.tuwien.infosys.swa.audio.Fingerprint;
 
 /**
@@ -54,6 +55,8 @@ public class App {
 	private int clientPort;
 	private InetSocketAddress serverAddress;
 	private BufferedReader br;
+	private PeerListBackup peerListBackup;
+	private String storagePath;
 
 	public App() {
 		peerList = new ArrayPeerList<>();
@@ -95,15 +98,20 @@ public class App {
 			System.err.println("Communication setup failed.");
 			System.exit(0);
 		}
+		setupStorage();
 		try {
 			performLogin(); // let user enter username and password on commandline
 			searchForSnippet();
 		} catch (SwazamException e) {
 			System.err.println("Server, internet connection, or database are down. Please try again later.");
-			e.printStackTrace();
 			System.exit(0);
 		}
-		shutdown();
+		try {
+			shutdown();
+		} catch (SwazamException e) {
+			System.err.println("Could not store peer list.");
+			System.exit(0);
+		}
 	}
 
 	/**
@@ -127,6 +135,8 @@ public class App {
 		clientSocketAddress = new InetSocketAddress(Inet4Address.getLocalHost().getHostAddress(), clientPort);
 
 		snippetRootDirectory = configFile.getProperty("snippet.root");
+
+		storagePath = configFile.getProperty("peerlist.storagepath");
 	}
 
 	public String getSnippetRootDirectory() {
@@ -148,6 +158,10 @@ public class App {
 
 		peerStub = commLayer.getPeerStub();
 		serverStub = commLayer.getServerStub();
+	}
+
+	protected void setupStorage() {
+		peerListBackup = new PeerListBackup(storagePath);
 	}
 
 	/**
@@ -378,8 +392,8 @@ public class App {
 		return loginSuccessful;
 	}
 
-	private void shutdown() {
-		// TODO store modified peer list
+	private void shutdown() throws SwazamException {		
+		peerListBackup.storePeers(peerList);
 	}
 
 	/**
