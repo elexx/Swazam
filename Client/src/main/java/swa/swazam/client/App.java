@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 import java.util.Properties;
 import java.util.UUID;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -348,16 +349,19 @@ public class App {
 				// (record or) select music snippet file
 				System.out.print("song snippet filename: ");
 				snippet = br.readLine();
+				System.out.println(snippet + " will be used");
 			} catch (IOException e) {
 				System.err.println("Song snippet cannot be read. Standard filename '" + TESTDATA + ".mp3' is used."); // exit alternatively
 				snippet = snippetRootDirectory + TESTFILE;
 			}
 
 			File snippetFile = new File(snippet);
+			System.out.println(snippetFile.exists());
 			try {
 				fingerprint = new FingerprintTools().generate(AudioSystem.getAudioInputStream(snippetFile));
 			} catch (UnsupportedAudioFileException | IOException e) {
 				System.err.println("Audio format not supported or file could not be read.");
+				System.err.println(e.toString());
 			}
 		} while (fingerprint == null);
 
