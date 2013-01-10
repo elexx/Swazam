@@ -12,9 +12,11 @@ import swa.swazam.util.exceptions.SwazamException;
 public interface General2Server {
 
 	/**
-	 * Delivers a list containing the top 5 peers. If less are known, less are delivered.
+	 * Delivers a list containing the top 5 peers. If less are known, less are
+	 * delivered.
 	 * 
-	 * @throws SwazamException in case the communication fails
+	 * @throws SwazamException
+	 *             in case the communication fails
 	 * @return the top 5 peers (at most)
 	 */
 	public List<InetSocketAddress> getPeerList() throws SwazamException;
@@ -23,8 +25,20 @@ public interface General2Server {
 	 * Checks if the given user is registered at the server
 	 * 
 	 * @param user
-	 * @return true, if the given user exists and the username and passwort is correct, else false.
-	 * @throws SwazamException in case the communication fails
+	 * @return true, if the given user exists and the username and passwort is
+	 *         correct, else false.
+	 * @throws SwazamException
+	 *             in case the communication fails
 	 */
 	public boolean verifyCredentials(CredentialsDTO user) throws SwazamException;
+
+	/**
+	 * Reports the caller's address back as a return value. The address of the
+	 * socket from which the request has been received is used for that purpose.
+	 * 
+	 * @return The sender's address
+	 * @throws SwazamException
+	 *             in case the communication fails
+	 */
+	public InetSocketAddress reportSendingAddress() throws SwazamException;
 }

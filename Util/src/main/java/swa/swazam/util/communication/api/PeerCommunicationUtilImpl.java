@@ -19,15 +19,13 @@ class PeerCommunicationUtilImpl implements PeerCommunicationUtil {
 	private final Peer2ServerStub serverStub;
 	private final Peer2ClientStub clientStub;
 	private final Peer2PeerStub peerStub;
-	private final InetSocketAddress localListenAddress;
 
 	PeerCommunicationUtilImpl(InetSocketAddress serverAddress) {
-		localListenAddress = new InetSocketAddress(0);
 		clientSide = new ClientSide();
-		serverStub = new Peer2ServerStub(clientSide, serverAddress, localListenAddress);
-		clientStub = new Peer2ClientStub(clientSide, localListenAddress);
+		serverStub = new Peer2ServerStub(clientSide, serverAddress);
+		clientStub = new Peer2ClientStub(clientSide);
 		peerStub = new Peer2PeerStub(clientSide);
-		serverSide = new ServerSide(localListenAddress);
+		serverSide = new ServerSide(new InetSocketAddress(0));
 	}
 
 	@Override
@@ -36,6 +34,10 @@ class PeerCommunicationUtilImpl implements PeerCommunicationUtil {
 		serverStub.startup();
 		clientStub.startup();
 		peerStub.startup();
+
+		InetSocketAddress localListenAddress = serverStub.reportSendingAddress();
+		serverStub.updateLocalListenAddress(localListenAddress);
+		clientStub.updateLocalListenAddress(localListenAddress);
 	}
 
 	@Override
