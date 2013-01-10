@@ -33,7 +33,7 @@ import ac.at.tuwien.infosys.swa.audio.Fingerprint;
  */
 public class App {
 
-	private static final String TESTDATA = "chrissi";
+	private static final String TESTDATA = "demo";
 	private static final String TESTFILE = TESTDATA + ".mp3";
 	private static final int MAGICPEERNUMBER = 5; // has to be at least 2
 
@@ -82,8 +82,8 @@ public class App {
 	private static void welcomeMessage() {
 		System.out.println("Welcome to SWAzam!\n");
 		System.out.println("To try out our service, we registered already a testuser with a number of coins");
-		System.out.println("Login and password are: chrissi\n");
-		System.out.println("A test recording, containing a 7 second random song snippet we provide as well: chrissi.mp3");
+		System.out.println("Login and password are: demo\n");
+		System.out.println("A test recording, containing a 7 second random song snippet we provide as well: demo.mp3");
 		System.out.println("Have fun with SWAzam!");
 	}
 
@@ -100,9 +100,13 @@ public class App {
 			System.err.println("Communication setup failed.");
 			System.exit(0);
 		}
-		setupStorage();
 		try {
-			performLogin(); // let user enter username and password on commandline
+			setupStorage();
+		} catch (SwazamException e1) {
+			System.err.println("Local peer list not found. Attempting Server.");
+		}
+		try {
+			performLogin(); // let user enter username and password on commandline if config file contains testdata
 			searchForSnippet();
 		} catch (SwazamException e) {
 			System.err.println("Server, internet connection, or database are down. Please try again later.");
@@ -124,12 +128,13 @@ public class App {
 	protected void loadConfig() throws IOException {
 		Properties configFile = new Properties();
 		InputStream is = this.getClass().getClassLoader().getResourceAsStream("client.properties");
-		System.out.println("inputstream is " + is);
+		//System.out.println("inputstream is " + is);
 		configFile.load(is);
 
 		String username = configFile.getProperty("credentials.user");
 		String password = configFile.getProperty("credentials.pass");
-		user = new CredentialsDTO(username, password);
+		System.out.println("testuser: " + username + " and password: "+ password +" found in config.");
+		user = new CredentialsDTO(username, HashGenerator.hash(password));
 
 		String serverHostname = configFile.getProperty("server.hostname");
 		int serverPort = Integer.parseInt(configFile.getProperty("server.port"));
@@ -164,8 +169,9 @@ public class App {
 		serverStub = commLayer.getServerStub();
 	}
 
-	protected void setupStorage() {
+	protected void setupStorage() throws SwazamException {
 		peerListBackup = new PeerListBackup(storagePath);
+		peerList.addAll(peerListBackup.loadPeers());
 	}
 
 	/**
@@ -203,11 +209,11 @@ public class App {
 	}
 
 	/**
-	 * initially getPeerList or if #Peers in PeerList < MAGICPEERNUMBER (eg. 5)
+	 * initially getPeerList from Server or if #Peers in PeerList < MAGICPEERNUMBER (eg. 5)
 	 * 
 	 * @throws SwazamException
 	 */
-	private void checkAndUpdateInitialPeerListToMinumumSize() throws SwazamException {
+	private void checkAndUpdateInitialPeerListToMinumumSize() throws SwazamException {		
 		if (peerList.size() < MAGICPEERNUMBER) {
 			PeerList<InetSocketAddress> oldPeers = new ArrayPeerList<>();
 			oldPeers.addAll(peerList);
@@ -278,13 +284,16 @@ public class App {
 			String answer = "d";
 
 			if (hasCoins) {
-				System.out.println("Try again (a)? or Discard (d) and start new search? [a|(d)]:"); // search again with different top MAGICPEERNUMBER (eg 5) or discard and loop back to hascoins check
+				System.out.println("Try again (a)? or Discard (d) and start new search or Quit (q)? [a|(d)|q]:"); // search again with different top MAGICPEERNUMBER (eg 5) or discard and loop back to hascoins check
 
 				try {
 					answer = br.readLine();
 					if (answer.equalsIgnoreCase("a")) {
 						tryAgain = true;
 					}
+					else if (answer.equalsIgnoreCase("q")){
+						tryAgain = false;
+					}						
 				} catch (IOException e) {
 					System.err.println("Could not read input, opting for default answer: Discard");
 				}
@@ -406,7 +415,7 @@ public class App {
 		boolean loginSuccessful = false;
 		int loginAttempt = 0;
 
-		if (user.getUsername() != TESTDATA) {
+		if (user.getUsername().trim().equals(TESTDATA.toString().trim())) {
 			do {
 				String username = getUsernameFromUser();
 				if (loginAttempt != 0) {
@@ -422,6 +431,10 @@ public class App {
 				String password = getPasswortFromUser();
 				loginSuccessful = login(username, password);
 			} while (!loginSuccessful);
+		}
+		else {
+			System.out.println(user.getUsername() + " username will be used");
+				loginSuccessful = serverStub.verifyCredentials(user);
 		}
 		return loginSuccessful;
 	}

@@ -108,4 +108,9 @@ public class LoginBean implements Serializable{
 	public boolean getIsLoggedIn(){
 		return isLoggedIn;
 	}
+	
+	public User updateUserData(){
+		loggedInUser = userService.find(loggedInUser.getUsername());
+		return loggedInUser;
+	}
 }
