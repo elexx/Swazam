@@ -221,6 +221,11 @@ public class App {
 		}
 	}
 
+	/**
+	 * check if user has coins to do a search, generate a fingerprint, send to peers from peerlist, and displays result
+	 * 
+	 * @throws SwazamException
+	 */
 	private void searchForSnippet() throws SwazamException {
 		boolean hasCoins = false;
 		Fingerprint fingerprint = null;
@@ -308,6 +313,11 @@ public class App {
 		}
 	}
 
+	/**
+	 * best replace peers from top with ones below
+	 * @param peers
+	 * @throws SwazamException
+	 */
 	private void addPeersToTop(int peers) throws SwazamException {
 		int size = peerList.size();
 
@@ -329,6 +339,10 @@ public class App {
 			checkAndUpdateInitialPeerListToMinumumSize();
 	}
 
+	/**
+	 * puts resolving peer to top in list if exists already or adds newcomer to top few, but not to the very top
+	 * @param resolverAddress
+	 */
 	private void updatePeerList(InetSocketAddress resolverAddress) {
 		if (peerList.contains(resolverAddress)) {
 			peerList.remove(resolverAddress);
@@ -338,6 +352,9 @@ public class App {
 		}
 	}
 
+	/**
+	 * output result to user
+	 */
 	private void displayResult() {
 		System.out.println("Title: " + message.getSongTitle());
 		System.out.println("Artist: " + message.getSongArtist());
@@ -406,6 +423,11 @@ public class App {
 		return loginSuccessful;
 	}
 
+	/**
+	 * stores the current Peerlist locally, so the server does not have to be contacted again
+	 * 
+	 * @throws SwazamException
+	 */
 	private void shutdown() throws SwazamException {
 		peerListBackup.storePeers(peerList);
 	}
