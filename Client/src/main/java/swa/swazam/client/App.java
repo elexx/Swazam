@@ -100,7 +100,11 @@ public class App {
 			System.err.println("Communication setup failed.");
 			System.exit(0);
 		}
-		setupStorage();
+		try {
+			setupStorage();
+		} catch (SwazamException e1) {
+			System.err.println("Local peer list not found. Attempting Server.");
+		}
 		try {
 			performLogin(); // let user enter username and password on commandline
 			searchForSnippet();
@@ -164,8 +168,9 @@ public class App {
 		serverStub = commLayer.getServerStub();
 	}
 
-	protected void setupStorage() {
+	protected void setupStorage() throws SwazamException {
 		peerListBackup = new PeerListBackup(storagePath);
+		peerList.addAll(peerListBackup.loadPeers());
 	}
 
 	/**
@@ -203,11 +208,11 @@ public class App {
 	}
 
 	/**
-	 * initially getPeerList or if #Peers in PeerList < MAGICPEERNUMBER (eg. 5)
+	 * initially getPeerList from Server or if #Peers in PeerList < MAGICPEERNUMBER (eg. 5)
 	 * 
 	 * @throws SwazamException
 	 */
-	private void checkAndUpdateInitialPeerListToMinumumSize() throws SwazamException {
+	private void checkAndUpdateInitialPeerListToMinumumSize() throws SwazamException {		
 		if (peerList.size() < MAGICPEERNUMBER) {
 			PeerList<InetSocketAddress> oldPeers = new ArrayPeerList<>();
 			oldPeers.addAll(peerList);
