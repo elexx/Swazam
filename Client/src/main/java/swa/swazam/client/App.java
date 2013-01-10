@@ -128,11 +128,12 @@ public class App {
 	protected void loadConfig() throws IOException {
 		Properties configFile = new Properties();
 		InputStream is = this.getClass().getClassLoader().getResourceAsStream("client.properties");
-		System.out.println("inputstream is " + is);
+		//System.out.println("inputstream is " + is);
 		configFile.load(is);
 
 		String username = configFile.getProperty("credentials.user");
 		String password = configFile.getProperty("credentials.pass");
+		System.out.println("testuser and password: "+ username);
 		user = new CredentialsDTO(username, password);
 
 		String serverHostname = configFile.getProperty("server.hostname");
@@ -283,13 +284,16 @@ public class App {
 			String answer = "d";
 
 			if (hasCoins) {
-				System.out.println("Try again (a)? or Discard (d) and start new search? [a|(d)]:"); // search again with different top MAGICPEERNUMBER (eg 5) or discard and loop back to hascoins check
+				System.out.println("Try again (a)? or Discard (d) and start new search or Quit (q)? [a|(d)|q]:"); // search again with different top MAGICPEERNUMBER (eg 5) or discard and loop back to hascoins check
 
 				try {
 					answer = br.readLine();
 					if (answer.equalsIgnoreCase("a")) {
 						tryAgain = true;
 					}
+					else if (answer.equalsIgnoreCase("q")){
+						tryAgain = false;
+					}						
 				} catch (IOException e) {
 					System.err.println("Could not read input, opting for default answer: Discard");
 				}
