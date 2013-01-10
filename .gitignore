@@ -57,3 +57,7 @@ Desktop.ini
 
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
+
+# Known peers files
+knownPeers.json
+

@@ -1,5 +1,6 @@
 package swa.swazam.peer;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -19,6 +20,7 @@ import swa.swazam.util.dto.MessageDTO;
 import swa.swazam.util.dto.RequestDTO;
 import swa.swazam.util.exceptions.CommunicationException;
 import swa.swazam.util.exceptions.SwazamException;
+import swa.swazam.util.hash.HashGenerator;
 import swa.swazam.util.peerlist.ArrayPeerList;
 import swa.swazam.util.peerlist.PeerList;
 import swa.swazam.util.peerlist.PeerListBackup;
@@ -92,6 +94,7 @@ public class App implements Runnable, PeerCallback, PeerController {
 		aliveManager.destroy();
 		requestManager.destroy();
 		musicManager.destroy();
+		teardownCommLayer();
 	}
 
 	@Override
@@ -103,7 +106,14 @@ public class App implements Runnable, PeerCallback, PeerController {
 			System.err.println("config loading failed");
 			e2.printStackTrace();
 		}
-		initialMusicScan();
+
+		try {
+			initialMusicScan();
+		} catch (FileNotFoundException e2) {
+			// TODO: nicer output/logging?
+			System.err.println("music scan failed");
+			e2.printStackTrace();
+		}
 
 		try {
 			setupCommLayer();
@@ -150,6 +160,7 @@ public class App implements Runnable, PeerCallback, PeerController {
 	private void inputLoop() {
 		Scanner input = new Scanner(System.in);
 
+		System.out.println("Ready - enter \"exit\", \"quit\" or \"bye\" to exit");
 		while (input.hasNextLine()) {
 			String cmd = input.next();
 
@@ -173,6 +184,8 @@ public class App implements Runnable, PeerCallback, PeerController {
 		String username = configFile.getProperty("credentials.user");
 		String password = configFile.getProperty("credentials.pass");
 
+		password = HashGenerator.hash(password);
+
 		user = new CredentialsDTO(username, password);
 
 		musicRoot = configFile.getProperty("music.root");
@@ -182,7 +195,7 @@ public class App implements Runnable, PeerCallback, PeerController {
 		serverPort = Integer.valueOf(configFile.getProperty("server.port", "9090"));
 	}
 
-	private void initialMusicScan() {
+	private void initialMusicScan() throws FileNotFoundException {
 		musicManager.scan(musicRoot);
 	}
 
@@ -194,6 +207,10 @@ public class App implements Runnable, PeerCallback, PeerController {
 		clientStub = commLayer.getClientStub();
 		serverStub = commLayer.getServerStub();
 		peerStub = commLayer.getPeerStub();
+	}
+
+	private void teardownCommLayer() {
+		commLayer.shutdown();
 	}
 
 	private boolean verifyCredentials() throws SwazamException {
@@ -227,11 +244,13 @@ public class App implements Runnable, PeerCallback, PeerController {
 
 	@Override
 	public void alive(InetSocketAddress sender) {
+		System.out.println("[debug] alive: " + sender.toString());
 		aliveManager.alive(sender);
 	}
 
 	@Override
 	public void process(RequestDTO request) {
+		System.out.println("[debug] process: " + request.getUuid().toString());
 		requestManager.process(request);
 	}
 
@@ -242,11 +261,13 @@ public class App implements Runnable, PeerCallback, PeerController {
 
 	@Override
 	public void solveRequest(RequestDTO request, String artist, String title) {
+		System.out.println("[debug] solved: " + request.getUuid().toString() + " (" + title + ")");
 		clientStub.solved(new MessageDTO(request.getUuid(), title, artist, user), request.getClient());
 	}
 
 	@Override
 	public void forwardRequest(RequestDTO request) {
+		System.out.println("[debug] forwarding: " + request.getUuid().toString());
 		peerStub.process(request, peerList.getTop(5));
 	}
 }

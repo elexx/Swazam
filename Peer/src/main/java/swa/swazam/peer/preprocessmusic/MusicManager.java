@@ -1,6 +1,7 @@
 package swa.swazam.peer.preprocessmusic;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -38,8 +39,9 @@ public class MusicManager implements PeerComponent {
 		// for now: nop by design
 	}
 
-	public void scan(String musicRoot) {
+	public void scan(String musicRoot) throws FileNotFoundException {
 		File root = new File(musicRoot);
+		if (!root.exists()) throw new FileNotFoundException("Music root not found: " + musicRoot);
 		for (File file : root.listFiles()) {
 			Fingerprint fp;
 
