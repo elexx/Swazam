@@ -21,6 +21,6 @@ public class ArrayPeerList<T> extends ArrayList<T> implements PeerList<T> {
 
 	@Override
 	public List<T> getTop(int n) {
-		return super.subList(0, Math.min(n, super.size()));
+		return new ArrayList<T>(super.subList(0, Math.min(n, super.size())));
 	}
 }

@@ -1,5 +1,6 @@
 package swa.swazam.util.peerlist;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ import java.util.List;
  * 
  * @param <T>
  */
-public interface PeerList<T> extends List<T> {
+public interface PeerList<T> extends List<T>, Serializable {
 	/**
 	 * Set the object as "last-seen". If the object is not in the list, it is
 	 * inserted (on top of it). If it already is in the list, the ordering is
