@@ -122,14 +122,14 @@ public class Request {
 	}
 	
 	public String getSongText(){
-		if(song != null)
+		if(song != null && !song.trim().equals(""))
 			return song;
 		
 		return "unknown";
 	}
 	
 	public String getArtistText(){
-		if(artist != null)
+		if(artist != null && !artist.trim().equals(""))
 			return artist;
 		
 		return "unknown";
