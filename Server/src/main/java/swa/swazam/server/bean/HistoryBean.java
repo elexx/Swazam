@@ -45,6 +45,8 @@ public class HistoryBean implements Serializable{
 		requestsFromUser = historyService.getAllRequestedRequestsFromUser(loggedInUser);
 		solvedFromUser = historyService.getAllSolvedRequestsFromUser(loggedInUser);
 		
+		((LoginBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("loginBean")).updateUserData();
+		
 		Collections.sort(requestsFromUser, new RequestComparator());
 		Collections.sort(solvedFromUser, new RequestComparator());
 	}

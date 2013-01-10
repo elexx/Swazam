@@ -26,7 +26,7 @@
                     </p:tabMenu> 
                     
                     <div id="coinAmount">
-                        <h:outputText value="#{i18n.coinMessage}:"/> <h:outputText value=" #{loginBean.loggedInUser.coins} Coins" style="color:#7eafe9; font-weight: bold;"/>
+                        <h:outputText value="#{i18n.coinMessage}:"/> <h:outputText id="coins" value=" #{loginBean.loggedInUser.coins} Coins" style="color:#7eafe9; font-weight: bold;"/>
                         <p:commandLink styleClass="logout" action="#{loginBean.logout()}" value="#{i18n.logout}" /> <br/>
                         <p:commandButton id="refreshButton" styleClass="refresh" icon="ui-icon-refresh" action="#{historyBean.refreshTables()}" update="@form"/>
                         <p:tooltip for="refreshButton" value="Refresh Table Data"/>
