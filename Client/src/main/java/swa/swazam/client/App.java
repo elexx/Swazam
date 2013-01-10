@@ -3,13 +3,13 @@ package swa.swazam.client;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -122,7 +122,9 @@ public class App {
 	 */
 	protected void loadConfig() throws IOException {
 		Properties configFile = new Properties();
-		configFile.load(this.getClass().getClassLoader().getResourceAsStream("client.properties"));
+		InputStream is = this.getClass().getClassLoader().getResourceAsStream("client.properties");
+		System.out.println("inputstream is " + is);
+		configFile.load(is);
 
 		// String username = configFile.getProperty("credentials.user");
 		// String password = configFile.getProperty("credentials.pass");
