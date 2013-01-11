@@ -73,8 +73,8 @@ public class App {
 	}
 
 	/**
-	 * starts SWAzam client app
-	 * App.jar 2 will look up 2client.properties file
+	 * starts SWAzam client app App.jar 2 will look up 2client.properties file
+	 * 
 	 * @param args can expect an integer with the id of a specific client property file (for simple testing)
 	 */
 	public static void main(String[] args) {
@@ -190,7 +190,7 @@ public class App {
 	}
 
 	protected void setupStorage() throws SwazamException {
-		storagePath = System.getProperty("user.dir")+storagePath;
+		storagePath = System.getProperty("user.dir") + storagePath;
 		peerListBackup = new PeerListBackup(storagePath);
 		peerList.addAll(peerListBackup.loadPeers());
 	}
@@ -247,7 +247,7 @@ public class App {
 			}
 		}
 		System.out.println("Number of peers in list: " + peerList.size());
-		System.out.println("Using top"+MAGICPEERNUMBER+": " + peerList.getTop(MAGICPEERNUMBER).toString());
+		System.out.println("Using top" + MAGICPEERNUMBER + ": " + peerList.getTop(MAGICPEERNUMBER).toString());
 	}
 
 	/**
@@ -307,8 +307,7 @@ public class App {
 				} catch (IOException e) {
 					System.err.println("Could not read input, opting for default answer: Discard");
 				}
-			}
-			else {
+			} else {
 				tryAgain = false;
 			}
 		}
@@ -405,8 +404,8 @@ public class App {
 	}
 
 	/**
-	 * if only demo file is found in config, method waits for user to input location of song snippet file and takes a fingerprint of the snippet
-	 * Definitely WAV files are supported
+	 * if only demo file is found in config, method waits for user to input location of song snippet file and takes a fingerprint of the snippet Definitely WAV files are supported
+	 * 
 	 * @return fingerprint of sound snippet
 	 * @throws SwazamException
 	 */
@@ -437,6 +436,7 @@ public class App {
 
 	/**
 	 * opening snippet file as audioInputStream and fingerprinting it with FingerprintTools
+	 * 
 	 * @param snippet
 	 * @return audio fingerprint of sound file
 	 * @throws SwazamException
@@ -496,7 +496,7 @@ public class App {
 	 */
 	private void shutdown() throws SwazamException {
 		peerListBackup.storePeers(peerList);
-		System.out.println("Peerlist backed up to: "+ storagePath);
+		System.out.println("Peerlist backed up to: " + storagePath);
 	}
 
 	/**

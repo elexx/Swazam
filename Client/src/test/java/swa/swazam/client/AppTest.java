@@ -70,7 +70,7 @@ public class AppTest {
 		assertEquals(9090, app.getServerAddress().getPort());
 		assertEquals("/target/classes/", app.getSnippetRootDirectory());
 		assertEquals("demo.wav", app.getSnippetFileName());
-		assertEquals("./", app.getPeerListStoragePath());				
+		assertEquals("/target/classes/", app.getPeerListStoragePath());
 	}
 
 	@Test
@@ -160,12 +160,12 @@ public class AppTest {
 
 	@Test
 	public void mp3ReadCheck() throws Exception {
-		
-		String testfile1 = System.getProperty("user.dir")+"/target/classes/demo.wav";		
-		
+
+		String testfile1 = System.getProperty("user.dir") + "/target/classes/demo.wav";
+
 		Fingerprint fingerprint = Whitebox.invokeMethod(app, "readFileAsFingerprint", testfile1);
-		
+
 		Assert.assertNotNull(fingerprint);
 	}
-	
+
 }
