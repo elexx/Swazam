@@ -17,14 +17,12 @@ class ClientCommunicationUtilImpl implements ClientCommunicationUtil {
 	private final ClientSide clientSide;
 	private final Client2ServerStub serverStub;
 	private final Client2PeerStub peerStub;
-	private final InetSocketAddress localListenAddress;
 
 	ClientCommunicationUtilImpl(InetSocketAddress serverAddress) {
-		localListenAddress = new InetSocketAddress(0);
 		clientSide = new ClientSide();
 		serverStub = new Client2ServerStub(clientSide, serverAddress);
-		peerStub = new Client2PeerStub(clientSide, localListenAddress);
-		serverSide = new ServerSide(localListenAddress);
+		peerStub = new Client2PeerStub(clientSide);
+		serverSide = new ServerSide(new InetSocketAddress(0));
 	}
 
 	@Override
@@ -33,6 +31,9 @@ class ClientCommunicationUtilImpl implements ClientCommunicationUtil {
 		clientSide.startup();
 		serverStub.startup();
 		peerStub.startup();
+
+		InetSocketAddress localListenAddress = serverStub.reportSendingAddress();
+		peerStub.updateLocalListenAddress(localListenAddress);
 	}
 
 	@Override

@@ -11,11 +11,10 @@ import swa.swazam.util.exceptions.SwazamException;
 
 public class Client2PeerStub extends Peer2PeerStub implements General2Peer, Startable {
 
-	private final InetSocketAddress localListenAddress;
+	private InetSocketAddress localListenAddress;
 
-	public Client2PeerStub(ClientSide clientSide, InetSocketAddress localListenAddress) {
+	public Client2PeerStub(ClientSide clientSide) {
 		super(clientSide);
-		this.localListenAddress = localListenAddress;
 	}
 
 	@Override
@@ -28,5 +27,9 @@ public class Client2PeerStub extends Peer2PeerStub implements General2Peer, Star
 	public void process(RequestDTO request, List<InetSocketAddress> destinationPeers) {
 		request.setClient(localListenAddress);
 		super.process(request, destinationPeers);
+	}
+
+	public void updateLocalListenAddress(InetSocketAddress localListenAddress) {
+		this.localListenAddress = localListenAddress;
 	}
 }
