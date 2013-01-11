@@ -22,6 +22,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import ac.at.tuwien.infosys.swa.audio.Fingerprint;
+
 import swa.swazam.util.communication.Client2Server;
 import swa.swazam.util.communication.ClientCallback;
 import swa.swazam.util.communication.General2Peer;
@@ -50,7 +52,7 @@ public class AppTest {
 
 	@Before
 	public void setUp() throws Exception {
-		this.app = new App();
+		this.app = new App(0);
 		MockitoAnnotations.initMocks(this);
 
 		Mockito.when(commLayer.getPeerStub()).thenReturn(peerStub);
@@ -60,13 +62,15 @@ public class AppTest {
 	@After
 	public void tearDown() throws Exception {}
 
-	//@Test
+	@Test
 	public void testLoadConfig() throws IOException {
 		app.loadConfig();
 		assertEquals(9091, app.getClientPort());
 		assertEquals("localhost", app.getServerAddress().getHostString());
 		assertEquals(9090, app.getServerAddress().getPort());
-		assertEquals("./", app.getSnippetRootDirectory());
+		assertEquals("/target/classes/", app.getSnippetRootDirectory());
+		assertEquals("demo.wav", app.getSnippetFileName());
+		assertEquals("./", app.getPeerListStoragePath());				
 	}
 
 	@Test
@@ -107,8 +111,8 @@ public class AppTest {
 
 	@Test
 	public void loginTest() throws Exception {
-		String username = "chrissi";
-		String password = "chrissi";
+		String username = "demo";
+		String password = "demo";
 
 		setField(app, "serverStub", serverStub);
 		ArgumentCaptor<CredentialsDTO> captor = ArgumentCaptor.forClass(CredentialsDTO.class);
@@ -117,19 +121,18 @@ public class AppTest {
 		assertEquals(true, Whitebox.invokeMethod(app, "login", username, password));
 		CredentialsDTO user = captor.getValue();
 		assertEquals(user, getField(app, "user"));
-		assertEquals("chrissi", user.getUsername());
+		assertEquals("demo", user.getUsername());
 	}
 
 	@Test
 	public void callCheckForCoinsTest() throws Exception {
-		CredentialsDTO user = new CredentialsDTO("chrissi", "chrissi");
+		CredentialsDTO user = new CredentialsDTO("demo", "demo");
 
 		setField(app, "serverStub", serverStub);
 		setField(app, "user", user);
 
 		Mockito.when(serverStub.hasCoins(user)).thenReturn(true);
 		assertEquals(true, Whitebox.invokeMethod(app, "checkforCoins"));
-
 	}
 
 	@Test
@@ -155,4 +158,14 @@ public class AppTest {
 
 	}
 
+	@Test
+	public void mp3ReadCheck() throws Exception {
+		
+		String testfile1 = System.getProperty("user.dir")+"/target/classes/demo.wav";		
+		
+		Fingerprint fingerprint = Whitebox.invokeMethod(app, "readFileAsFingerprint", testfile1);
+		
+		Assert.assertNotNull(fingerprint);
+	}
+	
 }

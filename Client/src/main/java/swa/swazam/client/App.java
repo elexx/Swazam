@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.util.Properties;
 import java.util.UUID;
 
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -34,7 +35,7 @@ import ac.at.tuwien.infosys.swa.audio.Fingerprint;
 public class App {
 
 	private static final String TESTDATA = "demo";
-	private static final String TESTFILE = TESTDATA + ".mp3";
+	private static final String TESTFILE = TESTDATA + ".wav";
 	private static final int MAGICPEERNUMBER = 5; // has to be at least 2
 
 	private String snippetRootDirectory;
@@ -58,11 +59,14 @@ public class App {
 	private BufferedReader br;
 	private PeerListBackup peerListBackup;
 	private String storagePath;
+	private String snippetFileName;
+	private int clientID;
 
-	public App() {
+	public App(int clientID) {
 		peerList = new ArrayPeerList<>();
 		clientCallback = new ClientCallbackImpl(this);
 		br = new BufferedReader(new InputStreamReader(System.in));
+		this.clientID = clientID;
 
 		// requestManager = new RequestManager();
 		// requestManager.setup(this);
@@ -70,8 +74,18 @@ public class App {
 
 	public static void main(String[] args) {
 		// TODO read args from startup (property file name)
-		App app = new App();
-		System.out.println(app.getClass().getClassLoader().getResourceAsStream("client.properties"));
+
+		int clientID = 0;
+		if (args.length > 0) {
+			try {
+				clientID = Integer.parseInt(args[0]);
+			} catch (NumberFormatException e) {
+				System.err.println("Argument" + " must be an integer");
+				System.exit(1);
+			}
+		}
+
+		App app = new App(clientID);
 		welcomeMessage();
 		app.run();
 	}
@@ -81,10 +95,10 @@ public class App {
 	 */
 	private static void welcomeMessage() {
 		System.out.println("Welcome to SWAzam!\n");
-		System.out.println("To try out our service, we registered already a testuser with a number of coins");
-		System.out.println("Login and password are: demo\n");
-		System.out.println("A test recording, containing a 7 second random song snippet we provide as well: demo.mp3");
-		System.out.println("Have fun with SWAzam!");
+		System.out.println("To try out our service, we registered already a demo user with a number of coins");
+		System.out.println("Login and password are: " + TESTDATA + "\n");
+		System.out.println("A test recording, containing a 9 second random song snippet we provide as well: " + TESTFILE);
+		System.out.println("Have fun with SWAzam!\n\n");
 	}
 
 	public void run() {
@@ -107,15 +121,22 @@ public class App {
 		}
 		try {
 			performLogin(); // let user enter username and password on commandline if config file contains testdata
-			searchForSnippet();
+			int spendCoins = 1;
+			do {
+				spendCoins = searchForSnippet();
+				System.out.println("Information: you can get more coins by running a SWAzam Peer and solving music requests.");
+			} while (spendCoins >= 1);
 		} catch (SwazamException e) {
 			System.err.println("Server, internet connection, or database are down. Please try again later.");
 			System.exit(0);
 		}
 		try {
+			System.out.println("Shutting down client.");
 			shutdown();
+			System.out.println("Thank you for using SWAzam.");
 		} catch (SwazamException e) {
 			System.err.println("Could not store peer list.");
+			e.printStackTrace();
 			System.exit(0);
 		}
 	}
@@ -127,37 +148,29 @@ public class App {
 	 */
 	protected void loadConfig() throws IOException {
 		Properties configFile = new Properties();
-		InputStream is = this.getClass().getClassLoader().getResourceAsStream("client.properties");
-		// System.out.println("inputstream is " + is);
+		String propertiesFileName = "client.properties";
+		if (clientID != 0) {
+			propertiesFileName = clientID + "client.properties";
+		}
+		System.out.println("Using properties file: " + propertiesFileName);
+		InputStream is = this.getClass().getClassLoader().getResourceAsStream(propertiesFileName);
 		configFile.load(is);
 
-		String username = configFile.getProperty("credentials.user");
-		String password = configFile.getProperty("credentials.pass");
-		System.out.println("testuser: " + username + " and password: " + password + " found in config.");
+		String username = configFile.getProperty("credentials.user").trim();
+		String password = configFile.getProperty("credentials.pass").trim();
+		System.out.println("user: " + username + " and password: " + password + " found in config.");
 		user = new CredentialsDTO(username, HashGenerator.hash(password));
 
-		String serverHostname = configFile.getProperty("server.hostname");
+		String serverHostname = configFile.getProperty("server.hostname").trim();
 		int serverPort = Integer.parseInt(configFile.getProperty("server.port"));
 		serverAddress = new InetSocketAddress(Inet4Address.getByName(serverHostname), serverPort);
 
 		clientPort = Integer.parseInt(configFile.getProperty("client.port"));
 		clientSocketAddress = new InetSocketAddress(Inet4Address.getLocalHost().getHostAddress(), clientPort);
 
-		snippetRootDirectory = configFile.getProperty("snippet.root");
-
-		storagePath = configFile.getProperty("peerlist.storagepath");
-	}
-
-	public String getSnippetRootDirectory() {
-		return snippetRootDirectory;
-	}
-
-	public int getClientPort() {
-		return clientPort;
-	}
-
-	public InetSocketAddress getServerAddress() {
-		return serverAddress;
+		snippetRootDirectory = configFile.getProperty("snippet.root").trim();
+		snippetFileName = configFile.getProperty("snippet.demofile").trim();
+		storagePath = configFile.getProperty("peerlist.storagepath").trim();
 	}
 
 	protected void setupCommLayer() throws SwazamException {
@@ -175,16 +188,6 @@ public class App {
 	}
 
 	/**
-	 * checks users coin status on server
-	 * 
-	 * @return true if user has at least one coin left, false otherwise
-	 * @throws SwazamException if server not reachable for example
-	 */
-	private boolean checkforCoins() throws SwazamException {
-		return serverStub.hasCoins(user);
-	}
-
-	/**
 	 * Login at server with username and password
 	 * 
 	 * @param username
@@ -196,6 +199,16 @@ public class App {
 		user = new CredentialsDTO(username, HashGenerator.hash(password));
 
 		return serverStub.verifyCredentials(user);
+	}
+
+	/**
+	 * checks users coin status on server
+	 * 
+	 * @return true if user has at least one coin left, false otherwise
+	 * @throws SwazamException if server not reachable for example
+	 */
+	private boolean checkforCoins() throws SwazamException {
+		return serverStub.hasCoins(user);
 	}
 
 	/**
@@ -232,18 +245,17 @@ public class App {
 	 * 
 	 * @throws SwazamException
 	 */
-	private void searchForSnippet() throws SwazamException {
+	private int searchForSnippet() throws SwazamException {
 		boolean hasCoins = false;
 		Fingerprint fingerprint = null;
 		boolean tryAgain = true;
+		String answer = "q";
 
 		hasCoins = checkforCoins();
 		if (!hasCoins) {
-			System.out.println("No more coins available. You receive coins when your peer program identifies a song request of other clients.");
-			System.err.println("Client quitting because of no coins");
-			return;
+			System.out.println("No more coins available. You receive coins when your peer program identifies a song request of other clients. Client quitting.");
+			return -1;
 		}
-
 		fingerprint = generateFingerprintForSnippet();
 
 		while (tryAgain) {
@@ -270,7 +282,7 @@ public class App {
 					updatePeerList(message.getResolverAddress());
 
 					displayResult(); // display result of peer to user
-					return;
+					return 1;
 				}
 			}
 			removePeersFromBottom(MAGICPEERNUMBER - 1); // reduce peerListSize from Bottom (peers did not pop up when returning results, and better ones did)
@@ -280,17 +292,13 @@ public class App {
 			System.out.println(". Song snippet not found this time.");
 
 			hasCoins = checkforCoins();
-
-			String answer = "d";
-
 			if (hasCoins) {
-				System.out.println("Try again (a)? or Discard (d) and start new search or Quit (q)? [a|(d)|q]:"); // search again with different top MAGICPEERNUMBER (eg 5) or discard and loop back to hascoins check
-
+				System.out.println("Try same search again (a) and spend one more coin? or Discard (d) and move on? [a|(d)]:"); // search again with different top MAGICPEERNUMBER (eg 5) or discard and loop back to hascoins check
 				try {
 					answer = br.readLine();
 					if (answer.equalsIgnoreCase("a")) {
 						tryAgain = true;
-					} else if (answer.equalsIgnoreCase("q")) {
+					} else if (answer.equalsIgnoreCase("d")) {
 						tryAgain = false;
 					}
 				} catch (IOException e) {
@@ -298,6 +306,23 @@ public class App {
 				}
 			}
 		}
+		return getRepeatDecissionFromUser();
+	}
+
+	private int getRepeatDecissionFromUser() {
+		String answer;
+		System.out.println("Yes (y), spend one more coin for a new search or Quit (q)? [y|(q)]:");
+		try {
+			answer = br.readLine();
+			if ((answer.equalsIgnoreCase("q")) || (answer.equalsIgnoreCase("quit")) || (answer.equalsIgnoreCase(""))) {
+				return -1;
+			} else if (answer.equalsIgnoreCase("d")) {
+				return 1;
+			}
+		} catch (IOException e) {
+			System.err.println("Could not read input, opting for default answer: Quit");
+		}
+		return -1;
 	}
 
 	/**
@@ -380,29 +405,41 @@ public class App {
 	 * @throws SwazamException
 	 */
 	private Fingerprint generateFingerprintForSnippet() throws SwazamException {
-		String snippet;
+		String snippet = "";
 		Fingerprint fingerprint = null;
-		do {
-			try {
-				// (record or) select music snippet file
-				System.out.print("song snippet filename: ");
-				snippet = br.readLine();
-				System.out.println(snippet + " will be used");
-			} catch (IOException e) {
-				System.err.println("Song snippet cannot be read. Standard filename '" + TESTDATA + ".mp3' is used."); // exit alternatively
-				snippet = snippetRootDirectory + TESTFILE;
-			}
 
-			File snippetFile = new File(snippet);
-			System.out.println(snippetFile.exists());
-			try {
-				fingerprint = new FingerprintTools().generate(AudioSystem.getAudioInputStream(snippetFile));
-			} catch (UnsupportedAudioFileException | IOException e) {
-				System.err.println("Audio format not supported or file could not be read.");
-				System.err.println(e.toString());
-			}
-		} while (fingerprint == null);
+		if (snippetFileName.equals(TESTFILE)) {
+			do {
+				try {
+					// (record or) select music snippet file
+					while (snippet == "") {
+						System.out.print("Enter song snippet filename (eg. " + TESTFILE + "): " + System.getProperty("user.dir") + snippetRootDirectory);
+						snippet = br.readLine();
+					}
+				} catch (IOException e) {
+					System.err.println("Song snippet cannot be read. Standard filename '" + System.getProperty("user.dir") + snippetRootDirectory + TESTFILE + "' is used."); // exit alternatively
+					snippet = TESTFILE;
+				}
+				fingerprint = readFileAsFingerprint(System.getProperty("user.dir") + snippetRootDirectory + snippet);
+			} while (fingerprint == null);
+		} else {
+			System.out.println("Snippet filename: '" + System.getProperty("user.dir") + snippetRootDirectory + snippetFileName + "' will be used.");
+			fingerprint = readFileAsFingerprint(System.getProperty("user.dir") + snippetRootDirectory + snippetFileName);
+		}
+		return fingerprint;
+	}
 
+	private Fingerprint readFileAsFingerprint(String snippet) throws SwazamException {
+		File snippetFile = new File(snippet);
+		Fingerprint fingerprint = null;
+		System.out.println("Snippet file found: " + snippetFile.exists());
+		try {
+			AudioInputStream snippetAudio = AudioSystem.getAudioInputStream(snippetFile);
+			fingerprint = new FingerprintTools().generate(snippetAudio);
+		} catch (UnsupportedAudioFileException | IOException e) {
+			System.err.println("Audio format not supported or file could not be read.");
+			e.printStackTrace();
+		}
 		return fingerprint;
 	}
 
@@ -416,11 +453,12 @@ public class App {
 		boolean loginSuccessful = false;
 		int loginAttempt = 0;
 
-		if (user.getUsername().trim().equals(TESTDATA.toString().trim())) {
+		if (user.getUsername().equals(TESTDATA)) {
+			System.out.println("... but '" + TESTDATA + "' or other user needs to be entered manually.");
 			do {
 				String username = getUsernameFromUser();
 				if (loginAttempt != 0) {
-					System.out.println("please wait for " + (loginAttempt) * 500 + "ms to enter password."); // render brute force unfeasable, avoid Server login DOS with user credentials except of default
+					System.out.println("Please wait for " + (loginAttempt) * 500 + "ms to try to enter password again."); // render brute force unfeasable, avoid Server login DOS with user credentials except of default
 				}
 				try {
 					Thread.sleep(loginAttempt * 500);
@@ -440,12 +478,13 @@ public class App {
 	}
 
 	/**
-	 * stores the current Peerlist locally, so the server does not have to be contacted again
+	 * stores the current peerlist locally, so the server does not have to be contacted again
 	 * 
 	 * @throws SwazamException
 	 */
 	private void shutdown() throws SwazamException {
 		peerListBackup.storePeers(peerList);
+		System.out.println("Peerlist backed up to: "+ storagePath);
 	}
 
 	/**
@@ -459,7 +498,7 @@ public class App {
 			System.out.print("password: ");
 			password = br.readLine();
 		} catch (IOException e1) {
-			System.err.println("Password cannot be read. Falling back to standard password '" + TESTDATA + "'."); // exit alternatively
+			System.err.println("Password cannot be read. Falling back to standard password: '" + TESTDATA + "'."); // exit alternatively
 			password = TESTDATA;
 		}
 		return password;
@@ -476,7 +515,7 @@ public class App {
 			System.out.print("username: ");
 			username = br.readLine();
 		} catch (IOException e1) {
-			System.err.println("Username cannot be read. Falling back to standard username '" + TESTDATA + "'."); // exit alternatively
+			System.err.println("Username cannot be read. Falling back to standard username: '" + TESTDATA + "'."); // exit alternatively
 			username = TESTDATA;
 		}
 		return username;
@@ -490,5 +529,35 @@ public class App {
 	public void setAnswer(MessageDTO answer) {
 		// possibly check if UUID is the same
 		this.message = answer;
+	}
+
+	public String getSnippetRootDirectory() {
+		return snippetRootDirectory;
+	}
+
+	public int getClientPort() {
+		return clientPort;
+	}
+
+	public InetSocketAddress getServerAddress() {
+		return serverAddress;
+	}
+
+	/**
+	 * Returns a snippet file name
+	 * 
+	 * @return soundSnippet File name string
+	 */
+	public String getSnippetFileName() {
+		return this.snippetFileName;
+	}
+
+	/**
+	 * returns storage path of peer list set in config file
+	 * 
+	 * @return string of / separated directory and file name
+	 */
+	public String getPeerListStoragePath() {
+		return storagePath;
 	}
 }

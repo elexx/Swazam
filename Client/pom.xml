@@ -114,9 +114,14 @@
 			<version>0.3.7-1</version>
 		</dependency>
 		<dependency>
-		<groupId>edu.emory.mathcs</groupId>
+			<groupId>edu.emory.mathcs</groupId>
 			<artifactId>JTransforms</artifactId>
 			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>de.huxhorn.sulky</groupId>
+			<artifactId>de.huxhorn.sulky.3rdparty.jlayer</artifactId>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 </project>
