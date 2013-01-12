@@ -11,8 +11,6 @@ import swa.swazam.util.exceptions.SwazamException;
 
 public class Client2PeerStub extends Peer2PeerStub implements General2Peer, Startable {
 
-	private InetSocketAddress localListenAddress;
-
 	public Client2PeerStub(ClientSide clientSide) {
 		super(clientSide);
 	}
@@ -29,7 +27,4 @@ public class Client2PeerStub extends Peer2PeerStub implements General2Peer, Star
 		super.process(request, destinationPeers);
 	}
 
-	public void updateLocalListenAddress(InetSocketAddress localListenAddress) {
-		this.localListenAddress = localListenAddress;
-	}
 }

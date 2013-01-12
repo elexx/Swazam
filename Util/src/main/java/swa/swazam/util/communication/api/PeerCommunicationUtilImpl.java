@@ -38,6 +38,7 @@ class PeerCommunicationUtilImpl implements PeerCommunicationUtil {
 		InetSocketAddress localListenAddress = new InetSocketAddress(serverStub.reportSendingAddress(), serverSide.getEffectivePort());
 		serverStub.updateLocalListenAddress(localListenAddress);
 		clientStub.updateLocalListenAddress(localListenAddress);
+		peerStub.updateLocalListenAddress(localListenAddress);
 	}
 
 	@Override

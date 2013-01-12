@@ -20,6 +20,7 @@ import swa.swazam.util.exceptions.SwazamException;
 public class Peer2PeerStub implements General2Peer, Peer2Peer, Startable {
 
 	protected final ClientSide clientSide;
+	protected InetSocketAddress localListenAddress;
 
 	public Peer2PeerStub(ClientSide clientSide) {
 		this.clientSide = clientSide;
@@ -36,6 +37,9 @@ public class Peer2PeerStub implements General2Peer, Peer2Peer, Startable {
 		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("process", request);
 
 		for (InetSocketAddress destinationPeer : destinationPeers) {
+			if (localListenAddress.equals(destinationPeer)) {
+				continue;
+			}
 			ChannelFuture connectFuture = clientSide.connect(destinationPeer);
 			Channel channel = connectFuture.awaitUninterruptibly().getChannel();
 			if (!connectFuture.isSuccess()) {
@@ -55,6 +59,9 @@ public class Peer2PeerStub implements General2Peer, Peer2Peer, Startable {
 		List<InetSocketAddress> answers = new LinkedList<>();
 
 		for (InetSocketAddress destinationPeer : destinationPeers) {
+			if (localListenAddress.equals(destinationPeer)) {
+				continue;
+			}
 			ChannelFuture connectFuture = clientSide.connect(destinationPeer);
 			Channel channel = connectFuture.awaitUninterruptibly().getChannel();
 			if (!connectFuture.isSuccess()) {
@@ -74,5 +81,9 @@ public class Peer2PeerStub implements General2Peer, Peer2Peer, Startable {
 		}
 
 		return answers;
+	}
+
+	public void updateLocalListenAddress(InetSocketAddress localListenAddress) {
+		this.localListenAddress = localListenAddress;
 	}
 }
