@@ -1,6 +1,7 @@
 package swa.swazam.util.communication.api.intern;
 
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,7 @@ public class ServerSide extends SimpleChannelUpstreamHandler implements Startabl
 	private Object callback;
 	private Map<String, Method> callbackMethods;
 	private final ChannelGroup allChannels;
+	private int effectivePort;
 
 	public ServerSide(SocketAddress localAddress) {
 		this.localAddress = localAddress;
@@ -52,10 +54,15 @@ public class ServerSide extends SimpleChannelUpstreamHandler implements Startabl
 		}
 	}
 
+	public int getEffectivePort() {
+		return effectivePort;
+	}
+
 	@Override
 	public void startup() throws SwazamException {
 		Channel serverChannel = bootstrap.bind(localAddress);
 		allChannels.add(serverChannel);
+		effectivePort = ((InetSocketAddress) serverChannel.getLocalAddress()).getPort();
 	}
 
 	@Override

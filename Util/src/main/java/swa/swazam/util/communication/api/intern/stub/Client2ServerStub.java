@@ -1,5 +1,6 @@
 package swa.swazam.util.communication.api.intern.stub;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -64,9 +65,9 @@ public class Client2ServerStub implements Client2Server, Startable {
 		return clientSide.callRemoteMethode(channel, packet);
 	}
 
-	@Override
-	public InetSocketAddress reportSendingAddress() throws SwazamException {
+	public InetAddress reportSendingAddress() throws SwazamException {
 		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("reportSenderAddress");
-		return clientSide.callRemoteMethode(channel, packet);
+		InetSocketAddress address = clientSide.callRemoteMethode(channel, packet);
+		return address.getAddress();
 	}
 }

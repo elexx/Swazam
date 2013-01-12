@@ -32,13 +32,4 @@ public interface General2Server {
 	 */
 	public boolean verifyCredentials(CredentialsDTO user) throws SwazamException;
 
-	/**
-	 * Reports the caller's address back as a return value. The address of the
-	 * socket from which the request has been received is used for that purpose.
-	 * 
-	 * @return The sender's address
-	 * @throws SwazamException
-	 *             in case the communication fails
-	 */
-	public InetSocketAddress reportSendingAddress() throws SwazamException;
 }

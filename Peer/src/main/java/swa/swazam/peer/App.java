@@ -209,7 +209,8 @@ public class App implements Runnable, PeerCallback, PeerController {
 		serverStub = commLayer.getServerStub();
 		peerStub = commLayer.getPeerStub();
 
-		System.out.println("my address is: " + serverStub.reportSendingAddress());
+		// TODO: not part of the interface anymore.
+		// System.out.println("my address is: " + serverStub.reportSendingAddress());
 	}
 
 	private void teardownCommLayer() {

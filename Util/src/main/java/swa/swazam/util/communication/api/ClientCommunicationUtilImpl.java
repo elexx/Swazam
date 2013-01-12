@@ -32,7 +32,7 @@ class ClientCommunicationUtilImpl implements ClientCommunicationUtil {
 		serverStub.startup();
 		peerStub.startup();
 
-		InetSocketAddress localListenAddress = serverStub.reportSendingAddress();
+		InetSocketAddress localListenAddress = new InetSocketAddress(serverStub.reportSendingAddress(), serverSide.getEffectivePort());
 		peerStub.updateLocalListenAddress(localListenAddress);
 	}
 
