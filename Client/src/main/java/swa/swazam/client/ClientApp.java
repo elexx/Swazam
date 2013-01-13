@@ -14,6 +14,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import swa.swazam.client.gui.AppGUI;
 import swa.swazam.util.communication.Client2Server;
 import swa.swazam.util.communication.ClientCallback;
 import swa.swazam.util.communication.General2Peer;
@@ -32,7 +33,7 @@ import ac.at.tuwien.infosys.swa.audio.Fingerprint;
 /**
  * App represents the client application of swazam. The app manages a peer list, can take a music recording, fingerprint it, and send it to peers to identify it.
  */
-public class App {
+public class ClientApp implements ProgressHandler {
 
 	private static final String TESTDATA = "demo";
 	private static final String TESTFILE = TESTDATA + ".wav";
@@ -61,12 +62,19 @@ public class App {
 	private String storagePath;
 	private String snippetFileName;
 	private int clientID;
+	private AppGUI gui;
+	private boolean tryAgain;
 
-	public App(int clientID) {
+	private TimeLimiter limiter;
+	
+	public ClientApp(int clientID, boolean startGUI) {
 		peerList = new ArrayPeerList<>();
 		clientCallback = new ClientCallbackImpl(this);
 		br = new BufferedReader(new InputStreamReader(System.in));
 		this.clientID = clientID;
+		if (startGUI) {
+			gui = new AppGUI(this);
+		}
 
 		// requestManager = new RequestManager();
 		// requestManager.setup(this);
@@ -80,6 +88,7 @@ public class App {
 	public static void main(String[] args) {
 
 		int clientID = 0;
+		boolean startGUI = false;
 		if (args.length > 0) {
 			try {
 				clientID = Integer.parseInt(args[0]);
@@ -87,9 +96,12 @@ public class App {
 				System.err.println("Argument" + " must be an integer");
 				System.exit(1);
 			}
+			if ("g".equalsIgnoreCase(args[1])) {
+				startGUI = true;
+			}
 		}
 
-		App app = new App(clientID);
+		ClientApp app = new ClientApp(clientID, startGUI);
 		welcomeMessage();
 		app.run();
 	}
@@ -106,16 +118,39 @@ public class App {
 	}
 
 	public void run() {
+		startup();
 		try {
-			loadConfig();
-		} catch (IOException e1) {
-			System.err.println("Loading config was not possible.");
+			performLogin(); // let user enter username and password on commandline if config file contains testdata
+			if (!checkforCoins()) {
+				logMessage("No more coins available. You receive coins when your peer program identifies a song request of other clients. Client quitting.");
+				System.exit(0);
+			}
+		} catch (SwazamException e) {
+			System.err.println("Server, internet connection, or database are down. Please try again later.");
 			System.exit(0);
 		}
+		if (gui != null) {
+			gui.show();
+		} else {
+			try {
+//				do {
+					logMessage("\nInformation: you can get more coins by running a SWAzam Peer and solving music requests.\n");
+//				} while ();
+					searchForSnippet(getSnippetFileToFingerprintFromUser());
+			} catch (SwazamException e) {
+				System.err.println("Server, internet connection, or database are down. Please try again later.");
+			} finally {
+				shutdown();
+			}
+		}
+	}
+
+	private void startup() {
 		try {
-			setupCommLayer();
-		} catch (SwazamException e1) {
-			System.err.println("Communication setup failed.");
+			loadConfig();
+
+		} catch (IOException e1) {
+			System.err.println("Loading config was not possible.");
 			System.exit(0);
 		}
 		try {
@@ -124,27 +159,10 @@ public class App {
 			System.err.println("Local peer list not found. Attempting Server.");
 		}
 		try {
-			performLogin(); // let user enter username and password on commandline if config file contains testdata
-			if (!checkforCoins()) {
-				System.out.println("No more coins available. You receive coins when your peer program identifies a song request of other clients. Client quitting.");
-				System.exit(0);
-			}
-			do {
-				System.out.println("\nInformation: you can get more coins by running a SWAzam Peer and solving music requests.\n");
-			} while (searchForSnippet());
-		} catch (SwazamException e) {
-			System.err.println("Server, internet connection, or database are down. Please try again later.");
-			System.exit(0);
-		}
-		try {
-			System.out.println("Shutting down client.");
+			setupCommLayer();
+		} catch (SwazamException e1) {
+			System.err.println("Communication setup failed.");
 			shutdown();
-			System.out.println("Thank you for using SWAzam.");
-			System.exit(0);
-		} catch (SwazamException e) {
-			System.err.println("Could not store peer list.");
-			e.printStackTrace();
-			System.exit(0);
 		}
 	}
 
@@ -159,13 +177,13 @@ public class App {
 		if (clientID != 0) {
 			propertiesFileName = clientID + "client.properties";
 		}
-		System.out.println("Using properties file: " + propertiesFileName);
+		logMessage("Using properties file: " + propertiesFileName);
 		InputStream is = this.getClass().getClassLoader().getResourceAsStream(propertiesFileName);
 		configFile.load(is);
 
 		String username = configFile.getProperty("credentials.user").trim();
 		String password = configFile.getProperty("credentials.pass").trim();
-		System.out.println("user: " + username + " and password: " + password + " found in config.");
+		logMessage("user: " + username + " and password: " + password + " found in config.");
 		user = new CredentialsDTO(username, HashGenerator.hash(password));
 
 		String serverHostname = configFile.getProperty("server.hostname").trim();
@@ -246,8 +264,8 @@ public class App {
 				}
 			}
 		}
-		System.out.println("Number of peers in list: " + peerList.size());
-		System.out.println("Using top" + MAGICPEERNUMBER + ": " + peerList.getTop(MAGICPEERNUMBER).toString());
+		logMessage("Number of peers in list: " + peerList.size());
+		logMessage("Using top" + MAGICPEERNUMBER + ": " + peerList.getTop(MAGICPEERNUMBER).toString());
 	}
 
 	/**
@@ -255,68 +273,50 @@ public class App {
 	 * 
 	 * @throws SwazamException
 	 */
-	private boolean searchForSnippet() throws SwazamException {
-		Fingerprint fingerprint = null;
-		boolean tryAgain = true;
-		String answer = "q";
+	public boolean searchForSnippet(Fingerprint fingerprint) throws SwazamException {
+		createRequest(fingerprint); // create UUID for RequestDTO, create MessageDTO with UUID filled out already
+		serverStub.logRequest(user, message); // logRequest sends UUID/MessageDTO to Server
 
-		fingerprint = getSnippetFileToFingerprintFromUser();
+		checkAndUpdateInitialPeerListToMinumumSize();
 
-		while (tryAgain) {
-			createRequest(fingerprint); // create UUID for RequestDTO, create MessageDTO with UUID filled out already
-			serverStub.logRequest(user, message); // logRequest sends UUID/MessageDTO to Server
-			checkAndUpdateInitialPeerListToMinumumSize();
+		// send MessageDTO (with UUID fingerprint) to top MAGICPEERNUMBER (eg.5) peers from client peerlist in parallel
+		// eventually also receive a return value of a successful or failed connection attempt to first peers, so that more peers in list can be tried without the request failing after first MAGICPEERNUMBER (eg 5) not online
+		peerStub.process(request, peerList.getTop(MAGICPEERNUMBER));
 
-			// send MessageDTO (with UUID fingerprint) to top MAGICPEERNUMBER (eg.5) peers from client peerlist in parallel
-			// eventually also receive a return value of a successful or failed connection attempt to first peers, so that more peers in list can be tried without the request failing after first MAGICPEERNUMBER (eg 5) not online
-			peerStub.process(request, peerList.getTop(MAGICPEERNUMBER));
+		// wait 30 seconds, if no answer, display to user, "song snippet not found, try again later?/discard"
+		logMessage("searching");
 
-			// wait 30 seconds, if no answer, display to user, "song snippet not found, try again later?/discard"
-			System.out.print("searching");
-			for (int i = 0; i <= 10; i++) {
-				System.out.print(".." + (i * 10) + "%");
-				try {
-					synchronized (clientCallback) {
-						clientCallback.wait(3000);
-					}
+		limiter = new TimeLimiter();
+		if (gui != null) {
+			limiter.registerHandler(gui.getProgressHandler());
+		} else {
+			limiter.registerHandler(this);
+		}
+		new Thread(limiter).start();
+		return true;
+	}
 
-				} catch (InterruptedException e) {
-					serverStub.logRequest(user, message); // logRequest sends MessageDTO with completely filled out fields from first answering peer to server (server gives resolver a coin)
-
-					updatePeerList(message.getResolverAddress());
-
-					displayResult(); // display result of peer to user
-					return getRepeatDecissionFromUser();
+	private boolean getTrySnippetAgainDecisionFromUser() throws SwazamException {
+		String answer;
+		if (checkforCoins()) {
+			logMessage("Try same search again (a) and spend one more coin? or Discard (d) and move on? [a|(d)]:"); // search again with different top MAGICPEERNUMBER (eg 5) or discard and loop back to hascoins check
+			try {
+				answer = br.readLine();
+				if (answer.equalsIgnoreCase("a")) {
+					return true;
+				} else if (answer.equalsIgnoreCase("d")) {
+					return false;
 				}
-			}
-			removePeersFromBottom(MAGICPEERNUMBER - 1); // reduce peerListSize from Bottom (peers did not pop up when returning results, and better ones did)
-			addPeersToTop(MAGICPEERNUMBER - 1);// put MAGICPEERNUMBER-1 (eg 4) other peers from list to top (so best one from before still has a chance)
-
-			tryAgain = false;
-			System.out.println(". Song snippet not found this time.");
-
-			if (checkforCoins()) {
-				System.out.println("Try same search again (a) and spend one more coin? or Discard (d) and move on? [a|(d)]:"); // search again with different top MAGICPEERNUMBER (eg 5) or discard and loop back to hascoins check
-				try {
-					answer = br.readLine();
-					if (answer.equalsIgnoreCase("a")) {
-						tryAgain = true;
-					} else if (answer.equalsIgnoreCase("d")) {
-						tryAgain = false;
-					}
-				} catch (IOException e) {
-					System.err.println("Could not read input, opting for default answer: Discard");
-				}
-			} else {
-				tryAgain = false;
+			} catch (IOException e) {
+				System.err.println("Could not read input, opting for default answer: Discard");
 			}
 		}
-		return getRepeatDecissionFromUser();
+		return false;
 	}
 
 	private boolean getRepeatDecissionFromUser() {
 		String answer;
-		System.out.println("Yes (y), spend one more coin for a new search or Quit (q)? [y|(q)]:");
+		logMessage("Yes (y), spend one more coin for a new search or Quit (q)? [y|(q)]:");
 		try {
 			answer = br.readLine();
 			if ((answer.equalsIgnoreCase("q")) || (answer.equalsIgnoreCase("quit")) || (answer.equalsIgnoreCase(""))) {
@@ -395,12 +395,22 @@ public class App {
 		}
 	}
 
+	private void logMessage(String log) {
+		if (gui != null) {
+			gui.setLog(log);
+			System.out.println(log);
+		} else
+			System.out.println(log);
+	}
+
 	/**
 	 * output result to user
 	 */
 	private void displayResult() {
-		System.out.println("Title: " + message.getSongTitle());
-		System.out.println("Artist: " + message.getSongArtist());
+
+		logMessage("Title: " + message.getSongTitle());
+		logMessage("Artist: " + message.getSongArtist());
+
 	}
 
 	/**
@@ -428,10 +438,14 @@ public class App {
 				fingerprint = readFileAsFingerprint(System.getProperty("user.dir") + snippetRootDirectory + snippet);
 			} while (fingerprint == null);
 		} else {
-			System.out.println("Snippet filename: '" + System.getProperty("user.dir") + snippetRootDirectory + snippetFileName + "' will be used.");
+			logMessage("Snippet filename: '" + System.getProperty("user.dir") + snippetRootDirectory + snippetFileName + "' will be used.");
 			fingerprint = readFileAsFingerprint(System.getProperty("user.dir") + snippetRootDirectory + snippetFileName);
 		}
 		return fingerprint;
+	}
+
+	public ClientCallback getClientCallback() {
+		return this.clientCallback;
 	}
 
 	/**
@@ -441,10 +455,10 @@ public class App {
 	 * @return audio fingerprint of sound file
 	 * @throws SwazamException
 	 */
-	private Fingerprint readFileAsFingerprint(String snippet) throws SwazamException {
+	public Fingerprint readFileAsFingerprint(String snippet) throws SwazamException {
 		File snippetFile = new File(snippet);
 		Fingerprint fingerprint = null;
-		System.out.println("Snippet file found: " + snippetFile.exists());
+		logMessage("Snippet file found: " + snippetFile.exists());
 		try {
 			AudioInputStream snippetAudio = AudioSystem.getAudioInputStream(snippetFile);
 			fingerprint = new FingerprintTools().generate(snippetAudio);
@@ -466,11 +480,11 @@ public class App {
 		int loginAttempt = 0;
 
 		if (user.getUsername().equals(TESTDATA)) {
-			System.out.println("... but '" + TESTDATA + "' or other user needs to be entered manually.");
+			logMessage("... but '" + TESTDATA + "' or other user needs to be entered manually.");
 			do {
 				String username = getUsernameFromUser();
 				if (loginAttempt != 0) {
-					System.out.println("Please wait for " + (loginAttempt) * 500 + "ms to try to enter password again."); // render brute force unfeasable, avoid Server login DOS with user credentials except of default
+					logMessage("Please wait for " + (loginAttempt) * 500 + "ms to try to enter password again."); // render brute force unfeasable, avoid Server login DOS with user credentials except of default
 				}
 				try {
 					Thread.sleep(loginAttempt * 500);
@@ -483,7 +497,7 @@ public class App {
 				loginSuccessful = login(username, password);
 			} while (!loginSuccessful);
 		} else {
-			System.out.println(user.getUsername() + " username will be used");
+			logMessage(user.getUsername() + " username will be used");
 			loginSuccessful = serverStub.verifyCredentials(user);
 		}
 		return loginSuccessful;
@@ -494,9 +508,18 @@ public class App {
 	 * 
 	 * @throws SwazamException
 	 */
-	private void shutdown() throws SwazamException {
-		peerListBackup.storePeers(peerList);
-		System.out.println("Peerlist backed up to: " + storagePath);
+	public void shutdown() {
+		logMessage("Shutting down client.");
+		try {
+			peerListBackup.storePeers(peerList);
+		} catch (SwazamException e) {
+			System.err.println("Could not store peer list.");
+			e.printStackTrace();
+		} finally {
+			logMessage("Thank you for using SWAzam.");
+			gui.shutdown();
+			System.exit(0);
+		}
 	}
 
 	/**
@@ -571,5 +594,54 @@ public class App {
 	 */
 	public String getPeerListStoragePath() {
 		return storagePath;
+	}
+
+	@Override
+	public void updateProgress(int progress) {
+		logMessage(".." + progress * 10 + "%");
+
+		if (progress == 10) {
+			// Time is over
+			handleNoAnswer(); 
+			try {
+				tryAgain = getTrySnippetAgainDecisionFromUser();
+			} catch (SwazamException e) {
+				System.err.println("Server, internet connection, or database are down. Please try again later.");
+				shutdown();
+			}
+		}
+	}
+
+	public void handleNoAnswer() {
+		try {
+			removePeersFromBottom(MAGICPEERNUMBER - 1); // reduce peerListSize from Bottom (peers did not pop up when returning results, and better ones did)
+			addPeersToTop(MAGICPEERNUMBER - 1);// put MAGICPEERNUMBER-1 (eg 4) other peers from list to top (so best one from before still has a chance)
+			logMessage(". Song snippet not found thifs time.");
+		} catch (SwazamException e) {
+			System.err.println("Server, internet connection, or database are down. Please try again later.");
+			shutdown();
+		}
+		
+	}
+
+	public void handleAnswer(MessageDTO answer) {
+		if (message != null) {
+			message = answer;
+			limiter.abort();
+			try {
+				serverStub.logRequest(user, message); // logRequest sends MessageDTO with completely filled out fields from first answering peer to server (server gives resolver a coin)
+			} catch (SwazamException e) {
+				System.err.println("Server, internet connection, or database are down. Please try again later.");
+				shutdown();
+			} 
+			updatePeerList(message.getResolverAddress());
+
+			displayResult(); // display result of peer to user
+			message = null;
+		}
+	}
+
+	@Override
+	public void finish() {
 	}
 }

@@ -5,15 +5,16 @@ import swa.swazam.util.dto.MessageDTO;
 
 public class ClientCallbackImpl implements ClientCallback {
 
-	private App app;
+	private ClientApp app;
 
-	public ClientCallbackImpl(App app) {
+	public ClientCallbackImpl(ClientApp app) {
 		this.app = app;
 	}
 
 	@Override
 	public void solved(MessageDTO answer) {
-		app.setAnswer(answer);
-		this.notify();
+		app.handleAnswer(answer);
+		
+		System.err.println(answer.getSongTitle());
 	}
 }

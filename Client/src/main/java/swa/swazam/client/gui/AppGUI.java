@@ -6,7 +6,13 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
+import java.net.InetSocketAddress;
+import java.util.UUID;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -18,71 +24,92 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class AppGUI extends JPanel implements ActionListener {
+import swa.swazam.client.ClientApp;
+import swa.swazam.client.ProgressHandler;
+import swa.swazam.util.dto.CredentialsDTO;
+import swa.swazam.util.dto.MessageDTO;
+import swa.swazam.util.exceptions.SwazamException;
+import swa.swazam.util.hash.HashGenerator;
+import ac.at.tuwien.infosys.swa.audio.Fingerprint;
+import javax.swing.JProgressBar;
+
+public class AppGUI extends JPanel implements ActionListener, ProgressHandler {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8107525974308614530L;
-	private JFrame frmSwazam;
-	JFileChooser fc;
-	JButton btnRecord;
-	JTextArea log;
-
 	static private final String newline = "\n";
 
+	private JFrame frmSwazam;
+	JButton btnRecord;
+	JTextArea log;
+	private ClientApp app;
+	private JProgressBar progressBar;
+	private File file;
+
 	/**
-	 * Launch the application.
+	 * Create the GUI and show it. For thread safety, setVisible is invoked from the event dispatch thread.
 	 */
-	public static void main(String[] args) {
-		// EventQueue.invokeLater(new Runnable() {
+	public void show() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				createAndShowGUI();
+				frmSwazam.setVisible(true);
 			}
 		});
 	}
 
-	/**
-	 * Create the GUI and show it. For thread safety, this method should be invoked from the event dispatch thread.
-	 */
-	private static void createAndShowGUI() {
-		// Create and set up the window.
-		AppGUI window = new AppGUI();
-		window.frmSwazam.setVisible(true);
-		// JFrame frame = new JFrame("SWAzam - the newest p2p music identifyer");
-		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		//
-		// //Add content to the window.
-		// frame.add(new AppGUI());
-		//
-		// //Display the window.
-		// frame.pack();
-		// frame.setVisible(true);
+	public void shutdown() {
+		frmSwazam.setVisible(false);
+		frmSwazam.dispose();
 	}
+	
+	public void setFile(File f) {
+		this.file = f;
+	}
+
+	/**
+	 * log a string to the GUI scroll screen
+	 * 
+	 * @param log
+	 */
+	public void setLog(String logString) {
+		log.append(logString);
+	}
+
+
 
 	/**
 	 * Create the application.
 	 */
-	public AppGUI() {
+	public AppGUI(ClientApp app) {
 		super(new BorderLayout());
 		initialize();
-		// Create a file chooser
+		this.app = app;
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		fc = new JFileChooser(); // TODO enter config file music snippet directory root here
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("MP3 & AAC Music snippets", "mp3", "aac");
-		fc.setFileFilter(filter);
-
-		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
 		frmSwazam = new JFrame();
+		frmSwazam.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent e) {
+				app.shutdown();
+			}
+			@Override
+			public void windowActivated(WindowEvent e) {
+				if (file != null) {
+					createFingerPrintAndSearch(file);
+				}
+			}
+		});
 		frmSwazam.setTitle("SWAzam - the newest P2P music identifyer");
 		frmSwazam.setBounds(new Rectangle(22, 22, 10, 7));
 		frmSwazam.setBounds(100, 100, 450, 400);
@@ -93,7 +120,7 @@ public class AppGUI extends JPanel implements ActionListener {
 		btnRecord.addActionListener(this);
 		frmSwazam.getContentPane().add(btnRecord);
 
-		JLabel lblWelcomelabel = new JLabel("<html><head><title>Welcome</title></head><body><h1>Welcome to SWAzam!</h1>\n<p>Just press \"Record\" to start tagging your recorded music snippets.<br/>\n<sub>(based on music in the worlds newest peer2peer network SWAzam)</sub></p><p><br/>\nOne lookup <b>costs one coin</b> and can take up to <b>30 seconds</b>. You can help identify other users music and you will receive <b>one coin</b> when you are the first identifying a requested song.<br/>\n<br/>\nHave fun identifying music! </p></body></html>");
+		JLabel lblWelcomelabel = new JLabel("<html><head><title>Welcome</title></head><body><h1 align='center'>Welcome to SWAzam!</h1>\n<p>Just press \"Record\" to start tagging your recorded music snippets.<br/>\n<sub>(based on music in the worlds newest peer2peer network SWAzam)</sub></p><p><br/>\nOne lookup <b>costs one coin</b> and can take up to <b>30 seconds</b>. You can help identify other users music and you will receive <b>one coin</b> when you are the first identifying a requested song.<br/>\n<br/>\nHave fun identifying music! </p></body></html>");
 		lblWelcomelabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		lblWelcomelabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblWelcomelabel.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -112,6 +139,19 @@ public class AppGUI extends JPanel implements ActionListener {
 		log.setEditable(false);
 		JScrollPane scrollPane = new JScrollPane(log);
 		frmSwazam.getContentPane().add(scrollPane, BorderLayout.SOUTH);
+		
+		JButton btnFound = new JButton("Found!");
+		btnFound.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				MessageDTO answer = new MessageDTO(UUID.randomUUID(), "Simulated", "answer", new CredentialsDTO("chrissi", HashGenerator.hash("chrissi")));
+				answer.setResolverAddress(new InetSocketAddress("127.0.0.1", 58504));
+				app.getClientCallback().solved(answer);
+			}
+		});
+		scrollPane.setRowHeaderView(btnFound);
+		
+		progressBar = new JProgressBar(0, 10);
+		scrollPane.setColumnHeaderView(progressBar);
 
 		log.append("Hello" + newline);
 	}
@@ -120,20 +160,48 @@ public class AppGUI extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// Handle open button action.
 		if (e.getSource() == btnRecord) {
-			int returnVal = fc.showOpenDialog(this);
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File file = fc.getSelectedFile();
-				// TODO This is where SWAZAM will open the file
-				System.out.println("Opening: " + file.getName());
-				log.append("Opening: " + file.getName() + "." + newline);
-			} else {
-				System.out.println("Open command cancelled by user.");
-				log.append("Open command cancelled by user." + newline);
-			}
+			progressBar.setValue(0);
+			JFrame frame = new MyFileChooser(this);
+			frame.pack();  
+	        frame.setVisible(true);
 		} else {
 			log.append("not there" + newline);
 			log.setCaretPosition(log.getDocument().getLength());
 			log.append("nor here" + newline);
 		}
 	}
+
+	public void createFingerPrintAndSearch(File file) {
+		System.out.println("Opening: " + file.getAbsolutePath());
+		try {
+			Fingerprint fingerprint = app.readFileAsFingerprint(file.getAbsolutePath());
+			app.searchForSnippet(fingerprint);
+			log.append("\nInformation: you can get more coins by running a SWAzam Peer and solving music requests.\n");
+		} catch (SwazamException e1) {
+			System.err.println("Server, internet connection, or database are down. Please try again later.");
+			System.exit(0);
+		}
+		log.append("Opening: " + file.getName() + "." + newline);
+	}
+
+	public ProgressHandler getProgressHandler() {
+		return this;
+	}
+
+	@Override
+	public void updateProgress(int progress) {
+		this.progressBar.setValue(progress);
+
+		if (progress == 10) {
+			// Time is over
+			app.handleNoAnswer();
+		}
+	}
+
+	@Override
+	public void finish() {
+		this.progressBar.setValue(10);
+	}
+
+
 }

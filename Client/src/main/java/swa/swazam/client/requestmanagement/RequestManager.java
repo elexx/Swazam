@@ -1,13 +1,13 @@
 package swa.swazam.client.requestmanagement;
 
-import swa.swazam.client.App;
+import swa.swazam.client.ClientApp;
 import swa.swazam.util.dto.RequestDTO;
 
 public class RequestManager {
 	
-	private App app;
+	private ClientApp app;
 
-	public void setup(App app) {	
+	public void setup(ClientApp app) {	
 	 	this.app = app;
 	}
 	
