@@ -30,7 +30,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>${project.groupId}.${project.artifactId}.App</mainClass>
+							<mainClass>${project.groupId}.${project.artifactId}.ClientApp</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

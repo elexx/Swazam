@@ -145,10 +145,13 @@ public class ClientApp implements ProgressHandler {
 		}
 	}
 
+	/**
+	 * loads configuration from config file, sets up storage for peerListbackup, sets up communication
+	 * 
+	 */
 	private void startup() {
 		try {
 			loadConfig();
-
 		} catch (IOException e1) {
 			System.err.println("Loading config was not possible.");
 			System.exit(0);
@@ -296,6 +299,11 @@ public class ClientApp implements ProgressHandler {
 		return true;
 	}
 
+	/**
+	 * interactive Command line workflow reading user command line input if same sound snippet should be reused again 
+	 * @return true if same snippet should be used again
+	 * @throws SwazamException
+	 */
 	private boolean getTrySnippetAgainDecisionFromUser() throws SwazamException {
 		String answer;
 		if (checkforCoins()) {
@@ -314,12 +322,16 @@ public class ClientApp implements ProgressHandler {
 		return false;
 	}
 
+	/**
+	 * interactive Command line workflow reading user command line input if client should quit or another snippet should be searched
+	 * @return true if another snippet should be searched
+	 */
 	private boolean getRepeatDecissionFromUser() {
 		String answer;
 		logMessage("Yes (y), spend one more coin for a new search or Quit (q)? [y|(q)]:");
 		try {
 			answer = br.readLine();
-			if ((answer.equalsIgnoreCase("q")) || (answer.equalsIgnoreCase("quit")) || (answer.equalsIgnoreCase(""))) {
+			if ((answer.equalsIgnoreCase("q")) || (answer.equalsIgnoreCase("quit")) || (answer.equalsIgnoreCase("")) || (answer.equalsIgnoreCase("by")) || (answer.equalsIgnoreCase("exit"))) {
 				return false;
 			} else if (answer.equalsIgnoreCase("d")) {
 				return true;
@@ -407,10 +419,8 @@ public class ClientApp implements ProgressHandler {
 	 * output result to user
 	 */
 	private void displayResult() {
-
 		logMessage("Title: " + message.getSongTitle());
 		logMessage("Artist: " + message.getSongArtist());
-
 	}
 
 	/**
@@ -612,6 +622,10 @@ public class ClientApp implements ProgressHandler {
 		}
 	}
 
+	/**
+	 * worst peers are removed from peer list, other Peers from peer list are added to Top to give them a chance next time. 
+	 * Is called when no answer was received (within 30 seconds) 
+	 */
 	public void handleNoAnswer() {
 		try {
 			removePeersFromBottom(MAGICPEERNUMBER - 1); // reduce peerListSize from Bottom (peers did not pop up when returning results, and better ones did)
@@ -624,6 +638,11 @@ public class ClientApp implements ProgressHandler {
 		
 	}
 
+	/**
+	 * if answer was received, abort the timer, log answer to server with resoving peer adress in message, update client peerlist and add resolving peer, and display result to user
+	 * 
+	 * @param answer
+	 */
 	public void handleAnswer(MessageDTO answer) {
 		if (message != null) {
 			message = answer;
@@ -634,7 +653,7 @@ public class ClientApp implements ProgressHandler {
 				System.err.println("Server, internet connection, or database are down. Please try again later.");
 				shutdown();
 			} 
-			updatePeerList(message.getResolverAddress());
+			updatePeerList(message.getResolverAddress()); // add resolving peer to peerlist
 
 			displayResult(); // display result of peer to user
 			message = null;
