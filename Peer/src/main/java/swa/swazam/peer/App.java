@@ -1,5 +1,6 @@
 package swa.swazam.peer;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -96,6 +97,14 @@ public class App implements Runnable, PeerCallback, PeerController {
 		requestManager.destroy();
 		musicManager.destroy();
 		teardownCommLayer();
+
+		try {
+			storePeerList();
+		} catch (SwazamException e) {
+			// TODO: nicer output/logging?
+			System.err.println("storing peerlist failed");
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -177,7 +186,7 @@ public class App implements Runnable, PeerCallback, PeerController {
 	private void loadConfig() throws IOException {
 		Properties configFile = new Properties();
 		if (configPath != null) {
-			configFile.load(this.getClass().getClassLoader().getResourceAsStream(configPath));
+			configFile.load(new FileInputStream(configPath));
 		} else {
 			configFile.load(this.getClass().getClassLoader().getResourceAsStream("peer.properties"));
 		}
@@ -208,9 +217,6 @@ public class App implements Runnable, PeerCallback, PeerController {
 		clientStub = commLayer.getClientStub();
 		serverStub = commLayer.getServerStub();
 		peerStub = commLayer.getPeerStub();
-
-		// TODO: not part of the interface anymore.
-		// System.out.println("my address is: " + serverStub.reportSendingAddress());
 	}
 
 	private void teardownCommLayer() {
@@ -224,6 +230,11 @@ public class App implements Runnable, PeerCallback, PeerController {
 	private void getStoredPeerList() throws SwazamException {
 		PeerListBackup plb = new PeerListBackup(storageRoot);
 		peerList.addAll(plb.loadPeers());
+	}
+
+	private void storePeerList() throws SwazamException {
+		PeerListBackup plb = new PeerListBackup(storageRoot);
+		plb.storePeers(peerList);
 	}
 
 	private void requestPeerList() throws CommunicationException {
