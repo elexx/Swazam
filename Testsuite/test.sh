@@ -1,23 +1,27 @@
 #!/bin/bash
 
-ROOT_DIR=/home/michael/uni/swa/Swazam
+ROOT_DIR=${1:-..}
 PEER_COUNT=5
 
 function start_peer() {
-
-	(cd $ROOT_DIR/Peer ; screen -dmS peer$1 java -jar target/peer-0.0.1.jar --config $ROOT_DIR/Testsuite/peerdata/peer$1/peer.properties )
-	
+	(cd $ROOT_DIR/Peer ; screen -dmS peer$1 -t java java -jar target/peer-0.0.1.jar --config $ROOT_DIR/Testsuite/peerdata/peer$1/peer.properties )
 }
 
 function send() {
-	screen -S "$1" -X "$2" 
+	bash -c "screen -S "$1" -p java -X eval 'stuff \"$2\"\015'"
 }
 
+echo "[testsuite] Starting with ROOTDIR [$ROOT_DIR]"
 
 echo -n "[server] Starting..."
-(cd $ROOT_DIR/Server ; screen -dmS server java -jar target/server-0.0.1.jar)
+(cd $ROOT_DIR/Server ; screen -dmS server -t java java -jar target/server-0.0.1.jar)
 
 while [ 0 -eq `netstat -ant | grep 9090 | grep LISTEN | wc -l` ]
+do
+	sleep 1
+	echo -n "."
+done
+while [ 0 -eq `netstat -ant | grep 8080 | grep LISTEN | wc -l` ]
 do
 	sleep 1
 	echo -n "."
@@ -31,7 +35,7 @@ do
 
 	mkdir -p $ROOT_DIR/Testsuite/peerdata/peer$i/storage
 	mkdir -p $ROOT_DIR/Testsuite/peerdata/peer$i/music
-	
+
 	echo "" > $confpath
 	echo "credentials.user=chrissi" >> $confpath
 	echo "credentials.pass=chrissi" >> $confpath
