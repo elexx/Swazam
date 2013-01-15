@@ -118,12 +118,23 @@ public class App implements Runnable, PeerCallback, PeerController {
 		}
 
 		try {
-			initialMusicScan();
+			musicManager.setRootPath(musicRoot);
+			musicManager.initialScan();
 		} catch (FileNotFoundException e2) {
 			// TODO: nicer output/logging?
 			System.err.println("music scan failed");
 			e2.printStackTrace();
 		}
+
+		try {
+			musicManager.persistData();
+		} catch (IOException e2) {
+			// TODO: nicer output/logging?
+			System.err.println("music data persistence failed");
+			e2.printStackTrace();
+		}
+
+		musicManager.startWatcher();
 
 		try {
 			setupCommLayer();
@@ -205,10 +216,6 @@ public class App implements Runnable, PeerCallback, PeerController {
 		serverPort = Integer.valueOf(configFile.getProperty("server.port", "9090"));
 	}
 
-	private void initialMusicScan() throws FileNotFoundException {
-		musicManager.scan(musicRoot);
-	}
-
 	private void setupCommLayer() throws SwazamException {
 		commLayer = CommunicationUtilFactory.createPeerCommunicationUtil(new InetSocketAddress(serverHostname, serverPort));
 		commLayer.setCallback(this);
@@ -284,5 +291,10 @@ public class App implements Runnable, PeerCallback, PeerController {
 	public void forwardRequest(RequestDTO request) {
 		System.out.println("[debug] forwarding: " + request.getUuid().toString());
 		peerStub.process(request, peerList.getTop(5));
+	}
+
+	@Override
+	public String getStorageRoot() {
+		return storageRoot;
 	}
 }

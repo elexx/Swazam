@@ -1,6 +1,13 @@
 package swa.swazam.peer.preprocessmusic;
 
-public class SongTag {
+import java.io.Serializable;
+
+public class SongTag implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1926779608643294644L;
+
 	private final String artist, title;
 
 	public SongTag(String title, String artist) {

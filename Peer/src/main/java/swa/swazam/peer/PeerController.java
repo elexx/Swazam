@@ -16,4 +16,6 @@ public interface PeerController {
 
 	void forwardRequest(RequestDTO request);
 
+	String getStorageRoot();
+
 }
