@@ -98,6 +98,6 @@ public class ServerSide extends SimpleChannelUpstreamHandler implements Startabl
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-		super.exceptionCaught(ctx, e);
+		e.getCause().printStackTrace();
 	}
 }

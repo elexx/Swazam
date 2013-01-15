@@ -53,7 +53,7 @@ public class Peer2PeerStub implements General2Peer, Peer2Peer, Startable {
 
 	@Override
 	public List<InetSocketAddress> alive(List<InetSocketAddress> destinationPeers) {
-		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("alive");
+		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("alive", localListenAddress);
 
 		List<ChannelFuture> futures = new LinkedList<>();
 		List<InetSocketAddress> answers = new LinkedList<>();
