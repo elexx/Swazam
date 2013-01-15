@@ -12,12 +12,12 @@ function send() {
 }
 
 function check_screen() {
-	if [ ! 0 -eq $(screen -q -ls $1 | grep $1 | wc -l) ] ; then echo "There is a screen session named \"$1\" already in use. The test suite won't work in this situation." ; exit ; fi
+	if [ ! 0 -eq $(screen -q -ls $1 | grep $1 | wc -l) ] ; then print_red "There is a screen session named \"$1\" already in use. The test suite won't work in this situation." ; exit ; fi
 }
 
 function check_ps() {
 	psc=$(ps -ef | grep $1 | grep -v grep | wc -l)
-	if [ ! 0 -eq $psc ] ; then echo "There are one or more processes matching \"$1\". The test suite won't work in this situation." ; exit ; fi
+	if [ ! 0 -eq $psc ] ; then print_red "There are one or more processes matching \"$1\". The test suite won't work in this situation." ; exit ; fi
 }
 
 function quit_screen() {
@@ -31,7 +31,7 @@ function quit_ps() {
 function check_clean() {
 	if [ ! \( 0 -eq $(netstat -ant | grep 9090 | grep LISTEN | wc -l) -a 0 -eq $(netstat -ant | grep 8080 | grep LISTEN | wc -l) \) ]
 	then
-		echo "Server is probably running (ports 8080 or 9090 are in use) - aborting"
+		print_red "Server is probably running (ports 8080 or 9090 are in use) - aborting"
 		exit
 	fi
 
@@ -44,6 +44,8 @@ function check_clean() {
 
 function cleanup() {
 	screen -wipe >/dev/null 2>&1
+
+	print_heading "ENVIRONMENT CLEANUP"
 
 	echo "Killing left-over servers..."
 	quit_ps server-0.0.1.jar 2>/dev/null
@@ -71,7 +73,7 @@ function wait_for_output() {
 		timeout=$(( timeout - 1 ))
 		if [ 0 -eq $timeout ]
 		then
-			echo "Timeout, something went wrong. Please consider calling \"$0 cleanup\"."
+			print_red " Timeout, something went wrong. Please consider calling \"$0 cleanup\"."
 			exit
 		fi
 	done
@@ -85,13 +87,39 @@ function realpath() {
 	( cd "$1" 2>/dev/null || return $? ; echo "$(pwd -P)"; )
 }
 
+function print_bold() {
+	tput bold
+	echo "$1"
+	tput sgr0
+}
+
+function print_green() {
+	tput setaf 2
+	print_bold "$1"
+}
+
+function print_red() {
+	tput setaf 1
+	print_bold "$1"
+}
+
+function print_yellow() {
+	tput setaf 3
+	print_bold "$1"
+}
+
+function print_heading() {
+	echo
+	echo $(print_bold "========== $1 ==========")
+}
+
 # ########################### CONFIGURATION ###########################
 
 ROOT_DIR=${1:-..}
 
 if [ "x"$1 == "xcleanup" ] ; then cleanup ; exit ; fi
 
-if [ ! -d $ROOT_DIR ] ; then echo "ROOT_DIR ($ROOT_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d $ROOT_DIR ] ; then print_red "ROOT_DIR ($ROOT_DIR) is not an existing directory!" ; exit ; fi
 
 ROOT_DIR=$(realpath $ROOT_DIR)
 
@@ -108,20 +136,18 @@ TEST_DATA_DIR=$TESTSUITE_DIR/data
 
 screen -wipe >/dev/null 2>&1
 
-if [ ! -d $TESTSUITE_DIR ] ; then echo "TESTSUITE_DIR ($TESTSUITE_DIR) is not an existing directory!" ; exit ; fi
-if [ ! -d $SERVER_DIR ] ; then echo "SERVER_DIR ($SERVER_DIR) is not an existing directory!" ; exit ; fi
-if [ ! -d $SERVER_DIR ] ; then echo "PEER_DIR ($PEER_DIR) is not an existing directory!" ; exit ; fi
-if [ ! -d $(dirname $TEST_WORKING_DIR) ] ; then echo "Parent of TEST_WORKING_DIR (parent of $TEST_WORKING_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d $TESTSUITE_DIR ] ; then print_red "TESTSUITE_DIR ($TESTSUITE_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d $SERVER_DIR ] ; then print_red "SERVER_DIR ($SERVER_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d $SERVER_DIR ] ; then print_red "PEER_DIR ($PEER_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d $(dirname $TEST_WORKING_DIR) ] ; then print_red "Parent of TEST_WORKING_DIR (parent of $TEST_WORKING_DIR) is not an existing directory!" ; exit ; fi
 
-if [ $SONG_COUNT -gt $PEER_COUNT ] ; then echo "SONG_COUNT ($SONG_COUNT) must not be greater than PEER_COUNT ($PEER_COUNT)!" ; exit ; fi
+if [ $SONG_COUNT -gt $PEER_COUNT ] ; then print_red "SONG_COUNT ($SONG_COUNT) must not be greater than PEER_COUNT ($PEER_COUNT)!" ; exit ; fi
 
 check_clean
 
 # ########################### TEST RUN ###########################
 
-echo
-echo "[testsuite] === STARTING UP TEST ENVIRONMENT ==="
-echo
+print_heading "STARTING UP TEST ENVIRONMENT"
 echo "[testsuite] Starting with ROOTDIR [$ROOT_DIR]"
 
 mkdir -p $TEST_WORKING_DIR
@@ -131,12 +157,12 @@ echo blank > $TEST_WORKING_DIR/server.out
 (cd $SERVER_DIR ; screen -dmS server -t java /bin/bash -c "java -jar target/server-0.0.1.jar >$TEST_WORKING_DIR/server.out 2>&1" )
 
 wait_for_output $TEST_WORKING_DIR/server.out "to exit"
-echo " started."
+print_green " started."
 
 echo -n "[testsuite] Creating peer directories... "
 for i in $(seq $PEER_COUNT)
 do
-	echo -n "(peer $i) "
+	echo -n "$i "
 	confpath=$TEST_WORKING_DIR/peer$i/peer.properties
 
 	mkdir -p $TEST_WORKING_DIR/peer$i/storage
@@ -152,64 +178,63 @@ do
 
 	echo blank > $TEST_WORKING_DIR/peer$i.out
 done
-echo "done."
+print_green "done."
 
 for i in $(seq $PEER_COUNT)
 do
 	echo -n "[peer $i] Starting..."
 	start_peer $i
 	wait_for_output $TEST_WORKING_DIR/peer$i.out "to exit"
-	echo " done."
+	print_green " done."
 done
 
-echo
-echo "[testsuite] === STARTING PEER TESTS ==="
-echo
+print_heading "STARTING PEER TESTS"
 
 for i in $(seq $SONG_COUNT)
 do
 	songname_file=$(printf %02d $i).mp3
 	songname=$TEST_DATA_DIR/$songname_file
-	if [ ! -f $songname ] ; then echo "[testsuite] Song $songname_file is not in test data directory - skipping addition" ; else
+	if [ ! -f $songname ] ; then print_yellow "[testsuite] Song $songname_file is not in test data directory - skipping addition" ; else
 		echo -n "[peer $i] Adding song, waiting for tag..."
 		cp $songname $TEST_WORKING_DIR/peer1/music
 		wait_for_output $TEST_WORKING_DIR/peer1.out "$songname_file generated"
-		echo " done."
+		print_green " done."
 	fi
 done
 
-echo 
-echo "[testsuite] === STARTING CLIENT TESTS ==="
-echo
+print_heading "STARTING CLIENT TESTS"
 
-echo "[testsuite] TODO: perform client tests here"
+print_yellow "[testsuite] TODO: perform client tests here"
 
-echo
-echo "[testsuite] === END OF AUTOMATIC TESTS ==="
-echo
-echo "[testsuite] Automatic tests passed. The P2P suite is now ready for you to further test it, if needed."
+print_heading "END OF AUTOMATIC TESTS"
+echo "[testsuite] Automatic tests passed. The P2P suite is now ready for you to test it further, if needed."
 echo "[testsuite] When finished, press any key to gracefully shutdown test suite."
-
 read -n1 -r
+
+print_heading "STOPPING TEST ENVIRONMENT"
 
 for i in $(seq $PEER_COUNT)
 do
 	echo -n "[peer $i] Stopping..."
 	send peer$i quit
 	wait_for_screen_end peer$i
-	echo " done."
+	print_green " done."
 done
 
 echo -n "[server] Quitting..."
 send server quit
 wait_for_screen_end server
-echo " done."
+print_green " done."
 
-echo "[testsuite] Cleaning up working directories..."
+echo -n "[testsuite] Cleaning up working directory..."
 rm -rf $TEST_WORKING_DIR
+print_green " done."
 
 sleep 2
 
-echo "[testsuite] Checking for clean environment..."
+echo -n "[testsuite] Checking for clean environment..."
 check_clean
-echo "[testsuite] Done."
+print_green " done."
+
+echo -n "[testsuite] " && print_green "Test suite finished regularly."
+
