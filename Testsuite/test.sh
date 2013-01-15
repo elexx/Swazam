@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PEER_COUNT=3
+SONG_COUNT=3 # must be <= PEER_COUNT
 
 function start_peer() {
 	(cd $PEER_DIR ; screen -dmS peer$1 -t java /bin/bash -c "java -jar target/peer-0.0.1.jar --config $TEST_WORKING_DIR/peer$1/peer.properties >$TEST_WORKING_DIR/peer$1.out 2>&1" )
@@ -61,7 +62,9 @@ function cleanup() {
 
 function wait_for_output() {
 	timeout=30
-	while [ 0 -eq $(cat "$1" | grep "$2" | wc -l) ]
+	prev_count=$(cat "$1" | grep "$2" | wc -l) 
+
+	while [ $prev_count -eq $(cat "$1" | grep "$2" | wc -l) ]
 	do
 		sleep 1 ; echo -n "."
 
@@ -110,10 +113,15 @@ if [ ! -d $SERVER_DIR ] ; then echo "SERVER_DIR ($SERVER_DIR) is not an existing
 if [ ! -d $SERVER_DIR ] ; then echo "PEER_DIR ($PEER_DIR) is not an existing directory!" ; exit ; fi
 if [ ! -d $(dirname $TEST_WORKING_DIR) ] ; then echo "Parent of TEST_WORKING_DIR (parent of $TEST_WORKING_DIR) is not an existing directory!" ; exit ; fi
 
+if [ $SONG_COUNT -gt $PEER_COUNT ] ; then echo "SONG_COUNT ($SONG_COUNT) must not be greater than PEER_COUNT ($PEER_COUNT)!" ; exit ; fi
+
 check_clean
 
 # ########################### TEST RUN ###########################
 
+echo
+echo "[testsuite] === STARTING UP TEST ENVIRONMENT ==="
+echo
 echo "[testsuite] Starting with ROOTDIR [$ROOT_DIR]"
 
 mkdir -p $TEST_WORKING_DIR
@@ -138,7 +146,7 @@ do
 	echo "credentials.user=chrissi" >> $confpath
 	echo "credentials.pass=chrissi" >> $confpath
 	echo "music.root=$TEST_WORKING_DIR/peer$i/music" >> $confpath
-	echo "storage.root=$TEST_WORKING_DIR/peer$i/data" >> $confpath
+	echo "storage.root=$TEST_WORKING_DIR/peer$i/storage" >> $confpath
 	echo "server.hostname=localhost" >> $confpath
 	echo "server.port=9090" >> $confpath
 
@@ -154,14 +162,35 @@ do
 	echo " done."
 done
 
-echo -n "[peer 1] Adding song, waiting for tag..."
-cp $TEST_DATA_DIR/01.mp3 $TEST_WORKING_DIR/peer1/music
-wait_for_output $TEST_WORKING_DIR/peer1.out "01.mp3 generated"
-echo " done."
+echo
+echo "[testsuite] === STARTING PEER TESTS ==="
+echo
 
-echo "now i would make some peer checks (pending)"
-sleep 5
-#send peer0 "add file1.wav"
+for i in $(seq $SONG_COUNT)
+do
+	songname_file=$(printf %02d $i).mp3
+	songname=$TEST_DATA_DIR/$songname_file
+	if [ ! -f $songname ] ; then echo "[testsuite] Song $songname_file is not in test data directory - skipping addition" ; else
+		echo -n "[peer $i] Adding song, waiting for tag..."
+		cp $songname $TEST_WORKING_DIR/peer1/music
+		wait_for_output $TEST_WORKING_DIR/peer1.out "$songname_file generated"
+		echo " done."
+	fi
+done
+
+echo 
+echo "[testsuite] === STARTING CLIENT TESTS ==="
+echo
+
+echo "[testsuite] TODO: perform client tests here"
+
+echo
+echo "[testsuite] === END OF AUTOMATIC TESTS ==="
+echo
+echo "[testsuite] Automatic tests passed. The P2P suite is now ready for you to further test it, if needed."
+echo "[testsuite] When finished, press any key to gracefully shutdown test suite."
+
+read -n1 -r
 
 for i in $(seq $PEER_COUNT)
 do
