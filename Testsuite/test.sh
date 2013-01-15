@@ -79,8 +79,7 @@ function wait_for_screen_end() {
 }
 
 function realpath() {
-	test -e "${1}" && ABSPATH=`cd \`dirname "${1}"\`; pwd`"/"`basename "${1}"`
-	test -n "${ABSPATH}" && echo ${ABSPATH}
+	( cd "$1" 2>/dev/null || return $? ; echo "$(pwd -P)"; )
 }
 
 # ########################### CONFIGURATION ###########################
