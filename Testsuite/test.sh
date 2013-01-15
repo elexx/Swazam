@@ -20,7 +20,7 @@ function check_ps() {
 }
 
 function quit_screen() {
-	if [ ! 0 -eq $(screen -q -ls $1 | grep $1 | wc -l) ] ; then screen -S "$1" -p java -X quit exit ; fi 
+	if [ ! 0 -eq $(screen -q -ls $1 | grep $1 | wc -l) ] ; then screen -S "$1" -p java -X quit exit ; fi
 }
 
 function quit_ps() {
@@ -55,14 +55,15 @@ function cleanup() {
 	echo "Checking for clean environment..."
 	check_clean
 	echo "Done."
-	exit
+
+	screen -wipe >/dev/null 2>&1
 }
 
 function wait_for_output() {
 	timeout=30
-	while [ 0 -eq $(cat "$1" | grep "$2" | wc -l) ] 
+	while [ 0 -eq $(cat "$1" | grep "$2" | wc -l) ]
 	do
-		sleep 1 ; echo -n "." 
+		sleep 1 ; echo -n "."
 
 		timeout=$(( timeout - 1 ))
 		if [ 0 -eq $timeout ]
@@ -77,7 +78,12 @@ function wait_for_screen_end() {
 	while [ ! 0 -eq $(screen -q -ls $1 | grep $1 | wc -l ) ] ; do sleep 1 ; echo -n "." ; done
 }
 
-# ########################### CONFIGURATION ########################### 
+function realpath() {
+	test -e "${1}" && ABSPATH=`cd \`dirname "${1}"\`; pwd`"/"`basename "${1}"`
+	test -n "${ABSPATH}" && echo ${ABSPATH}
+}
+
+# ########################### CONFIGURATION ###########################
 
 ROOT_DIR=${1:-..}
 
@@ -85,7 +91,7 @@ if [ "x"$1 == "xcleanup" ] ; then cleanup ; exit ; fi
 
 if [ ! -d $ROOT_DIR ] ; then echo "ROOT_DIR ($ROOT_DIR) is not an existing directory!" ; exit ; fi
 
-ROOT_DIR=$(readlink -f $ROOT_DIR)
+ROOT_DIR=$(realpath $ROOT_DIR)
 
 TESTSUITE_DIR=$ROOT_DIR/Testsuite
 
@@ -96,7 +102,7 @@ TEST_WORKING_DIR=$TESTSUITE_DIR/workingdir
 TEST_DATA_DIR=$TESTSUITE_DIR/data
 
 
-# ########################### PRE-CHECKS ########################### 
+# ########################### PRE-CHECKS ###########################
 
 screen -wipe >/dev/null 2>&1
 
@@ -107,7 +113,7 @@ if [ ! -d $(dirname $TEST_WORKING_DIR) ] ; then echo "Parent of TEST_WORKING_DIR
 
 check_clean
 
-# ########################### TEST RUN ########################### 
+# ########################### TEST RUN ###########################
 
 echo "[testsuite] Starting with ROOTDIR [$ROOT_DIR]"
 
