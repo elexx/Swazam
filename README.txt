@@ -17,6 +17,11 @@ The TestSuite starts 5 peers, the server and a client and adds mp3s to the peers
 For further testing, you can now manually start the Client GUI by changing to Swazam/Client and executing:
 java -jar target/client-0.0.1.jar 0 g
 
+You can also manually test using the Client's command line by executing:
+java -jar target/client-0.0.1.jar 0 c
+Just follow the command line output (use credentials below).
+
+
 *) If you like to have a look at the commandline outputs of the server/peers/client you can now switch to 
 Swazam/Testsuite/workingdir/<peerX>.out|server.out
 These files will be deleted after successful shutdown!!
