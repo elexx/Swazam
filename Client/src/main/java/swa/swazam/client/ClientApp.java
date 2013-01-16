@@ -94,11 +94,14 @@ public class ClientApp implements ProgressHandler {
 			try {
 				clientID = Integer.parseInt(args[0]);
 			} catch (NumberFormatException e) {
-				System.err.println("Argument" + " must be an integer");
+				System.err.println("Argument 1 must be an integer which refers to a configuration file eg. 1client.properties  and second parameter can be 'g' to start a gui");
 				System.exit(1);
 			}
-			if ("g".equalsIgnoreCase(args[1])) {
+			if ("g".equalsIgnoreCase(args[1])) { // gui
 				startGUI = true;
+			}
+			if ("c".equalsIgnoreCase(args[1])) { // commandline
+				startGUI = false;
 			}
 		}
 
@@ -135,7 +138,7 @@ public class ClientApp implements ProgressHandler {
 		} else {
 			try {
 				do {
-					logMessage("\nInformation: you can get more coins by running a SWAzam Peer and solving music requests.\n");
+					logMessage("\nInformation: you can get more coins by running a SWAzam Peer and solving music requests.\n");					
 				} while (searchForSnippet(getSnippetFileToFingerprintFromUser()));
 
 			} catch (SwazamException e) {
@@ -296,7 +299,7 @@ public class ClientApp implements ProgressHandler {
 			limiter.registerHandler(this);
 		}
 		new Thread(limiter).start();
-		return true;
+		return tryAgain;
 	}
 
 	/**
@@ -411,8 +414,8 @@ public class ClientApp implements ProgressHandler {
 
 	private void logMessage(String log) {
 		if (gui != null) {
-			gui.setLog(log);
-			System.out.println(log+newline);
+			gui.setLog(log+newline);
+			System.out.println(log);
 		} else
 			System.out.println(log);
 	}
@@ -662,6 +665,9 @@ public class ClientApp implements ProgressHandler {
 			updatePeerList(message.getResolverAddress()); // add resolving peer to peerlist
 
 			displayResult(); // display result of peer to user
+			if (gui != null) {
+				tryAgain = getRepeatDecissionFromUser();
+			}
 			message = null;
 		}
 	}

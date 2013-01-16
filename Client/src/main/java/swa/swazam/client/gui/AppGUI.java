@@ -140,20 +140,20 @@ public class AppGUI extends JPanel implements ActionListener, ProgressHandler {
 		JScrollPane scrollPane = new JScrollPane(log);
 		frmSwazam.getContentPane().add(scrollPane, BorderLayout.SOUTH);
 		
-		JButton btnFound = new JButton("Found!");
-		btnFound.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				MessageDTO answer = new MessageDTO(UUID.randomUUID(), "Simulated", "answer", new CredentialsDTO("chrissi", HashGenerator.hash("chrissi")));
-				answer.setResolverAddress(new InetSocketAddress("127.0.0.1", 58504));
-				app.getClientCallback().solved(answer);
-			}
-		});
-		scrollPane.setRowHeaderView(btnFound);
+//		JButton btnFound = new JButton("Found!");
+//		btnFound.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				MessageDTO answer = new MessageDTO(UUID.randomUUID(), "Simulated", "answer", new CredentialsDTO("chrissi", HashGenerator.hash("chrissi")));
+//				answer.setResolverAddress(new InetSocketAddress("127.0.0.1", 58504));
+//				app.getClientCallback().solved(answer);
+//			}
+//		});
+//		scrollPane.setRowHeaderView(btnFound);
 		
 		progressBar = new JProgressBar(0, 10);
 		scrollPane.setColumnHeaderView(progressBar);
 
-		log.append("Hello" + newline);
+		//log.append("Hello" + newline);
 	}
 
 	@Override
@@ -192,7 +192,7 @@ public class AppGUI extends JPanel implements ActionListener, ProgressHandler {
 	public void updateProgress(int progress) {
 		this.progressBar.setValue(progress);
 
-		if (progress == 10) {
+		if (progress >= 10) {
 			// Time is over
 			app.handleNoAnswer();
 		}

@@ -8,17 +8,18 @@ public class TimeLimiter implements Runnable{
 	@Override
 	public void run() {
 		
-		for (int i = 0; i < 10; i++) {
+		for (int i = 1; i <= 10; i++) {
 			try {
 				Thread.sleep(3000);
 				if (abort) {
 					break;
 				}
-				handler.updateProgress(i+1);
+				handler.updateProgress(i++);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		abort();
 	}
 	
 	public void registerHandler(ProgressHandler handler) {
