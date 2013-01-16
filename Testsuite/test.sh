@@ -75,13 +75,15 @@ function cleanup() {
 }
 
 function wait_for_output() {
-	wait_for_output_timeout $1 $2 60 $3
+	wait_for_output_timeout "$1" "$2" 60 "$3"
 }
 
 function wait_for_output_timeout() {
 	absolute_wait=${4:-"no"}
 	prev_count=$(cat "$1" | grep "$2" | wc -l) 
 	timeout=$3
+
+	#echo "[debug] waiting for \"$1\" at \"$2\" timeout \"$timeout\" absolute \"	
 
 	if [ $absolute_wait != "no" ] ; then prev_count=0 ; fi
 
@@ -165,6 +167,9 @@ if [ $SONG_COUNT -gt $PEER_COUNT ] ; then print_red "SONG_COUNT ($SONG_COUNT) mu
 check_clean
 
 # ########################### TEST RUN ###########################
+
+print_heading "BUILDING MAVEN PROJECT"
+( cd $ROOT_DIR ; mvn clean package -DskipTests )
 
 print_heading "STARTING UP TEST ENVIRONMENT"
 echo "[testsuite] Starting with ROOTDIR [$ROOT_DIR]"
