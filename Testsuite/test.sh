@@ -55,6 +55,18 @@ function cleanup() {
 	quit_ps peer-0.0.1.jar 2>/dev/null
 	for i in $(seq $PEER_COUNT) ; do quit_screen peer$i 2>/dev/null ; done
 
+	ROOT_DIR=${1:-..}
+	ROOT_DIR=$(realpath $ROOT_DIR)
+	TESTSUITE_DIR=$ROOT_DIR/Testsuite
+	TEST_WORKING_DIR=$TESTSUITE_DIR/workingdir
+	if [ -d $TEST_WORKING_DIR ]
+	then
+		echo "Cleaning up working directory..."
+		rm -rf $TEST_WORKING_DIR
+	else
+		echo "Working directory ($TEST_WORKING_DIR) is not a directory (not deleted)"
+	fi
+
 	echo "Checking for clean environment..."
 	check_clean
 	echo "Done."
@@ -63,8 +75,15 @@ function cleanup() {
 }
 
 function wait_for_output() {
-	timeout=30
+	wait_for_output_timeout $1 $2 60 $3
+}
+
+function wait_for_output_timeout() {
+	absolute_wait=${4:-"no"}
 	prev_count=$(cat "$1" | grep "$2" | wc -l) 
+	timeout=$3
+
+	if [ $absolute_wait != "no" ] ; then prev_count=0 ; fi
 
 	while [ $prev_count -eq $(cat "$1" | grep "$2" | wc -l) ]
 	do
@@ -190,16 +209,20 @@ done
 
 print_heading "STARTING PEER TESTS"
 
-for i in $(seq $SONG_COUNT)
+for i in $(seq $PEER_COUNT)
 do
-	songname_file=$(printf %02d $i).mp3
-	songname=$TEST_DATA_DIR/$songname_file
-	if [ ! -f $songname ] ; then print_yellow "[testsuite] Song $songname_file is not in test data directory - skipping addition" ; else
-		echo -n "[peer $i] Adding song, waiting for tag..."
-		cp $songname $TEST_WORKING_DIR/peer$i/music
-		wait_for_output $TEST_WORKING_DIR/peer$i.out "$songname_file generated"
-		print_green " done."
-	fi
+	echo "[peer $i] Copying mp3 files..."
+	cp $TEST_DATA_DIR/Peer$i/*.mp3 $TEST_WORKING_DIR/peer$i/music
+done
+
+for i in $(seq $PEER_COUNT)
+do
+	echo -n "[peer $i] Waiting for all tags..."
+	for f in $(ls $TEST_WORKING_DIR/peer$i/music/*.mp3)
+	do
+		wait_for_output_timeout $TEST_WORKING_DIR/peer$i.out "$f generated" 600000 "alex"
+	done
+	print_green " done."
 done
 
 print_heading "STARTING CLIENT TESTS"
