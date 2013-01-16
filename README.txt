@@ -17,8 +17,9 @@ The TestSuite starts 5 peers, the server and a client and adds mp3s to the peers
 For further testing, you can now manually start the Client GUI by changing to Swazam/Client and executing:
 java -jar target/client-0.0.1.jar 0 g
 
-After manual testing, press Enter to shutdown server, peers and client and exit the TestSuite. 
-
+*) If you like to have a look at the commandline outputs of the server/peers/client you can now switch to 
+Swazam/Testsuite/workingdir/<peerX>.out|server.out
+This files will be deleted after successful shutdown!!
 
 
 2. Webserver
