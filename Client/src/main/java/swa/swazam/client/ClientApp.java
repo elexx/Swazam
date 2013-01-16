@@ -138,8 +138,11 @@ public class ClientApp implements ProgressHandler {
 		} else {
 			try {
 				do {
-					logMessage("\nInformation: you can get more coins by running a SWAzam Peer and solving music requests.\n");					
-				} while (searchForSnippet(getSnippetFileToFingerprintFromUser()));
+					logMessage("\nInformation: you can get more coins by running a SWAzam Peer and solving music requests.\n");
+					
+					boolean searchAgain = searchForSnippet(getSnippetFileToFingerprintFromUser());
+					System.out.println("tryAgain: " + searchAgain);
+				} while (getRepeatDecissionFromUser());
 
 			} catch (SwazamException e) {
 				System.err.println("Server, internet connection, or database are down. Please try again later.");
@@ -448,7 +451,7 @@ public class ClientApp implements ProgressHandler {
 					}
 				} catch (IOException e) {
 					System.err.println("Song snippet cannot be read. Standard filename '" + System.getProperty("user.dir") + snippetRootDirectory + TESTFILE + "' is used."); // exit alternatively
-					snippet = TESTFILE;
+					snippet = System.getProperty("user.dir") + snippetRootDirectory + TESTFILE;
 				}
 				if (snippet == "") {
 					snippet = System.getProperty("user.dir") + snippetRootDirectory + TESTFILE;
