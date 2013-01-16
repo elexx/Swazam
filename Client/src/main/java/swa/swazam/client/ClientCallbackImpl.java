@@ -12,8 +12,14 @@ public class ClientCallbackImpl implements ClientCallback {
 	}
 
 	@Override
-	public void solved(MessageDTO answer) {
-		app.handleAnswer(answer);
+	public void solved(final MessageDTO answer) {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				app.handleAnswer(answer);
+			}
+		}).start();
 		
 		System.err.println(answer.getSongTitle());
 	}

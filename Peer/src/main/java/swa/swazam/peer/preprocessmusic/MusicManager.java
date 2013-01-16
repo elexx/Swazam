@@ -201,7 +201,6 @@ public class MusicManager implements PeerComponent, Runnable {
 		if (!fingerprints.containsKey(file)) {
 			try {
 				fp = new FingerprintTools().generate(AudioSystem.getAudioInputStream(file));
-				fingerprints.put(file, fp);
 			} catch (Exception ignored) {
 				return;
 			}
@@ -211,6 +210,7 @@ public class MusicManager implements PeerComponent, Runnable {
 			try {
 				SongTag tag = createTag(file);
 				tags.put(file, tag);
+				System.out.println("debug: tags.put '" + file.toString() + "'");
 				fingerprints.put(file, fp);
 				System.out.println("Tag for " + file.toString() + " generated");
 			} catch (Exception ignored) {

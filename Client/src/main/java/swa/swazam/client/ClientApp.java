@@ -94,11 +94,14 @@ public class ClientApp implements ProgressHandler {
 			try {
 				clientID = Integer.parseInt(args[0]);
 			} catch (NumberFormatException e) {
-				System.err.println("Argument" + " must be an integer");
+				System.err.println("Argument 1 must be an integer which refers to a configuration file eg. 1client.properties  and second parameter can be 'g' to start a gui");
 				System.exit(1);
 			}
-			if ("g".equalsIgnoreCase(args[1])) {
+			if ("g".equalsIgnoreCase(args[1])) { // gui
 				startGUI = true;
+			}
+			if ("c".equalsIgnoreCase(args[1])) { // commandline
+				startGUI = false;
 			}
 		}
 
@@ -136,7 +139,10 @@ public class ClientApp implements ProgressHandler {
 			try {
 				do {
 					logMessage("\nInformation: you can get more coins by running a SWAzam Peer and solving music requests.\n");
-				} while (searchForSnippet(getSnippetFileToFingerprintFromUser()));
+					
+					boolean searchAgain = searchForSnippet(getSnippetFileToFingerprintFromUser());
+					System.out.println("tryAgain: " + searchAgain);
+				} while (getRepeatDecissionFromUser());
 
 			} catch (SwazamException e) {
 				System.err.println("Server, internet connection, or database are down. Please try again later.");
@@ -296,7 +302,7 @@ public class ClientApp implements ProgressHandler {
 			limiter.registerHandler(this);
 		}
 		new Thread(limiter).start();
-		return true;
+		return tryAgain;
 	}
 
 	/**
@@ -411,8 +417,8 @@ public class ClientApp implements ProgressHandler {
 
 	private void logMessage(String log) {
 		if (gui != null) {
-			gui.setLog(log);
-			System.out.println(log+newline);
+			gui.setLog(log+newline);
+			System.out.println(log);
 		} else
 			System.out.println(log);
 	}
@@ -445,7 +451,7 @@ public class ClientApp implements ProgressHandler {
 					}
 				} catch (IOException e) {
 					System.err.println("Song snippet cannot be read. Standard filename '" + System.getProperty("user.dir") + snippetRootDirectory + TESTFILE + "' is used."); // exit alternatively
-					snippet = TESTFILE;
+					snippet = System.getProperty("user.dir") + snippetRootDirectory + TESTFILE;
 				}
 				if (snippet == "") {
 					snippet = System.getProperty("user.dir") + snippetRootDirectory + TESTFILE;
@@ -662,6 +668,9 @@ public class ClientApp implements ProgressHandler {
 			updatePeerList(message.getResolverAddress()); // add resolving peer to peerlist
 
 			displayResult(); // display result of peer to user
+			if (gui != null) {
+				tryAgain = getRepeatDecissionFromUser();
+			}
 			message = null;
 		}
 	}
