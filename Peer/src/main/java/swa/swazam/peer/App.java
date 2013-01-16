@@ -271,9 +271,14 @@ public class App implements Runnable, PeerCallback, PeerController {
 	}
 
 	@Override
-	public void process(RequestDTO request) {
-		System.out.println("[debug] process: " + request.getUuid().toString());
-		requestManager.process(request);
+	public void process(final RequestDTO request) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println("[debug] process: " + request.getUuid().toString());
+				requestManager.process(request);
+			}
+		}).start();
 	}
 
 	@Override
@@ -284,7 +289,17 @@ public class App implements Runnable, PeerCallback, PeerController {
 	@Override
 	public void solveRequest(RequestDTO request, String artist, String title) {
 		System.out.println("[debug] solved: " + request.getUuid().toString() + " (" + title + ")");
-		clientStub.solved(new MessageDTO(request.getUuid(), title, artist, user), request.getClient());
+		try {
+			clientStub.solved(new MessageDTO(request.getUuid(), title, artist, user), request.getClient());
+		} catch (Throwable t) {
+			System.out.println("caught: " + t);
+			t.printStackTrace();
+			if (t.getCause() != null) {
+				System.out.println("\ncause stacktrace: " + t);
+
+				t.getCause().printStackTrace();
+			}
+		}
 	}
 
 	@Override

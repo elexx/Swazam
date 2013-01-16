@@ -88,6 +88,9 @@ public class MusicManager implements PeerComponent, Runnable {
 	}
 
 	public SongTag getTag(File file) {
+		if (!tags.containsKey(file)) {
+			System.err.println("warning: file \"" + file.toString() + "\" not found in internal taglist");
+		}
 		return tags.get(file);
 	}
 
