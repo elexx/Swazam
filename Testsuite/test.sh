@@ -196,8 +196,8 @@ do
 	songname=$TEST_DATA_DIR/$songname_file
 	if [ ! -f $songname ] ; then print_yellow "[testsuite] Song $songname_file is not in test data directory - skipping addition" ; else
 		echo -n "[peer $i] Adding song, waiting for tag..."
-		cp $songname $TEST_WORKING_DIR/peer1/music
-		wait_for_output $TEST_WORKING_DIR/peer1.out "$songname_file generated"
+		cp $songname $TEST_WORKING_DIR/peer$i/music
+		wait_for_output $TEST_WORKING_DIR/peer$i.out "$songname_file generated"
 		print_green " done."
 	fi
 done
