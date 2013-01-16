@@ -38,6 +38,7 @@ public class ClientApp implements ProgressHandler {
 	private static final String TESTDATA = "demo";
 	private static final String TESTFILE = TESTDATA + ".wav";
 	private static final int MAGICPEERNUMBER = 5; // has to be at least 2
+	static private final String newline = "\n";
 
 	private String snippetRootDirectory;
 
@@ -280,7 +281,7 @@ public class ClientApp implements ProgressHandler {
 		serverStub.logRequest(user, message); // logRequest sends UUID/MessageDTO to Server
 
 		checkAndUpdateInitialPeerListToMinumumSize();
-
+		
 		// send MessageDTO (with UUID fingerprint) to top MAGICPEERNUMBER (eg.5) peers from client peerlist in parallel
 		// eventually also receive a return value of a successful or failed connection attempt to first peers, so that more peers in list can be tried without the request failing after first MAGICPEERNUMBER (eg 5) not online
 		peerStub.process(request, peerList.getTop(MAGICPEERNUMBER));
@@ -411,7 +412,7 @@ public class ClientApp implements ProgressHandler {
 	private void logMessage(String log) {
 		if (gui != null) {
 			gui.setLog(log);
-			System.out.println(log);
+			System.out.println(log+newline);
 		} else
 			System.out.println(log);
 	}
