@@ -133,10 +133,10 @@ public class ClientApp implements ProgressHandler {
 			gui.show();
 		} else {
 			try {
-//				do {
+				do {
 					logMessage("\nInformation: you can get more coins by running a SWAzam Peer and solving music requests.\n");
-//				} while ();
-					searchForSnippet(getSnippetFileToFingerprintFromUser());
+				} while (searchForSnippet(getSnippetFileToFingerprintFromUser()));
+					
 			} catch (SwazamException e) {
 				System.err.println("Server, internet connection, or database are down. Please try again later.");
 			} finally {
@@ -279,7 +279,7 @@ public class ClientApp implements ProgressHandler {
 	public boolean searchForSnippet(Fingerprint fingerprint) throws SwazamException {
 		createRequest(fingerprint); // create UUID for RequestDTO, create MessageDTO with UUID filled out already
 		serverStub.logRequest(user, message); // logRequest sends UUID/MessageDTO to Server
-
+		
 		checkAndUpdateInitialPeerListToMinumumSize();
 
 		// send MessageDTO (with UUID fingerprint) to top MAGICPEERNUMBER (eg.5) peers from client peerlist in parallel
