@@ -66,7 +66,7 @@ public class ClientApp implements ProgressHandler {
 	private boolean tryAgain;
 
 	private TimeLimiter limiter;
-	
+
 	public ClientApp(int clientID, boolean startGUI) {
 		peerList = new ArrayPeerList<>();
 		clientCallback = new ClientCallbackImpl(this);
@@ -136,7 +136,7 @@ public class ClientApp implements ProgressHandler {
 				do {
 					logMessage("\nInformation: you can get more coins by running a SWAzam Peer and solving music requests.\n");
 				} while (searchForSnippet(getSnippetFileToFingerprintFromUser()));
-					
+
 			} catch (SwazamException e) {
 				System.err.println("Server, internet connection, or database are down. Please try again later.");
 			} finally {
@@ -147,7 +147,6 @@ public class ClientApp implements ProgressHandler {
 
 	/**
 	 * loads configuration from config file, sets up storage for peerListbackup, sets up communication
-	 * 
 	 */
 	private void startup() {
 		try {
@@ -279,7 +278,7 @@ public class ClientApp implements ProgressHandler {
 	public boolean searchForSnippet(Fingerprint fingerprint) throws SwazamException {
 		createRequest(fingerprint); // create UUID for RequestDTO, create MessageDTO with UUID filled out already
 		serverStub.logRequest(user, message); // logRequest sends UUID/MessageDTO to Server
-		
+
 		checkAndUpdateInitialPeerListToMinumumSize();
 
 		// send MessageDTO (with UUID fingerprint) to top MAGICPEERNUMBER (eg.5) peers from client peerlist in parallel
@@ -300,7 +299,8 @@ public class ClientApp implements ProgressHandler {
 	}
 
 	/**
-	 * interactive Command line workflow reading user command line input if same sound snippet should be reused again 
+	 * interactive Command line workflow reading user command line input if same sound snippet should be reused again
+	 * 
 	 * @return true if same snippet should be used again
 	 * @throws SwazamException
 	 */
@@ -324,6 +324,7 @@ public class ClientApp implements ProgressHandler {
 
 	/**
 	 * interactive Command line workflow reading user command line input if client should quit or another snippet should be searched
+	 * 
 	 * @return true if another snippet should be searched
 	 */
 	private boolean getRepeatDecissionFromUser() {
@@ -445,8 +446,8 @@ public class ClientApp implements ProgressHandler {
 					System.err.println("Song snippet cannot be read. Standard filename '" + System.getProperty("user.dir") + snippetRootDirectory + TESTFILE + "' is used."); // exit alternatively
 					snippet = TESTFILE;
 				}
-				if (snippet =="") {
-					snippet=System.getProperty("user.dir") + snippetRootDirectory + TESTFILE;
+				if (snippet == "") {
+					snippet = System.getProperty("user.dir") + snippetRootDirectory + TESTFILE;
 				}
 				fingerprint = readFileAsFingerprint(snippet);
 			} while (fingerprint == null);
@@ -530,7 +531,9 @@ public class ClientApp implements ProgressHandler {
 			e.printStackTrace();
 		} finally {
 			logMessage("Thank you for using SWAzam.");
-			gui.shutdown();
+			if (gui != null) {
+				gui.shutdown();
+			}
 			System.exit(0);
 		}
 	}
@@ -615,7 +618,7 @@ public class ClientApp implements ProgressHandler {
 
 		if (progress == 10) {
 			// Time is over
-			handleNoAnswer(); 
+			handleNoAnswer();
 			try {
 				tryAgain = getTrySnippetAgainDecisionFromUser();
 			} catch (SwazamException e) {
@@ -626,8 +629,7 @@ public class ClientApp implements ProgressHandler {
 	}
 
 	/**
-	 * worst peers are removed from peer list, other Peers from peer list are added to Top to give them a chance next time. 
-	 * Is called when no answer was received (within 30 seconds) 
+	 * worst peers are removed from peer list, other Peers from peer list are added to Top to give them a chance next time. Is called when no answer was received (within 30 seconds)
 	 */
 	public void handleNoAnswer() {
 		try {
@@ -638,7 +640,7 @@ public class ClientApp implements ProgressHandler {
 			System.err.println("Server, internet connection, or database are down. Please try again later.");
 			shutdown();
 		}
-		
+
 	}
 
 	/**
@@ -655,7 +657,7 @@ public class ClientApp implements ProgressHandler {
 			} catch (SwazamException e) {
 				System.err.println("Server, internet connection, or database are down. Please try again later.");
 				shutdown();
-			} 
+			}
 			updatePeerList(message.getResolverAddress()); // add resolving peer to peerlist
 
 			displayResult(); // display result of peer to user
@@ -664,6 +666,5 @@ public class ClientApp implements ProgressHandler {
 	}
 
 	@Override
-	public void finish() {
-	}
+	public void finish() {}
 }
