@@ -61,3 +61,6 @@ $RECYCLE.BIN/
 # Known peers files
 knownPeers.json
 
+Testsuite/workingdir
+Peer/tags
+
