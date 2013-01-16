@@ -438,14 +438,17 @@ public class ClientApp implements ProgressHandler {
 				try {
 					// (record or) select music snippet file
 					while (snippet == "") {
-						System.out.print("Enter song snippet filename (eg. " + TESTFILE + "): " + System.getProperty("user.dir") + snippetRootDirectory);
+						System.out.println("Enter song snippet filename absolute (eg. " + TESTFILE + ") or enter for demo file: " + System.getProperty("user.dir") + snippetRootDirectory + TESTFILE);
 						snippet = br.readLine();
 					}
 				} catch (IOException e) {
 					System.err.println("Song snippet cannot be read. Standard filename '" + System.getProperty("user.dir") + snippetRootDirectory + TESTFILE + "' is used."); // exit alternatively
 					snippet = TESTFILE;
 				}
-				fingerprint = readFileAsFingerprint(System.getProperty("user.dir") + snippetRootDirectory + snippet);
+				if (snippet =="") {
+					snippet=System.getProperty("user.dir") + snippetRootDirectory + TESTFILE;
+				}
+				fingerprint = readFileAsFingerprint(snippet);
 			} while (fingerprint == null);
 		} else {
 			logMessage("Snippet filename: '" + System.getProperty("user.dir") + snippetRootDirectory + snippetFileName + "' will be used.");
