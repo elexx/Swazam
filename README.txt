@@ -1,6 +1,6 @@
 ﻿README
 
-Necessary tools for running the TestSuite: bash, screen, Java SE 7, Maven 2.2.1 (at least)
+Necessary tools for running the TestSuite: bash, screen, Java SE 7, Maven (version 2.2.1 at least)
 
 
 1. TestSuite
