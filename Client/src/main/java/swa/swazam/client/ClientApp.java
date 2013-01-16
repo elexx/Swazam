@@ -136,13 +136,15 @@ public class ClientApp implements ProgressHandler {
 		if (gui != null) {
 			gui.show();
 		} else {
+			boolean searchAgain;
 			try {
 				do {
 					logMessage("\nInformation: you can get more coins by running a SWAzam Peer and solving music requests.\n");
 					
-					boolean searchAgain = searchForSnippet(getSnippetFileToFingerprintFromUser());
+					searchAgain = searchForSnippet(getSnippetFileToFingerprintFromUser());										
 					System.out.println("tryAgain: " + searchAgain);
-				} while (getRepeatDecissionFromUser());
+					
+				} while (searchAgain);
 
 			} catch (SwazamException e) {
 				System.err.println("Server, internet connection, or database are down. Please try again later.");
@@ -643,6 +645,9 @@ public class ClientApp implements ProgressHandler {
 			removePeersFromBottom(MAGICPEERNUMBER - 1); // reduce peerListSize from Bottom (peers did not pop up when returning results, and better ones did)
 			addPeersToTop(MAGICPEERNUMBER - 1);// put MAGICPEERNUMBER-1 (eg 4) other peers from list to top (so best one from before still has a chance)
 			logMessage(". Song snippet not found thifs time.");
+			if (gui == null) {
+				tryAgain = getRepeatDecissionFromUser();
+			}
 		} catch (SwazamException e) {
 			System.err.println("Server, internet connection, or database are down. Please try again later.");
 			shutdown();
@@ -651,16 +656,16 @@ public class ClientApp implements ProgressHandler {
 	}
 
 	/**
-	 * if answer was received, abort the timer, log answer to server with resoving peer adress in message, update client peerlist and add resolving peer, and display result to user
+	 * if answer was received, abort the timer, log answer to server with resolving peer address in message, update client peerlist and add resolving peer, and display result to user
 	 * 
-	 * @param answer
+	 * @param answer received from peer
 	 */
 	public void handleAnswer(MessageDTO answer) {
 		if (message != null) {
 			message = answer;
-			limiter.abort();
+			
 			try {
-				serverStub.logRequest(user, message); // logRequest sends MessageDTO with completely filled out fields from first answering peer to server (server gives resolver a coin)
+				serverStub.logRequest(user, message); // logRequest sends MessageDTO with completely filled out fields from first answering peer to server (server gives resolver two coins)
 			} catch (SwazamException e) {
 				System.err.println("Server, internet connection, or database are down. Please try again later.");
 				shutdown();
@@ -668,6 +673,8 @@ public class ClientApp implements ProgressHandler {
 			updatePeerList(message.getResolverAddress()); // add resolving peer to peerlist
 
 			displayResult(); // display result of peer to user
+			logMessage("quitting 30second timeout");
+			limiter.abort();
 			if (gui != null) {
 				tryAgain = getRepeatDecissionFromUser();
 			}

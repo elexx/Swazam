@@ -19,7 +19,6 @@ public class TimeLimiter implements Runnable{
 				e.printStackTrace();
 			}
 		}
-		abort();
 	}
 	
 	public void registerHandler(ProgressHandler handler) {
