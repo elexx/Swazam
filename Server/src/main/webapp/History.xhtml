@@ -46,7 +46,7 @@
                                     <h:outputText value="#{i18n.date}"/>
                                 </f:facet>
                                 <h:outputText value="#{r.date}">
-                                    <f:convertDateTime pattern="dd.MM.yyyy HH:mm" />
+                                    <f:convertDateTime pattern="dd.MM.yyyy HH:mm" timeZone="CET" />
                                 </h:outputText>
                             </p:column>      
                             <p:column id="recognitionRequestTable_Status" sortBy="#{r.getStatusTextRequested()}">
@@ -84,7 +84,7 @@
                                     <h:outputText value="#{i18n.date}"/>
                                 </f:facet>
                                 <h:outputText value="#{r.date}">
-                                    <f:convertDateTime pattern="dd.MM.yyyy HH:mm" />
+                                    <f:convertDateTime pattern="dd.MM.yyyy HH:mm" timeZone="CET"/>
                                 </h:outputText>
                             </p:column>      
                             <p:column id="recognitionRequestTable_Status">
