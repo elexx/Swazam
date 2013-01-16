@@ -134,7 +134,7 @@ public class ClientApp implements ProgressHandler {
 			System.exit(0);
 		}
 		if (gui != null) {
-			gui.show();
+			gui.showMe();
 		} else {
 			boolean searchAgain;
 			try {

@@ -56,7 +56,7 @@ public class Client2ServerStub implements Client2Server, Startable {
 	@Override
 	public void logRequest(CredentialsDTO user, MessageDTO message) throws SwazamException {
 		RequestWirePacket packet = NetPacketFactory.createRequestWirePacket("logRequest", user, message);
-		clientSide.callRemoteMethode(channel, packet);
+		clientSide.callRemoteMethodNoneBlocking(channel, packet).awaitUninterruptibly();
 	}
 
 	@Override

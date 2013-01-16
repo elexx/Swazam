@@ -6,36 +6,25 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.net.InetSocketAddress;
-import java.util.UUID;
 
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import swa.swazam.client.ClientApp;
 import swa.swazam.client.ProgressHandler;
-import swa.swazam.util.dto.CredentialsDTO;
-import swa.swazam.util.dto.MessageDTO;
 import swa.swazam.util.exceptions.SwazamException;
-import swa.swazam.util.hash.HashGenerator;
 import ac.at.tuwien.infosys.swa.audio.Fingerprint;
-import javax.swing.JProgressBar;
 
 public class AppGUI extends JPanel implements ActionListener, ProgressHandler {
 
@@ -55,7 +44,7 @@ public class AppGUI extends JPanel implements ActionListener, ProgressHandler {
 	/**
 	 * Create the GUI and show it. For thread safety, setVisible is invoked from the event dispatch thread.
 	 */
-	public void show() {
+	public void showMe() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				frmSwazam.setVisible(true);
@@ -154,6 +143,7 @@ public class AppGUI extends JPanel implements ActionListener, ProgressHandler {
 		scrollPane.setColumnHeaderView(progressBar);
 
 		//log.append("Hello" + newline);
+		frmSwazam.setVisible(true);
 	}
 
 	@Override

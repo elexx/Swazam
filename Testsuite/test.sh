@@ -80,10 +80,10 @@ function wait_for_output() {
 
 function wait_for_output_timeout() {
 	absolute_wait=${4:-"no"}
-	prev_count=$(cat "$1" | grep "$2" | wc -l) 
+	prev_count=$(cat "$1" | grep "$2" | wc -l)
 	timeout=$3
 
-	#echo "[debug] waiting for \"$1\" at \"$2\" timeout \"$timeout\" absolute \"	
+	#echo "[debug] waiting for \"$1\" at \"$2\" timeout \"$timeout\" absolute \"
 
 	if [ $absolute_wait != "no" ] ; then prev_count=0 ; fi
 
@@ -169,7 +169,7 @@ check_clean
 # ########################### TEST RUN ###########################
 
 print_heading "BUILDING MAVEN PROJECT"
-( cd $ROOT_DIR ; mvn clean package -DskipTests )
+( cd $ROOT_DIR ; mvn clean package -Dmaven.test.skip=true )
 
 print_heading "STARTING UP TEST ENVIRONMENT"
 echo "[testsuite] Starting with ROOTDIR [$ROOT_DIR]"
@@ -217,13 +217,13 @@ print_heading "STARTING PEER TESTS"
 for i in $(seq $PEER_COUNT)
 do
 	echo "[peer $i] Copying mp3 files..."
-	cp $TEST_DATA_DIR/Peer$i/*.mp3 $TEST_WORKING_DIR/peer$i/music
+	cp "$TEST_DATA_DIR"/Peer$i/*.mp3 "$TEST_WORKING_DIR"/peer$i/music
 done
 
 for i in $(seq $PEER_COUNT)
 do
 	echo -n "[peer $i] Waiting for all tags..."
-	for f in $(ls $TEST_WORKING_DIR/peer$i/music/*.mp3)
+	for f in "$TEST_WORKING_DIR"/peer$i/music/*.mp3
 	do
 		wait_for_output_timeout $TEST_WORKING_DIR/peer$i.out "$f generated" 600000 "alex"
 	done
