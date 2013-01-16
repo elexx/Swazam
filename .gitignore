@@ -62,5 +62,7 @@ $RECYCLE.BIN/
 knownPeers.json
 
 Testsuite/workingdir
+Testsuite/data/Peer*
+Testsuite/data/Client
 Peer/tags
 
