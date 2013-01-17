@@ -6,7 +6,7 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import swa.swazam.clientnew.App;
-import swa.swazam.clientnew.ClientLogic;
+import swa.swazam.clientnew.LogicCallback;
 import swa.swazam.clientnew.ParameterSet;
 import swa.swazam.clientnew.TemplateUI;
 import swa.swazam.util.dto.CredentialsDTO;
@@ -40,7 +40,7 @@ public class CommandLineUI extends TemplateUI {
 	}
 
 	@Override
-	public int run(ClientLogic logic) {
+	public int run(LogicCallback logic) {
 		input = new Scanner(System.in);
 
 		try {

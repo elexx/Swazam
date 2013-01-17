@@ -24,7 +24,7 @@ import javax.swing.table.DefaultTableModel;
 
 import net.miginfocom.swing.MigLayout;
 import swa.swazam.clientnew.App;
-import swa.swazam.clientnew.ClientLogic;
+import swa.swazam.clientnew.LogicCallback;
 import swa.swazam.clientnew.ParameterSet;
 import swa.swazam.clientnew.TemplateUI;
 import swa.swazam.util.dto.CredentialsDTO;
@@ -36,7 +36,7 @@ public class GraphicUI extends TemplateUI implements ActionListener {
 	private JFrame mainWindow;
 	private DefaultTableModel tableModel;
 
-	private ClientLogic logic;
+	private LogicCallback logic;
 	private boolean shutdown = false;
 
 	private Map<UUID, Integer> rows = Collections.synchronizedMap(new HashMap<UUID, Integer>());
@@ -87,7 +87,7 @@ public class GraphicUI extends TemplateUI implements ActionListener {
 	}
 
 	@Override
-	public int run(ClientLogic logic) {
+	public int run(LogicCallback logic) {
 		this.logic = logic;
 
 		CredentialsDTO creds = getConfigCredentials();

@@ -19,7 +19,7 @@ public interface ClientUI extends UICallback {
 	 *            The business logic object to be used by the UI
 	 * @return The return value to be propagated to the operating system
 	 */
-	public int run(ClientLogic logic);
+	public int run(LogicCallback logic);
 
 	/**
 	 * Is called when the UI is needed to display a missing prerequisite. This
