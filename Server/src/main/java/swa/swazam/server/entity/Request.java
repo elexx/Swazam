@@ -18,7 +18,7 @@ public class Request {
 
 	@Id
 	@Column(name="uuid")
-	private UUID uuid;
+	private String uuid;
 	
 	@Column(name="song")
 	private String song;
@@ -51,7 +51,7 @@ public class Request {
 		this.requestor = requestor;
 		this.solver = solver;
 		this.status = status;
-		this.uuid = uuid;
+		this.uuid = uuid.toString();
 	}
 	
 	public String getSong() {
@@ -102,12 +102,16 @@ public class Request {
 		this.status = status;
 	}
 
-	public UUID getUuid() {
+	public String getUuid() {
 		return uuid;
 	}
-
-	public void setUuid(UUID uuid) {
+	
+	public void setUuid(String uuid) {
 		this.uuid = uuid;
+	}
+	
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid.toString();
 	}
 	
 	public String getStatusTextRequested(){

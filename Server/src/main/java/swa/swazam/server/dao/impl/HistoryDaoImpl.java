@@ -61,7 +61,7 @@ public class HistoryDaoImpl implements HistoryDao {
 	}
 
 	@Override
-	public Request find(UUID requestUUID) {
+	public Request find(String requestUUID) {
 		return entityManager.find(Request.class, requestUUID);
 	}
 

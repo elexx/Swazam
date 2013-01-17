@@ -39,8 +39,8 @@ public interface HistoryDao {
 	
 	/**
 	 * Looks for the given request
-	 * @param requestUUID the UUID of the request that should be found
+	 * @param requestUUID the UUID as string of the request that should be found
 	 * @return the request if existing or null, if no request with the given UUID exists
 	 */
-	public Request find(UUID requestUUID);
+	public Request find(String requestUUID);
 }
