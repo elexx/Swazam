@@ -147,6 +147,7 @@ TESTSUITE_DIR=$ROOT_DIR/Testsuite
 
 SERVER_DIR=$ROOT_DIR/Server
 PEER_DIR=$ROOT_DIR/Peer
+CLIENT_DIR=$ROOT_DIR/Client
 
 TEST_WORKING_DIR=$TESTSUITE_DIR/workingdir
 TEST_DATA_DIR=$TESTSUITE_DIR/data
@@ -158,8 +159,17 @@ screen -wipe >/dev/null 2>&1
 
 if [ ! -d $TESTSUITE_DIR ] ; then print_red "TESTSUITE_DIR ($TESTSUITE_DIR) is not an existing directory!" ; exit ; fi
 if [ ! -d $SERVER_DIR ] ; then print_red "SERVER_DIR ($SERVER_DIR) is not an existing directory!" ; exit ; fi
-if [ ! -d $SERVER_DIR ] ; then print_red "PEER_DIR ($PEER_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d $PEER_DIR ] ; then print_red "PEER_DIR ($PEER_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d $CLIENT_DIR ] ; then print_red "PEER_DIR ($PEER_DIR) is not an existing directory!" ; exit ; fi
 if [ ! -d $(dirname $TEST_WORKING_DIR) ] ; then print_red "Parent of TEST_WORKING_DIR (parent of $TEST_WORKING_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d $TEST_DATA_DIR ] ; then print_red "TEST_DATA_DIR ($TEST_DATA_DIR) is not an existing directory!" ; exit ; fi
+
+for i in $(seq $PEER_COUNT)
+do
+	if [ ! -d $TEST_DATA_DIR/Peer$i ] ; then print_red "Peer $i needs a music directory ($TEST_DATA_DIR/Peer$i)!" ; exit ; fi
+	ls $TEST_DATA_DIR/Peer$i/*.mp3 >/dev/null 2>&1
+	if [ $? -ne 0 ] ; then print_red "Peer $i needs MP3 files in its music directory ($TEST_DATA_DIR/Peer$i/*.mp3)!" ; exit ; fi
+done
 
 check_clean
 
@@ -174,7 +184,7 @@ echo "[testsuite] Starting with ROOTDIR [$ROOT_DIR]"
 mkdir -p $TEST_WORKING_DIR
 
 echo -n "[server] Starting..."
-echo blank > $TEST_WORKING_DIR/server.out
+echo "" > $TEST_WORKING_DIR/server.out
 (cd $SERVER_DIR ; screen -dmS server -t java /bin/bash -c "java -jar target/server-0.0.1.jar >$TEST_WORKING_DIR/server.out 2>&1" )
 
 wait_for_output $TEST_WORKING_DIR/server.out "to exit"
@@ -202,7 +212,7 @@ do
 	echo "server.hostname=localhost" >> $confpath
 	echo "server.port=9090" >> $confpath
 
-	echo blank > $TEST_WORKING_DIR/peer$i.out
+	echo "" > $TEST_WORKING_DIR/peer$i.out
 done
 print_green "done."
 
@@ -218,8 +228,9 @@ print_heading "STARTING PEER TESTS"
 
 for i in $(seq $PEER_COUNT)
 do
-	echo "[peer $i] Copying mp3 files..."
+	echo -n "[peer $i] Copying mp3 files..."
 	cp "$TEST_DATA_DIR"/Peer$i/*.mp3 "$TEST_WORKING_DIR"/peer$i/music
+	print_green " done."
 done
 
 for i in $(seq $PEER_COUNT)
@@ -234,7 +245,53 @@ done
 
 print_heading "STARTING CLIENT TESTS"
 
-print_yellow "[testsuite] TODO: perform client tests here"
+mkdir "$TEST_WORKING_DIR"/client
+confpath="$TEST_WORKING_DIR"/client/client.properties
+echo "" > "$confpath"
+echo "credentials.user=chrissi" >> "$confpath"
+echo "credentials.pass=chrissi" >> "$confpath"
+echo "server.hostname=localhost" >> "$confpath"
+echo "server.port=9090" >> "$confpath"
+
+client=1
+for sample in "$TEST_DATA_DIR"/Client/*.mp3
+do
+	echo $sample | grep "fail" >/dev/null 2>&1
+	shouldfail=$?
+	if [ $shouldfail -eq 0 ] ; then should="fail" ; else should="succeed" ; fi
+	echo -n "[client $client] Testing snippet "$(basename $sample)" (should $should)..."
+
+	echo "" > $TEST_WORKING_DIR/client$client.out
+	(cd $CLIENT_DIR ; java -jar target/client-0.0.1.jar --test --sample "$sample" --config $confpath >$TEST_WORKING_DIR/client$client.out 2>&1 )
+	retval=$?
+	retfile="$TEST_WORKING_DIR/client$client.out"
+	retsong_n=$(cat "$retfile" | wc -l)
+	songname=$(cat "$retfile" | awk 'NR==1')
+	songartist=$(cat "$retfile" | awk 'NR==2')
+
+	#echo " retval $retval ret_n $retsong_n songname $songname songartist $songartist"
+	if [ $retval -eq 0 ]
+	then
+		if [ $shouldfail -ne 0 ]
+		then
+			print_green " success ($songname)"
+		else
+			print_red " success (should have failed)"
+		fi
+	elif [ $retval -eq 1 ]
+	then
+		if [ $shouldfail -ne 0 ]
+		then
+			print_red " not found"
+		else
+			print_green " not found (as planned)"
+		fi
+	else
+		print_red " failed (retcode $retval)"
+	fi
+	
+	client=$(( client + 1 ))
+done
 
 print_heading "END OF AUTOMATIC TESTS"
 echo "[testsuite] Automatic tests passed. The P2P suite is now ready for you to test it further, if needed."
