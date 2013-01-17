@@ -192,6 +192,7 @@ public class App implements Runnable, PeerCallback, PeerController {
 				System.err.println("Unknown command: " + cmd);
 			}
 		}
+		input.close();
 	}
 
 	private void loadConfig() throws IOException {

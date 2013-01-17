@@ -7,11 +7,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import swa.swazam.server.daemon.ServerCallbackImpl;
-import swa.swazam.util.exceptions.SwazamException;
-import swa.swazam.util.peerlist.PeerListBackup;
-
 import swa.swazam.util.communication.api.CommunicationUtilFactory;
 import swa.swazam.util.communication.api.ServerCommunicationUtil;
+import swa.swazam.util.exceptions.SwazamException;
+import swa.swazam.util.peerlist.PeerListBackup;
 
 public class App {
 	private ServerCallbackImpl serverCallback;
@@ -33,7 +32,7 @@ public class App {
 	}
 
 	public static void main(String[] args) {
-		App app = new App();
+		new App();
 	}
 
 	/**
@@ -91,7 +90,7 @@ public class App {
 	public void read() {
 
 		Scanner sc = new Scanner(System.in);
-		
+
 		try {
 			Thread.sleep(10000L);
 		} catch (InterruptedException e) {}
@@ -103,9 +102,10 @@ public class App {
 				commLayer.shutdown();
 				webRunnable.stop();
 				backupThread.interrupt();
-				return;
+				break;
 			}
 		}
+		sc.close();
 	}
 
 }
