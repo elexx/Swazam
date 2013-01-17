@@ -33,13 +33,13 @@ public class ClientApp {
 			else if (args[i].equals("--gui") || args[i].equals("-g")) params.mode = Mode.GUI;
 			else if (args[i].equals("--test") || args[i].equals("-t")) params.mode = Mode.Testsuite;
 			else if (args[i].equals("--config") || args[i].equals("-c")) {
-				if (++i > args.length) {
+				if (++i >= args.length) {
 					System.err.println("Missing config file path");
 					return;
 				}
 				params.configPath = args[i];
 			} else if (args[i].equals("--sample") || args[i].equals("-s")) {
-				if (++i > args.length) {
+				if (++i >= args.length) {
 					System.err.println("Missing snippet file path");
 					return;
 				}
