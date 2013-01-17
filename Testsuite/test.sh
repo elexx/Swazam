@@ -3,7 +3,7 @@
 PEER_COUNT=5
 
 function start_peer() {
-	(cd $PEER_DIR ; screen -dmS peer$1 -t java /bin/bash -c "java -jar target/peer-0.0.1.jar --config $TEST_WORKING_DIR/peer$1/peer.properties >$TEST_WORKING_DIR/peer$1.out 2>&1" )
+	(cd "$PEER_DIR" ; screen -dmS peer$1 -t java /bin/bash -c "java -jar target/peer-0.0.1.jar --config '$TEST_WORKING_DIR/peer$1/peer.properties' >'$TEST_WORKING_DIR/peer$1.out' 2>&1" )
 }
 
 function send() {
@@ -54,14 +54,10 @@ function cleanup() {
 	quit_ps peer-0.0.1.jar 2>/dev/null
 	for i in $(seq $PEER_COUNT) ; do quit_screen peer$i 2>/dev/null ; done
 
-	ROOT_DIR=${1:-..}
-	ROOT_DIR=$(realpath $ROOT_DIR)
-	TESTSUITE_DIR=$ROOT_DIR/Testsuite
-	TEST_WORKING_DIR=$TESTSUITE_DIR/workingdir
-	if [ -d $TEST_WORKING_DIR ]
+	if [ -d "$TEST_WORKING_DIR" ]
 	then
 		echo "Cleaning up working directory..."
-		rm -rf $TEST_WORKING_DIR
+		rm -rf "$TEST_WORKING_DIR"
 	else
 		echo "Working directory ($TEST_WORKING_DIR) is not a directory (not deleted)"
 	fi
@@ -135,44 +131,44 @@ function print_heading() {
 
 # ########################### CONFIGURATION ###########################
 
-ROOT_DIR=${1:-..}
+ROOT_DIR="${1:-..}"
+ROOT_DIR="$(realpath $ROOT_DIR)"
+TESTSUITE_DIR="$ROOT_DIR/Testsuite"
+TEST_WORKING_DIR="$TESTSUITE_DIR/workingdir"
+TEST_DATA_DIR="$TESTSUITE_DIR/data"
 
-if [ "x"$1 == "xcleanup" ] ; then cleanup ; exit ; fi
+if [ \( "x$1" == "xcleanup" \) -a \( -z "$2" \) ] ; then cleanup ; exit ; fi
+if [ \( -d "$1" \) -a \( "x$2" == "xcleanup" \) ] ; then cleanup ; exit ; fi
 
-if [ ! -d $ROOT_DIR ] ; then print_red "ROOT_DIR ($ROOT_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d "$ROOT_DIR" ] ; then print_red "ROOT_DIR ($ROOT_DIR) is not an existing directory!" ; exit ; fi
 
-ROOT_DIR=$(realpath $ROOT_DIR)
 
-TESTSUITE_DIR=$ROOT_DIR/Testsuite
+SERVER_DIR="$ROOT_DIR/Server"
+PEER_DIR="$ROOT_DIR/Peer"
+CLIENT_DIR="$ROOT_DIR/Client"
 
-SERVER_DIR=$ROOT_DIR/Server
-PEER_DIR=$ROOT_DIR/Peer
-CLIENT_DIR=$ROOT_DIR/Client
-
-TEST_WORKING_DIR=$TESTSUITE_DIR/workingdir
-TEST_DATA_DIR=$TESTSUITE_DIR/data
 
 
 # ########################### PRE-CHECKS ###########################
 
 screen -wipe >/dev/null 2>&1
 
-if [ ! -d $TESTSUITE_DIR ] ; then print_red "TESTSUITE_DIR ($TESTSUITE_DIR) is not an existing directory!" ; exit ; fi
-if [ ! -d $SERVER_DIR ] ; then print_red "SERVER_DIR ($SERVER_DIR) is not an existing directory!" ; exit ; fi
-if [ ! -d $PEER_DIR ] ; then print_red "PEER_DIR ($PEER_DIR) is not an existing directory!" ; exit ; fi
-if [ ! -d $CLIENT_DIR ] ; then print_red "PEER_DIR ($PEER_DIR) is not an existing directory!" ; exit ; fi
-if [ ! -d $(dirname $TEST_WORKING_DIR) ] ; then print_red "Parent of TEST_WORKING_DIR (parent of $TEST_WORKING_DIR) is not an existing directory!" ; exit ; fi
-if [ ! -d $TEST_DATA_DIR ] ; then print_red "TEST_DATA_DIR ($TEST_DATA_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d "$TESTSUITE_DIR" ] ; then print_red "TESTSUITE_DIR ($TESTSUITE_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d "$SERVER_DIR" ] ; then print_red "SERVER_DIR ($SERVER_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d "$PEER_DIR" ] ; then print_red "PEER_DIR ($PEER_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d "$CLIENT_DIR" ] ; then print_red "PEER_DIR ($PEER_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d "$(dirname '$TEST_WORKING_DIR')" ] ; then print_red "Parent of TEST_WORKING_DIR (parent of $TEST_WORKING_DIR) is not an existing directory!" ; exit ; fi
+if [ ! -d "$TEST_DATA_DIR" ] ; then print_red "TEST_DATA_DIR ($TEST_DATA_DIR) is not an existing directory!" ; exit ; fi
 
 for i in $(seq $PEER_COUNT)
 do
-	if [ ! -d $TEST_DATA_DIR/Peer$i ] ; then print_red "Peer $i needs a music directory ($TEST_DATA_DIR/Peer$i)!" ; exit ; fi
-	ls $TEST_DATA_DIR/Peer$i/*.mp3 >/dev/null 2>&1
+	if [ ! -d "$TEST_DATA_DIR"/Peer$i ] ; then print_red "Peer $i needs a music directory ($TEST_DATA_DIR/Peer$i)!" ; exit ; fi
+	ls "$TEST_DATA_DIR"/Peer$i/*.mp3 >/dev/null 2>&1
 	if [ $? -ne 0 ] ; then print_red "Peer $i needs MP3 files in its music directory ($TEST_DATA_DIR/Peer$i/*.mp3)!" ; exit ; fi
 done
 
-if [ ! -d $TEST_DATA_DIR/Client ] ; then print_red "Client needs a music directory ($TEST_DATA_DIR/Client)!" ; exit ; fi
-ls $TEST_DATA_DIR/Client/*.mp3 >/dev/null 2>&1
+if [ ! -d "$TEST_DATA_DIR"/Client ] ; then print_red "Client needs a music directory ($TEST_DATA_DIR/Client)!" ; exit ; fi
+ls "$TEST_DATA_DIR"/Client/*.mp3 >/dev/null 2>&1
 if [ $? -ne 0 ] ; then print_red "Client needs MP3 files in its music directory ($TEST_DATA_DIR/Client/*.mp3)!" ; exit ; fi
 
 check_clean
@@ -180,43 +176,43 @@ check_clean
 # ########################### TEST RUN ###########################
 
 print_heading "BUILDING MAVEN PROJECT"
-( cd $ROOT_DIR ; mvn package -Dmaven.test.skip=true )
+( cd "$ROOT_DIR" ; mvn package -Dmaven.test.skip=true )
 
 print_heading "STARTING UP TEST ENVIRONMENT"
 echo "[testsuite] Starting with ROOTDIR [$ROOT_DIR]"
 
-mkdir -p $TEST_WORKING_DIR
+mkdir -p "$TEST_WORKING_DIR"
 
 echo -n "[server] Starting..."
-echo "" > $TEST_WORKING_DIR/server.out
-(cd $SERVER_DIR ; screen -dmS server -t java /bin/bash -c "java -jar target/server-0.0.1.jar >$TEST_WORKING_DIR/server.out 2>&1" )
+echo "" > "$TEST_WORKING_DIR"/server.out
+(cd "$SERVER_DIR" ; screen -dmS server -t java /bin/bash -c "java -jar target/server-0.0.1.jar >'$TEST_WORKING_DIR/server.out' 2>&1" )
 
-wait_for_output $TEST_WORKING_DIR/server.out "to exit"
+wait_for_output "$TEST_WORKING_DIR"/server.out "to exit"
 print_green " started."
 
 echo -n "[testsuite] Creating peer directories... "
 for i in $(seq $PEER_COUNT)
 do
 	echo -n "$i "
-	confpath=$TEST_WORKING_DIR/peer$i/peer.properties
+	confpath="$TEST_WORKING_DIR"/peer$i/peer.properties
 
-	mkdir -p $TEST_WORKING_DIR/peer$i/storage
-	mkdir -p $TEST_WORKING_DIR/peer$i/music
+	mkdir -p "$TEST_WORKING_DIR"/peer$i/storage
+	mkdir -p "$TEST_WORKING_DIR"/peer$i/music
 
-	if [ -f $TEST_DATA_DIR/tags_$i ]
+	if [ -f "$TEST_DATA_DIR"/tags_$i ]
 	then
-		cp $TEST_DATA_DIR/tags_$i $TEST_WORKING_DIR/peer$i/storage/tags
+		cp "$TEST_DATA_DIR"/tags_$i "$TEST_WORKING_DIR"/peer$i/storage/tags
 	fi
 
-	echo "" > $confpath
-	echo "credentials.user=chrissi" >> $confpath
-	echo "credentials.pass=chrissi" >> $confpath
-	echo "music.root=$TEST_WORKING_DIR/peer$i/music" >> $confpath
-	echo "storage.root=$TEST_WORKING_DIR/peer$i/storage" >> $confpath
-	echo "server.hostname=localhost" >> $confpath
-	echo "server.port=9090" >> $confpath
+	echo "" > "$confpath"
+	echo "credentials.user=chrissi" >> "$confpath"
+	echo "credentials.pass=chrissi" >> "$confpath"
+	echo "music.root=$TEST_WORKING_DIR/peer$i/music" >> "$confpath"
+	echo "storage.root=$TEST_WORKING_DIR/peer$i/storage" >> "$confpath"
+	echo "server.hostname=localhost" >> "$confpath"
+	echo "server.port=9090" >> "$confpath"
 
-	echo "" > $TEST_WORKING_DIR/peer$i.out
+	echo "" > "$TEST_WORKING_DIR"/peer$i.out
 done
 print_green "done."
 
@@ -224,7 +220,7 @@ for i in $(seq $PEER_COUNT)
 do
 	echo -n "[peer $i] Starting..."
 	start_peer $i
-	wait_for_output $TEST_WORKING_DIR/peer$i.out "to exit"
+	wait_for_output "$TEST_WORKING_DIR"/peer$i.out "to exit"
 	print_green " done."
 done
 
@@ -242,7 +238,7 @@ do
 	echo -n "[peer $i] Waiting for all tags..."
 	for f in "$TEST_WORKING_DIR"/peer$i/music/*.mp3
 	do
-		wait_for_output_timeout $TEST_WORKING_DIR/peer$i.out "$f generated" 600000 "alex"
+		wait_for_output_timeout "$TEST_WORKING_DIR"/peer$i.out "$f generated" 600000 "alex"
 	done
 	print_green " done."
 done
@@ -265,8 +261,8 @@ do
 	if [ $shouldfail -eq 0 ] ; then should="fail" ; else should="succeed" ; fi
 	echo -n "[client $client] Testing snippet "$(basename $sample)" (should $should)..."
 
-	echo "" > $TEST_WORKING_DIR/client$client.out
-	(cd $CLIENT_DIR ; java -jar target/client-0.0.1.jar --test --sample "$sample" --config $confpath >$TEST_WORKING_DIR/client$client.out 2>&1 )
+	echo "" > "$TEST_WORKING_DIR"/client$client.out
+	(cd "$CLIENT_DIR" ; java -jar target/client-0.0.1.jar --test --sample "$sample" --config "$confpath" > "$TEST_WORKING_DIR"/client$client.out 2>&1 )
 	retval=$?
 	retfile="$TEST_WORKING_DIR/client$client.out"
 	retsong_n=$(cat "$retfile" | wc -l)
@@ -293,7 +289,7 @@ do
 	else
 		print_red " failed (retcode $retval)"
 	fi
-	
+
 	client=$(( client + 1 ))
 done
 
@@ -308,9 +304,9 @@ for i in $(seq $PEER_COUNT)
 do
 	echo -n "[peer $i] Stopping..."
 
-	if [ -f $TEST_WORKING_DIR/peer$i/storage/tags ]
+	if [ -f "$TEST_WORKING_DIR"/peer$i/storage/tags ]
 	then
-		cp $TEST_WORKING_DIR/peer$i/storage/tags $TEST_DATA_DIR/tags_$i
+		cp "$TEST_WORKING_DIR"/peer$i/storage/tags "$TEST_DATA_DIR"/tags_$i
 	fi
 
 	send peer$i quit
@@ -326,7 +322,7 @@ print_green " done."
 sleep 1
 
 echo -n "[testsuite] Cleaning up working directory..."
-rm -rf $TEST_WORKING_DIR
+rm -rf "$TEST_WORKING_DIR"
 print_green " done."
 
 sleep 1
