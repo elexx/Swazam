@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# Test suite for our SWAzam project
+#
+# This suite performs several test of our components (server, peers, clients).
+#
+# Usage: test.sh [<root-directory>] [cleanup]
+#
+# <root-directory> denotes the directory of the project root. It has to contains
+#                  directories like Client, Sever, Peer, and so on.
+#
+# cleanup          when selected, a cleanup is performed, exiting all started
+#                  server, peer and client components, if any.
+#
+
+
 PEER_COUNT=5
 
 function start_peer() {
@@ -132,6 +146,7 @@ function print_heading() {
 # ########################### CONFIGURATION ###########################
 
 ROOT_DIR="${1:-..}"
+if [ "x$ROOT_DIR" == "xcleanup" ] ; then ROOT_DIR=".." ; fi
 ROOT_DIR="$(realpath $ROOT_DIR)"
 TESTSUITE_DIR="$ROOT_DIR/Testsuite"
 TEST_WORKING_DIR="$TESTSUITE_DIR/workingdir"
@@ -265,11 +280,9 @@ do
 	(cd "$CLIENT_DIR" ; java -jar target/client-0.0.1.jar --test --sample "$sample" --config "$confpath" > "$TEST_WORKING_DIR"/client$client.out 2>&1 )
 	retval=$?
 	retfile="$TEST_WORKING_DIR/client$client.out"
-	retsong_n=$(cat "$retfile" | wc -l)
 	songname=$(cat "$retfile" | awk 'NR==1')
 	songartist=$(cat "$retfile" | awk 'NR==2')
 
-	#echo " retval $retval ret_n $retsong_n songname $songname songartist $songartist"
 	if [ $retval -eq 0 ]
 	then
 		if [ $shouldfail -ne 0 ]
@@ -289,6 +302,8 @@ do
 	else
 		print_red " failed (retcode $retval)"
 	fi
+
+	sleep 3
 
 	client=$(( client + 1 ))
 done
