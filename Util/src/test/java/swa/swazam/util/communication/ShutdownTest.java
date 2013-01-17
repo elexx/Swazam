@@ -24,17 +24,17 @@ public class ShutdownTest {
 
 	@Before
 	public void startup() throws Exception {
+		peerList = new LinkedList<>();
+		peerList.add(new InetSocketAddress("localhost", 1234));
+		peerList.add(new InetSocketAddress("127.0.0.1", 4567));
+		peerList = Collections.unmodifiableList(peerList);
+
 		commUtilServer = CommunicationUtilFactory.createServerCommunicationUtil(new InetSocketAddress(9090));
 		commUtilServer.setCallback(mockServer());
 		commUtilServer.startup();
 
 		commUtilClient = CommunicationUtilFactory.createClientCommunicationUtil(new InetSocketAddress(9090));
 		commUtilClient.startup();
-
-		peerList = new LinkedList<>();
-		peerList.add(new InetSocketAddress("localhost", 1234));
-		peerList.add(new InetSocketAddress("127.0.0.1", 4567));
-		peerList = Collections.unmodifiableList(peerList);
 	}
 
 	@Test(timeout = 5000)

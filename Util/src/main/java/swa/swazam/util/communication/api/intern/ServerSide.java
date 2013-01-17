@@ -81,8 +81,9 @@ public class ServerSide extends SimpleChannelUpstreamHandler implements Startabl
 
 		Object returnValue;
 
+		Method method = null;
 		if (callbackMethods.containsKey(methodIdentifier)) {
-			Method method = callbackMethods.get(methodIdentifier);
+			method = callbackMethods.get(methodIdentifier);
 			returnValue = method.invoke(callback, methodParameters);
 		} else if (methodIdentifier.equals("reportSenderAddress0")) {
 			returnValue = ctx.getChannel().getRemoteAddress();
@@ -90,7 +91,7 @@ public class ServerSide extends SimpleChannelUpstreamHandler implements Startabl
 			throw new Exception(e.getRemoteAddress() + " tried unkonwn method [" + methodIdentifier + "]");
 		}
 
-		if (e.getChannel().isConnected() && returnValue != null && returnValue.getClass() != Void.class) {
+		if (e.getChannel().isConnected() && (method == null || !method.getReturnType().equals(Void.TYPE))) {
 			ResponseWirePacket responsePacket = NetPacketFactory.createResponseWirePacket(requestPacket, returnValue);
 			e.getChannel().write(responsePacket);
 		}

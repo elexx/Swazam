@@ -1,4 +1,4 @@
-package swa.swazam.clientnew;
+package swa.swazam.client;
 
 public interface ClientUI extends UICallback {
 

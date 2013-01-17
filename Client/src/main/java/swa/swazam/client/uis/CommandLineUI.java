@@ -1,14 +1,13 @@
-package swa.swazam.clientnew.uis;
+package swa.swazam.client.uis;
 
 import java.io.File;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.UUID;
 
-import swa.swazam.clientnew.App;
-import swa.swazam.clientnew.LogicCallback;
-import swa.swazam.clientnew.ParameterSet;
-import swa.swazam.clientnew.TemplateUI;
+import swa.swazam.client.ClientApp;
+import swa.swazam.client.LogicCallback;
+import swa.swazam.client.ParameterSet;
 import swa.swazam.util.dto.CredentialsDTO;
 import swa.swazam.util.dto.MessageDTO;
 import swa.swazam.util.exceptions.SwazamException;
@@ -45,11 +44,11 @@ public class CommandLineUI extends TemplateUI {
 
 		try {
 			CredentialsDTO cred = super.getConfigCredentials();
-			if (cred == null && (cred = retreiveCredentials()) == null) return App.RETURN_PARAMETERS_MISSING;
+			if (cred == null && (cred = retreiveCredentials()) == null) return ClientApp.RETURN_PARAMETERS_MISSING;
 
 			if (!logic.login(cred)) {
 				System.err.println("Could not log in with supplied credentials!");
-				return App.RETURN_CREDENTIALS;
+				return ClientApp.RETURN_CREDENTIALS;
 			}
 
 			String snipPath;
@@ -70,11 +69,11 @@ public class CommandLineUI extends TemplateUI {
 				if (!retreiveNewQuery()) break;
 			}
 
-			if (message != null) return App.RETURN_SUCCESS;
-			else return App.RETURN_NOT_FOUND;
+			if (message != null) return ClientApp.RETURN_SUCCESS;
+			else return ClientApp.RETURN_NOT_FOUND;
 		} catch (SwazamException e) {
 			e.printStackTrace();
-			return App.RETURN_GENERIC_ERROR;
+			return ClientApp.RETURN_GENERIC_ERROR;
 		}
 	}
 

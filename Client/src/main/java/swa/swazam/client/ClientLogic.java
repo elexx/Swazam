@@ -1,4 +1,4 @@
-package swa.swazam.clientnew;
+package swa.swazam.client;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,17 +60,17 @@ public class ClientLogic implements ClientCallback, LogicCallback {
 	}
 
 	private static InetSocketAddress extractInetSocketAddress(Properties config) throws InsufficientParametersException {
-		if (!config.containsKey(App.CONFIG_HOSTNAME) || !config.containsKey(App.CONFIG_PORT)) throw new InsufficientParametersException(
+		if (!config.containsKey(ClientApp.CONFIG_HOSTNAME) || !config.containsKey(ClientApp.CONFIG_PORT)) throw new InsufficientParametersException(
 				"Hostname and/or port are missing");
 
 		int port;
 		try {
-			port = Integer.parseInt(config.getProperty(App.CONFIG_PORT));
+			port = Integer.parseInt(config.getProperty(ClientApp.CONFIG_PORT));
 		} catch (NumberFormatException nfEx) {
 			throw new InsufficientParametersException("Provided port is not an integer", nfEx);
 		}
 
-		return new InetSocketAddress(config.getProperty(App.CONFIG_HOSTNAME), port);
+		return new InetSocketAddress(config.getProperty(ClientApp.CONFIG_HOSTNAME), port);
 	}
 
 	@Override
@@ -110,13 +110,14 @@ public class ClientLogic implements ClientCallback, LogicCallback {
 	public UUID fileChosen(File selectedFile) throws SwazamException {
 		checkCredentials();
 
+		Fingerprint fingerprint = generateFingerprint(selectedFile);
+
 		UUID uuid = UUID.randomUUID();
 
 		MessageDTO message = new MessageDTO(uuid, null, null, null);
 		commUtil.getServerStub().logRequest(credentials, message);
 		pendingRequests.put(uuid, System.currentTimeMillis());
 
-		Fingerprint fingerprint = generateFingerprint(selectedFile);
 
 		RequestDTO request = new RequestDTO(uuid, null, fingerprint);
 		List<InetSocketAddress> peerList = commUtil.getServerStub().getPeerList();

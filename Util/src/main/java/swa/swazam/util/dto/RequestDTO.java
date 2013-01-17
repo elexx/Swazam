@@ -11,7 +11,7 @@ import ac.at.tuwien.infosys.swa.audio.Fingerprint;
  */
 public class RequestDTO implements Serializable {
 	private static final long serialVersionUID = -4128277394441822513L;
-	public static final long TIMEOUT = 120000;
+	public static final long TIMEOUT = 30000;
 	public static final short TTL = 5;
 
 	private UUID uuid;

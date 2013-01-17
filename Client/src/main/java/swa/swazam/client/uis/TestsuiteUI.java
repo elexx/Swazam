@@ -1,9 +1,9 @@
-package swa.swazam.clientnew.uis;
+package swa.swazam.client.uis;
 
 import java.util.Properties;
 import java.util.UUID;
 
-import swa.swazam.clientnew.ParameterSet;
+import swa.swazam.client.ParameterSet;
 
 public class TestsuiteUI extends CommandLineUI {
 

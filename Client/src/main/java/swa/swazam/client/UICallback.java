@@ -1,4 +1,4 @@
-package swa.swazam.clientnew;
+package swa.swazam.client;
 
 import java.util.UUID;
 

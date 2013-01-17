@@ -1,10 +1,13 @@
-package swa.swazam.clientnew;
+package swa.swazam.client.uis;
 
 import java.util.Properties;
 
+import swa.swazam.client.ClientApp;
+import swa.swazam.client.ClientUI;
+import swa.swazam.client.ParameterSet;
 import swa.swazam.util.dto.CredentialsDTO;
 
-public abstract class TemplateUI implements ClientUI {
+abstract class TemplateUI implements ClientUI {
 
 	protected Properties config;
 	protected ParameterSet params;
@@ -19,8 +22,8 @@ public abstract class TemplateUI implements ClientUI {
 	}
 
 	public static CredentialsDTO getConfigCredentials(Properties config) {
-		if (config.containsKey(App.CONFIG_USER) && config.containsKey(App.CONFIG_PASSWORD)) return new CredentialsDTO(config.getProperty(App.CONFIG_USER),
-				config.getProperty(App.CONFIG_PASSWORD));
+		if (config.containsKey(ClientApp.CONFIG_USER) && config.containsKey(ClientApp.CONFIG_PASSWORD)) return new CredentialsDTO(config.getProperty(ClientApp.CONFIG_USER),
+				config.getProperty(ClientApp.CONFIG_PASSWORD));
 		else return null;
 	}
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package swa.swazam.clientnew;
+package swa.swazam.client;
 
 import swa.swazam.util.exceptions.SwazamException;
 

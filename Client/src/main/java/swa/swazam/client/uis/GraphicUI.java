@@ -1,12 +1,14 @@
-package swa.swazam.clientnew.uis;
+package swa.swazam.client.uis;
 
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +16,6 @@ import java.util.Properties;
 import java.util.UUID;
 
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -23,10 +24,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 import net.miginfocom.swing.MigLayout;
-import swa.swazam.clientnew.App;
-import swa.swazam.clientnew.LogicCallback;
-import swa.swazam.clientnew.ParameterSet;
-import swa.swazam.clientnew.TemplateUI;
+import swa.swazam.client.ClientApp;
+import swa.swazam.client.LogicCallback;
+import swa.swazam.client.ParameterSet;
 import swa.swazam.util.dto.CredentialsDTO;
 import swa.swazam.util.dto.MessageDTO;
 import swa.swazam.util.exceptions.SwazamException;
@@ -52,17 +52,16 @@ public class GraphicUI extends TemplateUI implements ActionListener {
 		recordButton.setActionCommand("record");
 		recordButton.addActionListener(this);
 
-		tableModel = new DefaultTableModel(0, 4);
-		tableModel.setColumnIdentifiers(new String[] { "ID", "File", "Result", "Status" });
+		tableModel = new DefaultTableModel(0, 3);
+		tableModel.setColumnIdentifiers(new String[] { "File", "Result", "Status" });
 
 		JTable table = new JTable(tableModel);
 		JScrollPane scrollPane = new JScrollPane(table);
 		table.setFillsViewportHeight(true);
 
-		table.getColumnModel().getColumn(0).setPreferredWidth(200);
-		table.getColumnModel().getColumn(1).setPreferredWidth(700);
-		table.getColumnModel().getColumn(2).setPreferredWidth(200);
-		table.getColumnModel().getColumn(3).setPreferredWidth(120);
+		table.getColumnModel().getColumn(0).setPreferredWidth(700);
+		table.getColumnModel().getColumn(1).setPreferredWidth(200);
+		table.getColumnModel().getColumn(2).setPreferredWidth(120);
 
 		mainWindow.add(recordButton, "wrap");
 		mainWindow.add(scrollPane, "grow");
@@ -93,7 +92,7 @@ public class GraphicUI extends TemplateUI implements ActionListener {
 		CredentialsDTO creds = getConfigCredentials();
 		if (creds == null) {
 			JOptionPane.showMessageDialog(mainWindow, "Please supply credentials in the config file.", "Login", JOptionPane.ERROR_MESSAGE);
-			return App.RETURN_PARAMETERS_MISSING;
+			return ClientApp.RETURN_PARAMETERS_MISSING;
 		}
 		try {
 			logic.login(creds);
@@ -116,7 +115,7 @@ public class GraphicUI extends TemplateUI implements ActionListener {
 			} catch (InterruptedException ignored) {}
 		}
 
-		return App.RETURN_SUCCESS;
+		return ClientApp.RETURN_SUCCESS;
 	}
 
 	@Override
@@ -128,8 +127,8 @@ public class GraphicUI extends TemplateUI implements ActionListener {
 	public void solved(MessageDTO message) {
 		synchronized (tableModel) {
 			if (rows.containsKey(message.getUuid())) {
-				tableModel.setValueAt("Found", rows.get(message.getUuid()), 3);
-				tableModel.setValueAt(message.getSongTitle() + " - " + message.getSongArtist(), rows.get(message.getUuid()), 2);
+				tableModel.setValueAt("Found", rows.get(message.getUuid()), 2);
+				tableModel.setValueAt(message.getSongTitle() + " - " + message.getSongArtist(), rows.get(message.getUuid()), 1);
 			} else {
 				System.err.println("Strange: UUID unknown");
 			}
@@ -140,7 +139,7 @@ public class GraphicUI extends TemplateUI implements ActionListener {
 	public void timedOut(UUID uuid) {
 		synchronized (tableModel) {
 			if (rows.containsKey(uuid)) {
-				tableModel.setValueAt("Timed Out", rows.get(uuid), 3);
+				tableModel.setValueAt("Timed Out", rows.get(uuid), 2);
 			} else {
 				System.err.println("Strange: UUID unknown");
 			}
@@ -153,22 +152,32 @@ public class GraphicUI extends TemplateUI implements ActionListener {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					JFileChooser fileChooser = new JFileChooser();
-					if (fileChooser.showOpenDialog(mainWindow) == JFileChooser.CANCEL_OPTION) return;
+					FileDialog fileChooser = new FileDialog(mainWindow);
+					fileChooser.setFilenameFilter(new FilenameFilter() {
+						@Override
+						public boolean accept(File dir, String name) {
+							return name.endsWith("mp3") || name.endsWith("wav");
+						}
+					});
+					fileChooser.setVisible(true);
+					File[] files = fileChooser.getFiles();
 
-					File file = fileChooser.getSelectedFile();
-					UUID uuid;
+					if (files.length == 0)
+						return;
+
+					File file = files[0];
+
+					int rowid = -1;
 					try {
 						synchronized (tableModel) {
-							int rowid = tableModel.getRowCount();
-							tableModel.addRow(new String[] { "", file.toString(), "", "Pending" });
-							uuid = logic.fileChosen(file);
-							tableModel.setValueAt(uuid.toString(), rowid, 0);
+							rowid = tableModel.getRowCount();
+							tableModel.addRow(new String[] { file.toString(), "", "Pending" });
+							UUID uuid = logic.fileChosen(file);
 							rows.put(uuid, rowid);
 						}
-
 					} catch (SwazamException e1) {
-						JOptionPane.showMessageDialog(mainWindow, "An error occured: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(mainWindow, "An error occured: " + e1.getMessage() + "\nMaybe the selected file is corrupt?", "Error", JOptionPane.ERROR_MESSAGE);
+						tableModel.setValueAt("Error", rowid, 2);
 						e1.printStackTrace();
 					}
 				}
