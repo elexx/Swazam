@@ -31,7 +31,6 @@ public class HistoryServiceImpl implements HistoryService {
 		if(found == null)
 			return historyDao.save(request);
 		
-		request.setStatus(true);
 		return historyDao.update(request);
 	}
 }

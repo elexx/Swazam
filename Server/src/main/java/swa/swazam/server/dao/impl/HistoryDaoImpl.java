@@ -52,7 +52,11 @@ public class HistoryDaoImpl implements HistoryDao {
 		if(alreadyExists == null)
 			return false;
 		
-		entityManager.merge(request);
+		alreadyExists.setStatus(request.isStatus());
+		alreadyExists.setArtist(request.getArtist());
+		alreadyExists.setSong(request.getSong());
+		alreadyExists.setSolver(request.getSolver());
+		entityManager.merge(alreadyExists);
 		return true;
 	}
 
