@@ -1,7 +1,6 @@
 package swa.swazam.server.service;
 
 import swa.swazam.server.entity.User;
-import swa.swazam.util.exceptions.SwazamException;
 
 public interface UserService {
 	

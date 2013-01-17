@@ -1,7 +1,6 @@
 package swa.swazam.server.dao;
 
 import java.util.List;
-import java.util.UUID;
 
 import swa.swazam.server.entity.Request;
 

@@ -2,10 +2,10 @@ package swa.swazam.server.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import swa.swazam.server.dao.UserDao;
 import swa.swazam.server.entity.User;
 import swa.swazam.server.service.UserService;
-import swa.swazam.util.exceptions.SwazamException;
 import swa.swazam.util.hash.HashGenerator;
 
 @Service
@@ -14,6 +14,7 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	private UserDao userDao;
 	
+	@Override
 	public boolean save(User u){
 		return userDao.save(u);
 	}

@@ -44,6 +44,13 @@ public class ClientApp {
 					return;
 				}
 				params.snippetPath = args[i];
+			} else {
+				System.out.println("Unknown parameter: " + args[i]);
+				System.out.println("Usage: clientApp [--gui|--cli|--test] [--config configfile.properties] [--sample sample.mp3]");
+				System.out.println("     --gui|--cli|--test               Starts in GUI (default) or cli or testsuite mode");
+				System.out.println("     --config configfile.properties   Uses the specified config file instead of default configs");
+				System.out.println("     --sample sample.mp3              If started in testsuite mode, this parameter specifies the mp3 file to be processed. Ignored in all other modes.");
+				System.exit(ClientApp.RETURN_PARAMETERS_MISSING);
 			}
 		}
 

@@ -1,6 +1,8 @@
 package swa.swazam.server;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 import java.util.UUID;
@@ -9,14 +11,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.matchers.Any;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import swa.swazam.server.daemon.ServerCallbackImpl;
-import swa.swazam.server.entity.Request;
 import swa.swazam.server.entity.User;
 import swa.swazam.server.service.HistoryService;
 import swa.swazam.server.service.UserService;

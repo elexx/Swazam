@@ -74,6 +74,8 @@ public class CommandLineUI extends TemplateUI {
 		} catch (SwazamException e) {
 			e.printStackTrace();
 			return ClientApp.RETURN_GENERIC_ERROR;
+		} finally {
+			logic.shutdown();
 		}
 	}
 

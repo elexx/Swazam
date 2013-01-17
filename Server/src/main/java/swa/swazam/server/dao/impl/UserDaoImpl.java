@@ -19,6 +19,7 @@ public class UserDaoImpl implements UserDao {
 		this.entityManager = entityManager;
 	}
 	
+	@Override
 	@Transactional
 	public boolean save(User u){
 		User alreadyExists = this.find(u.getUsername());
@@ -29,6 +30,7 @@ public class UserDaoImpl implements UserDao {
 		return true;
 	}
 	
+	@Override
 	@Transactional
 	public boolean update(User u){
 		User alreadyExists = this.find(u.getUsername());
@@ -39,6 +41,7 @@ public class UserDaoImpl implements UserDao {
 		return true;
 	}
 	
+	@Override
 	@Transactional
 	public boolean delete(String username){
 		User alreadyExists = this.find(username);
@@ -49,6 +52,7 @@ public class UserDaoImpl implements UserDao {
 		return true;
 	}
 	
+	@Override
 	@Transactional
 	public User find(String username){
 		return entityManager.find(User.class, username);

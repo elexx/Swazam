@@ -3,7 +3,6 @@ package swa.swazam.client;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +31,7 @@ public class ClientLogic implements ClientCallback, LogicCallback {
 	private final ClientCommunicationUtil commUtil;
 	private final UICallback uiCallback;
 
-	private final Map<UUID, Long> pendingRequests = Collections.synchronizedMap(new HashMap<UUID, Long>());
+	private final Map<UUID, Long> pendingRequests = new HashMap<>();
 
 	private CredentialsDTO credentials;
 
@@ -75,11 +74,13 @@ public class ClientLogic implements ClientCallback, LogicCallback {
 
 	@Override
 	public void solved(final MessageDTO answer) {
-		if (pendingRequests.containsKey(answer.getUuid())) {
-			pendingRequests.remove(answer.getUuid());
-			uiCallback.solved(answer);
+		synchronized (pendingRequests) {
+			if (pendingRequests.containsKey(answer.getUuid())) {
+				pendingRequests.remove(answer.getUuid());
+				uiCallback.solved(answer);
 
-			notifyServer(answer);
+				notifyServer(answer);
+			}
 		}
 	}
 
@@ -116,13 +117,16 @@ public class ClientLogic implements ClientCallback, LogicCallback {
 
 		MessageDTO message = new MessageDTO(uuid, null, null, null);
 		commUtil.getServerStub().logRequest(credentials, message);
-		pendingRequests.put(uuid, System.currentTimeMillis());
-
+		synchronized (pendingRequests) {
+			pendingRequests.put(uuid, System.currentTimeMillis());
+		}
 
 		RequestDTO request = new RequestDTO(uuid, null, fingerprint);
 		List<InetSocketAddress> peerList = commUtil.getServerStub().getPeerList();
 
-		pendingRequests.put(uuid, System.currentTimeMillis() + RequestDTO.TIMEOUT);
+		synchronized (pendingRequests) {
+			pendingRequests.put(uuid, System.currentTimeMillis() + RequestDTO.TIMEOUT);
+		}
 
 		commUtil.getPeerStub().process(request, peerList);
 
@@ -132,6 +136,10 @@ public class ClientLogic implements ClientCallback, LogicCallback {
 	@Override
 	public void shutdown() {
 		shutdown = true;
+		synchronized (pendingRequests) {
+			pendingRequests.clear();
+		}
+		commUtil.shutdown();
 	}
 
 	private Fingerprint generateFingerprint(File selectedFile) throws SwazamException {
