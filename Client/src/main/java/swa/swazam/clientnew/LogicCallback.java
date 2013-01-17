@@ -9,7 +9,8 @@ import swa.swazam.util.exceptions.SwazamException;
 public interface LogicCallback {
 
 	/**
-	 * Tries to login a user. If this fails an already logged in user will get logged out.
+	 * Tries to login a user. If this fails an already logged in user will get
+	 * logged out.
 	 * 
 	 * @param credentials
 	 * @return
@@ -28,7 +29,9 @@ public interface LogicCallback {
 	 * returns true if the currently logged in user has coins.
 	 * 
 	 * @return
-	 * @throws SwazamException if a network problem occurs or if {@link LogicCallback#isLoggedIn()} would return false.
+	 * @throws SwazamException
+	 *             if a network problem occurs or if
+	 *             {@link LogicCallback#isLoggedIn()} would return false.
 	 */
 	boolean hasCoins() throws SwazamException;
 
@@ -37,8 +40,15 @@ public interface LogicCallback {
 	 * 
 	 * @param selectedFile
 	 * @return
-	 * @throws SwazamException if a network problem occurs or if {@link LogicCallback#isLoggedIn()} would return false.
+	 * @throws SwazamException
+	 *             if a network problem occurs or if
+	 *             {@link LogicCallback#isLoggedIn()} would return false.
 	 */
 	UUID fileChosen(File selectedFile) throws SwazamException;
+
+	/**
+	 * Shuts down the client logic, performing any resource-releasing necessary
+	 */
+	void shutdown();
 
 }
