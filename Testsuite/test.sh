@@ -171,6 +171,10 @@ do
 	if [ $? -ne 0 ] ; then print_red "Peer $i needs MP3 files in its music directory ($TEST_DATA_DIR/Peer$i/*.mp3)!" ; exit ; fi
 done
 
+if [ ! -d $TEST_DATA_DIR/Client ] ; then print_red "Client needs a music directory ($TEST_DATA_DIR/Client)!" ; exit ; fi
+ls $TEST_DATA_DIR/Client/*.mp3 >/dev/null 2>&1
+if [ $? -ne 0 ] ; then print_red "Client needs MP3 files in its music directory ($TEST_DATA_DIR/Client/*.mp3)!" ; exit ; fi
+
 check_clean
 
 # ########################### TEST RUN ###########################
