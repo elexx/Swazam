@@ -1,7 +1,6 @@
 #!/bin/bash
 
-PEER_COUNT=3
-SONG_COUNT=3 # must be <= PEER_COUNT
+PEER_COUNT=5
 
 function start_peer() {
 	(cd $PEER_DIR ; screen -dmS peer$1 -t java /bin/bash -c "java -jar target/peer-0.0.1.jar --config $TEST_WORKING_DIR/peer$1/peer.properties >$TEST_WORKING_DIR/peer$1.out 2>&1" )
@@ -162,14 +161,12 @@ if [ ! -d $SERVER_DIR ] ; then print_red "SERVER_DIR ($SERVER_DIR) is not an exi
 if [ ! -d $SERVER_DIR ] ; then print_red "PEER_DIR ($PEER_DIR) is not an existing directory!" ; exit ; fi
 if [ ! -d $(dirname $TEST_WORKING_DIR) ] ; then print_red "Parent of TEST_WORKING_DIR (parent of $TEST_WORKING_DIR) is not an existing directory!" ; exit ; fi
 
-if [ $SONG_COUNT -gt $PEER_COUNT ] ; then print_red "SONG_COUNT ($SONG_COUNT) must not be greater than PEER_COUNT ($PEER_COUNT)!" ; exit ; fi
-
 check_clean
 
 # ########################### TEST RUN ###########################
 
 print_heading "BUILDING MAVEN PROJECT"
-( cd $ROOT_DIR ; mvn clean package -Dmaven.test.skip=true )
+( cd $ROOT_DIR ; mvn package -Dmaven.test.skip=true )
 
 print_heading "STARTING UP TEST ENVIRONMENT"
 echo "[testsuite] Starting with ROOTDIR [$ROOT_DIR]"
@@ -191,6 +188,11 @@ do
 
 	mkdir -p $TEST_WORKING_DIR/peer$i/storage
 	mkdir -p $TEST_WORKING_DIR/peer$i/music
+
+	if [ -f $TEST_DATA_DIR/tags_$i ]
+	then
+		cp $TEST_DATA_DIR/tags_$i $TEST_WORKING_DIR/peer$i/storage/tags
+	fi
 
 	echo "" > $confpath
 	echo "credentials.user=chrissi" >> $confpath
@@ -244,6 +246,12 @@ print_heading "STOPPING TEST ENVIRONMENT"
 for i in $(seq $PEER_COUNT)
 do
 	echo -n "[peer $i] Stopping..."
+
+	if [ -f $TEST_WORKING_DIR/peer$i/storage/tags ]
+	then
+		cp $TEST_WORKING_DIR/peer$i/storage/tags $TEST_DATA_DIR/tags_$i
+	fi
+
 	send peer$i quit
 	wait_for_screen_end peer$i
 	print_green " done."
@@ -254,11 +262,13 @@ send server quit
 wait_for_screen_end server
 print_green " done."
 
+sleep 1
+
 echo -n "[testsuite] Cleaning up working directory..."
 rm -rf $TEST_WORKING_DIR
 print_green " done."
 
-sleep 2
+sleep 1
 
 echo -n "[testsuite] Checking for clean environment..."
 check_clean

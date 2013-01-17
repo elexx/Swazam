@@ -11,6 +11,8 @@ import ac.at.tuwien.infosys.swa.audio.Fingerprint;
  */
 public class RequestDTO implements Serializable {
 	private static final long serialVersionUID = -4128277394441822513L;
+	public static final long TIMEOUT = 120000;
+	public static final short TTL = 5;
 
 	private UUID uuid;
 	private InetSocketAddress client;
@@ -22,7 +24,8 @@ public class RequestDTO implements Serializable {
 	private short ttl;
 
 	/**
-	 * Has to be decreased by the time consumed during operation before! the request is forwarded Time is defined in milliseconds.
+	 * Has to be decreased by the time consumed during operation before! the
+	 * request is forwarded Time is defined in milliseconds.
 	 */
 	private long timer;
 
@@ -30,8 +33,8 @@ public class RequestDTO implements Serializable {
 		this.uuid = uuid;
 		this.client = client;
 		this.fingerprint = fingerprint;
-		this.timer = 30000;
-		this.ttl = 5;
+		this.timer = TIMEOUT;
+		this.ttl = TTL;
 	}
 
 	public UUID getUuid() {
@@ -93,32 +96,21 @@ public class RequestDTO implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
 		RequestDTO other = (RequestDTO) obj;
 		if (client == null) {
-			if (other.client != null)
-				return false;
-		} else if (!client.equals(other.client))
-			return false;
+			if (other.client != null) return false;
+		} else if (!client.equals(other.client)) return false;
 		if (fingerprint == null) {
-			if (other.fingerprint != null)
-				return false;
-		} else if (!fingerprint.equals(other.fingerprint))
-			return false;
-		if (timer != other.timer)
-			return false;
-		if (ttl != other.ttl)
-			return false;
+			if (other.fingerprint != null) return false;
+		} else if (!fingerprint.equals(other.fingerprint)) return false;
+		if (timer != other.timer) return false;
+		if (ttl != other.ttl) return false;
 		if (uuid == null) {
-			if (other.uuid != null)
-				return false;
-		} else if (!uuid.equals(other.uuid))
-			return false;
+			if (other.uuid != null) return false;
+		} else if (!uuid.equals(other.uuid)) return false;
 		return true;
 	}
 }

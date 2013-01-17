@@ -15,6 +15,9 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.LogManager;
 
 import javax.sound.sampled.AudioSystem;
@@ -37,11 +40,17 @@ public class MusicManager implements PeerComponent, Runnable {
 
 	private PeerController controller;
 
-	private HashMap<File, Fingerprint> fingerprints = new HashMap<File, Fingerprint>();
-	private HashMap<File, SongTag> tags = new HashMap<File, SongTag>();
+	private HashMap<String, Fingerprint> fingerprints = new HashMap<String, Fingerprint>();
+	private HashMap<String, SongTag> tags = new HashMap<String, SongTag>();
+
+	private final long CHECK_DELAY = 200;
+	private Map<File, Long> toCheck = new HashMap<File, Long>();
+
+	private Set<File> files = new HashSet<>();
 
 	private File musicRoot;
 
+	private Thread musicWatcherThread;
 	private Thread musicManagerThread;
 	private boolean cancel = false;
 
@@ -55,6 +64,15 @@ public class MusicManager implements PeerComponent, Runnable {
 
 		this.controller = controller;
 
+		musicWatcherThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				watchLoop();
+			}
+		});
+		musicWatcherThread.setName("Music library watcher");
+		musicWatcherThread.setDaemon(true);
+
 		musicManagerThread = new Thread(this);
 		musicManagerThread.setName("Music library watcher");
 		musicManagerThread.setDaemon(true);
@@ -66,10 +84,12 @@ public class MusicManager implements PeerComponent, Runnable {
 	}
 
 	public File match(Fingerprint sample) {
-		for (File file : fingerprints.keySet()) {
-			Fingerprint fingerprint = fingerprints.get(file);
+		for (File file : files) {
+			System.out.println("[debug] matching " + file.getName() + "...");
+			Fingerprint fingerprint = fingerprints.get(file.getName());
 
 			double match = fingerprint.match(sample);
+			System.out.println("[debug] got " + match);
 			if (match == -1) continue;
 			else return file;
 		}
@@ -88,10 +108,7 @@ public class MusicManager implements PeerComponent, Runnable {
 	}
 
 	public SongTag getTag(File file) {
-		if (!tags.containsKey(file)) {
-			System.err.println("warning: file \"" + file.toString() + "\" not found in internal taglist");
-		}
-		return tags.get(file);
+		return tags.get(file.getName());
 	}
 
 	public String getTitle(File f) {
@@ -102,19 +119,50 @@ public class MusicManager implements PeerComponent, Runnable {
 		return getTag(f).getArtist();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
+		long sleepNeeded;
+		while (true) {
+			sleepNeeded = 10000;
+
+			synchronized (toCheck) {
+				Set<File> toRemove = new HashSet<File>();
+				for (File file : toCheck.keySet()) {
+					if (toCheck.get(file) < System.currentTimeMillis()) {
+						toRemove.add(file);
+						checkFile(file);
+					} else sleepNeeded = Math.min(sleepNeeded, toCheck.get(file) - System.currentTimeMillis());
+				}
+				for (File file : toRemove) {
+					toCheck.remove(file);
+				}
+			}
+
+			try {
+				persistData();
+			} catch (IOException e2) {
+				// TODO: nicer output/logging?
+				System.err.println("music data persistence failed");
+				e2.printStackTrace();
+			}
+
+			try {
+				Thread.sleep(sleepNeeded + 200);
+			} catch (InterruptedException ignored) {}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void watchLoop() {
 		while (!cancel) {
 			WatchService watcher;
 			try {
 				watcher = FileSystems.getDefault().newWatchService();
 
 				Path musicRootP = musicRoot.toPath();
-				musicRootP.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
+				musicRootP.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
 			} catch (IOException e) {
 				System.err.println("error setting up watcher");
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return;
 			}
@@ -135,18 +183,12 @@ public class MusicManager implements PeerComponent, Runnable {
 					if (kind == StandardWatchEventKinds.OVERFLOW) continue;
 					File file = new File(musicRoot.getAbsolutePath() + File.separator + ((WatchEvent<Path>) event).context().toString());
 
-					fingerprints.remove(file);
-					tags.remove(file);
-					checkFile(file);
+					synchronized (toCheck) {
+						toCheck.put(file, System.currentTimeMillis() + CHECK_DELAY);
+					}
 				}
 
-				try {
-					persistData();
-				} catch (IOException e2) {
-					// TODO: nicer output/logging?
-					System.err.println("music data persistence failed");
-					e2.printStackTrace();
-				}
+				musicManagerThread.interrupt();
 
 				boolean valid = key.reset();
 				if (!valid) {
@@ -176,12 +218,12 @@ public class MusicManager implements PeerComponent, Runnable {
 			File persistFile = new File(controller.getStorageRoot() + File.separator + "tags");
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(persistFile));
 			try {
-				fingerprints = (HashMap<File, Fingerprint>) ois.readObject();
-				tags = (HashMap<File, SongTag>) ois.readObject();
+				fingerprints = (HashMap<String, Fingerprint>) ois.readObject();
+				tags = (HashMap<String, SongTag>) ois.readObject();
 			} finally {
 				ois.close();
 			}
-		} catch (IOException | ClassNotFoundException ignored) {}
+		} catch (IOException | ClassNotFoundException | ClassCastException ignored) {}
 	}
 
 	public void persistData() throws FileNotFoundException, IOException {
@@ -198,28 +240,35 @@ public class MusicManager implements PeerComponent, Runnable {
 	private void checkFile(File file) {
 		Fingerprint fp;
 
-		if (!fingerprints.containsKey(file)) {
+		if (!file.exists()) {
+			files.remove(file);
+			return;
+		}
+
+		files.add(file);
+
+		if (!fingerprints.containsKey(file.getName())) {
 			try {
 				fp = new FingerprintTools().generate(AudioSystem.getAudioInputStream(file));
 			} catch (Exception ignored) {
 				return;
 			}
-		} else fp = fingerprints.get(file);
+		} else fp = fingerprints.get(file.getName());
 
-		if (!tags.containsKey(file)) {
+		if (!tags.containsKey(file.getName())) {
 			try {
 				SongTag tag = createTag(file);
-				tags.put(file, tag);
-				System.out.println("debug: tags.put '" + file.toString() + "'");
-				fingerprints.put(file, fp);
+				tags.put(file.getName(), tag);
+				fingerprints.put(file.getName(), fp);
 				System.out.println("Tag for " + file.toString() + " generated");
 			} catch (Exception ignored) {
 				return;
 			}
-		}
+		} else System.out.println("Tag for " + file.toString() + " generated (from cache)");
 	}
 
 	public void startWatcher() {
 		musicManagerThread.start();
+		musicWatcherThread.start();
 	}
 }

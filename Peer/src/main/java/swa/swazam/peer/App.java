@@ -275,7 +275,7 @@ public class App implements Runnable, PeerCallback, PeerController {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				System.out.println("[debug] process: " + request.getUuid().toString());
+				System.out.println("[debug] process: " + request.getUuid().toString() + " (" + request.getTimer() + " | " + request.getTtl() + ")");
 				requestManager.process(request);
 			}
 		}).start();
@@ -304,8 +304,9 @@ public class App implements Runnable, PeerCallback, PeerController {
 
 	@Override
 	public void forwardRequest(RequestDTO request) {
-		System.out.println("[debug] forwarding: " + request.getUuid().toString());
-		peerStub.process(request, peerList.getTop(5));
+		List<InetSocketAddress> list = peerList.getTop(5);
+		System.out.println("[debug] forwarding: " + request.getUuid().toString() + " to " + list.size() + " peers");
+		peerStub.process(request, list);
 	}
 
 	@Override
