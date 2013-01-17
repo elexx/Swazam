@@ -79,7 +79,7 @@ public class CommandLineUI extends TemplateUI {
 		}
 	}
 
-	private void showRequest(UUID uuid) {
+	protected void showRequest(UUID uuid) {
 		System.out.println("Fingerprint generated and sent out (" + uuid + ")");
 	}
 

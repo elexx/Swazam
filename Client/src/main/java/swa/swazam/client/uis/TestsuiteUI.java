@@ -20,6 +20,9 @@ public class TestsuiteUI extends CommandLineUI {
 	protected void displayTimeoutMessage(UUID uuid) {}
 
 	@Override
+	protected void showRequest(UUID uuid) {}
+
+	@Override
 	protected void displaySuccessMessage(UUID uuid, String songTitle, String songArtist) {
 		System.out.println(songTitle);
 		System.out.println(songArtist);
