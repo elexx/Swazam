@@ -38,6 +38,7 @@ public class GraphicUI extends TemplateUI implements ActionListener {
 
 	private LogicCallback logic;
 	private boolean shutdown = false;
+	private final Object shutdownMonitor = new Object();
 
 	private Map<UUID, Integer> rows = Collections.synchronizedMap(new HashMap<UUID, Integer>());
 
@@ -81,6 +82,9 @@ public class GraphicUI extends TemplateUI implements ActionListener {
 			@Override
 			public void windowClosed(WindowEvent e) {
 				shutdown = true;
+				synchronized (shutdownMonitor) {
+					shutdownMonitor.notifyAll();
+				}
 			}
 		});
 	}
@@ -109,11 +113,16 @@ public class GraphicUI extends TemplateUI implements ActionListener {
 			}
 		});
 
+
 		while (!shutdown) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException ignored) {}
+			synchronized (shutdownMonitor) {
+				try {
+					shutdownMonitor.wait();
+				} catch (InterruptedException ignored) {}
+			}
 		}
+
+		logic.shutdown();
 
 		return ClientApp.RETURN_SUCCESS;
 	}
