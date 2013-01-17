@@ -74,10 +74,12 @@ public class ClientLogic implements ClientCallback, LogicCallback {
 	}
 
 	@Override
-	public void solved(MessageDTO answer) {
+	public void solved(final MessageDTO answer) {
 		if (pendingRequests.containsKey(answer.getUuid())) {
 			pendingRequests.remove(answer.getUuid());
 			uiCallback.solved(answer);
+
+			notifyServer(answer);
 		}
 	}
 
@@ -175,5 +177,18 @@ public class ClientLogic implements ClientCallback, LogicCallback {
 				Thread.sleep(sleepNeeded);
 			} catch (InterruptedException ignored) {}
 		}
+	}
+
+	private void notifyServer(final MessageDTO answer) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					commUtil.getServerStub().logRequest(credentials, answer);
+				} catch (SwazamException e) {
+					e.printStackTrace();
+				}
+			};
+		}).start();
 	}
 }

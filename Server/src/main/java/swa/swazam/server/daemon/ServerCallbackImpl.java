@@ -72,14 +72,17 @@ public class ServerCallbackImpl implements ServerCallback {
 			solver.setCoins(solver.getCoins()+2);
 			userService.update(solver);
 			peerList.push(message.getResolverAddress());
+
+			Request r = new Request(message.getSongTitle(), message.getSongArtist(), new Date(System.currentTimeMillis()), requestor, solver, true, message.getUuid());
+			historyService.saveOrUpdateRequest(r);
 		}
 		else {
 			requestor.setCoins(requestor.getCoins()-1);
 			userService.update(requestor);
+
+			Request r = new Request(null, null, new Date(System.currentTimeMillis()), requestor, null, false, message.getUuid());
+			historyService.saveOrUpdateRequest(r);
 		}
-		
-		Request r = new Request(message.getSongTitle(), message.getSongArtist(), new Date(System.currentTimeMillis()), requestor, solver, false, message.getUuid());
-		historyService.saveOrUpdateRequest(r);
 	}
 
 	@Override
