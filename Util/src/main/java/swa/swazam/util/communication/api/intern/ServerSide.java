@@ -90,7 +90,7 @@ public class ServerSide extends SimpleChannelUpstreamHandler implements Startabl
 			throw new Exception(e.getRemoteAddress() + " tried unkonwn method [" + methodIdentifier + "]");
 		}
 
-		if (e.getChannel().isConnected()) {
+		if (e.getChannel().isConnected() && returnValue != null && returnValue.getClass() != Void.class) {
 			ResponseWirePacket responsePacket = NetPacketFactory.createResponseWirePacket(requestPacket, returnValue);
 			e.getChannel().write(responsePacket);
 		}
