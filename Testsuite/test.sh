@@ -303,7 +303,7 @@ do
 		print_red " failed (retcode $retval)"
 	fi
 
-	sleep 3
+	sleep 5
 
 	client=$(( client + 1 ))
 done
