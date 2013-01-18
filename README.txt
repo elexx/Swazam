@@ -11,14 +11,14 @@ where PeerX is the folder that contains the music database for peer X.
 *) Please copy the mp3 snippets for the client's search to Swazam/Testsuite/data/Client/*.mp3
  
 *) In terminal: change to Swazam/Testsuite and execute ./test.sh
-The TestSuite starts 5 peers, the server and a client and adds mp3s to the peers directories.
+The TestSuite starts 5 peers, the server and a client and adds mp3s to the peers directories. The TestSuite will perform several checks beforehand and print messages if any preconditions are not met.
 
 *) The TestSuite halts after executing all automatic tests. 
 For further testing, you can now manually start the Client GUI by changing to Swazam/Client and executing:
-java -jar target/client-0.0.1.jar 0 g
+java -jar target/client-0.0.1.jar
 
 You can also manually test using the Client's command line by executing:
-java -jar target/client-0.0.1.jar 0 c
+java -jar target/client-0.0.1.jar
 Just follow the command line output (use credentials below).
 
 
